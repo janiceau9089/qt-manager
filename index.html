@@ -262,6 +262,9 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .gtr .switch{flex-shrink:0}
 .collapsable{display:none}
 .collapsable.on{display:block}
+.chip.copybtn{padding:7px 10px}
+.minichip{display:inline-flex;align-items:center;gap:3px;background:var(--soft);color:var(--brand);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:12px;font-weight:700;margin-right:6px;flex-shrink:0}
+#qtToast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;max-width:80%;text-align:center;pointer-events:none}
 </style>
 </head>
 <body class="baby">
@@ -556,6 +559,8 @@ var accounts=[
  {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
 ];
 var contracts=[]; var contractById={};
+/* Dán URL Apps Script Web App (deploy contract-gen.gs) vào đây để bật "Tạo mẫu" → Drive */
+var CONTRACT_GEN_URL="";
 function reContracts(){contractById={};contracts.forEach(function(c){contractById[c.id]=c;});}
 function vById(id){for(var i=0;i<vendors.length;i++)if(vendors[i].id===id)return vendors[i];return null;}
 function aById(id){for(var i=0;i<accounts.length;i++)if(accounts[i].id===id)return accounts[i];return null;}
@@ -585,6 +590,8 @@ var ICON={
 'ti-x':'<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
 'ti-link':'<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
 'ti-shirt':'<path d="M16 3l4 3-2.5 3L16 7.5V21H8V7.5L6.5 9 4 6l4-3 2 2a2.8 2.8 0 0 0 4 0z"/>',
+'ti-brush':'<path d="M9.5 14.5L3 21"/><path d="M14 4l6 6-7.5 4.5a3 3 0 0 1-4-4z"/><path d="M13 5l6 6"/>',
+'ti-users':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 14.6A5.5 5.5 0 0 1 20.5 20"/>',
 'ti-device-speaker':'<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01"/>',
 'ti-checklist':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3.5 6l1.2 1.2L7 5"/><path d="M3.5 12l1.2 1.2L7 11"/><path d="M3.5 18l1.2 1.2L7 17"/>',
 'ti-bed':'<path d="M3 7v11"/><path d="M3 13h18v5"/><path d="M21 18v-6a2 2 0 0 0-2-2H8v3"/><circle cx="6" cy="11.5" r="1.5"/>',
@@ -668,6 +675,9 @@ function openJob(id){scrollNext=true;state.screen='job:'+id;state.tab='overview'
 window.openJob=openJob;
 function openMap(q){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q||''),'_blank');}
 function openURL(u){if(u)window.open(u,'_blank');}
+function toast(msg){var t=document.getElementById('qtToast');if(!t){t=document.createElement('div');t.id='qtToast';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(window.__toastT);window.__toastT=setTimeout(function(){t.style.opacity='0';},1600);}
+function copyLink(u){if(!u)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){toast('Đã copy link');},function(){toast('Đã copy link');});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(e){}t.remove();toast('Đã copy link');}}
+window.openURL=openURL;window.copyLink=copyLink;window.toast=toast;
 function setLink(id,field,label){var j=jById[id];var v=prompt('Dán link '+label+' cho "'+j.name+'":',j[field]||'');if(v!==null){j[field]=v.trim();if(window.qtSave)window.qtSave('jobs',j.id,j);render();}}
 function canLinks(){return state.role==='thi'||state.role==='truc';}
 window.openMap=openMap;window.openURL=openURL;window.setLink=setLink;
@@ -706,6 +716,8 @@ function bind(){
  document.querySelectorAll('[data-edit]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();setLink(el.dataset.jid,el.dataset.edit,el.dataset.label);};});
  document.querySelectorAll('[data-cchip]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var c=(j.chips||[])[+el.dataset.cchip];if(!c)return;if(c.url)openURL(c.url);else alert(c.label+(c.note?(': '+c.note):''));};});
  document.querySelectorAll('[data-addchip]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var label=prompt('Tên chip (vd: Trang phục, Drive thông tin, Beat...):');if(!label)return;var url=prompt('Dán link (Drive/Beat...) — để trống nếu chỉ là ghi chú:','');j.chips=j.chips||[];j.chips.push({label:label.trim(),url:(url||'').trim()});if(window.qtSave)window.qtSave('jobs',j.id,j);render();};});
+ document.querySelectorAll('[data-copy]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();copyLink(el.dataset.copy);};});
+ document.querySelectorAll('[data-openstop]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();openURL(el.dataset.openstop);};});
  document.querySelectorAll('[data-mt]').forEach(function(el){el.onclick=function(){state.moneyTab=el.dataset.mt;render();};});
  document.querySelectorAll('[data-tab]').forEach(function(el){el.onclick=function(){state.tab=el.dataset.tab;render();};});
  document.querySelectorAll('[data-tf]').forEach(function(el){el.onclick=function(){state.taskFilter=el.dataset.tf;render();};});
@@ -759,7 +771,7 @@ function buildGrouped(list, itemFn){
  if(past.length)h+='<div class="pastlabel">Đã qua</div><div class="pastwrap">'+section(past,true)+'</div>';
  return h;
 }
-function jobItemFull(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"><i class="ti ti-map-pin"></i>'+(j.loc||j.prov||'—')+' · '+dt(j.start)+'</div></div>'+(fin()&&j.net?'<span class="money">'+money(j.net)+'</span>':'')+'<i class="ti ti-chevron-right chev"></i></button>';}
+function jobItemFull(j){var ctf=(contractById[j.id]||{}).fileUrl;return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"><i class="ti ti-map-pin"></i>'+(j.loc||j.prov||'—')+' · '+dt(j.start)+'</div></div>'+(ctf?'<span class="minichip" data-openstop="'+ctf+'"><i class="ti ti-folder"></i>HĐ</span>':'')+(fin()&&j.net?'<span class="money">'+money(j.net)+'</span>':'')+'<i class="ti ti-chevron-right chev"></i></button>';}
 function artItem(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+dt(j.start)+' · '+(j.loc||j.prov||'')+'</div></div><span class="pill">'+TL[j.type]+'</span></button>';}
 function screenJobs(){
  var h='<div class="searchbar"><i class="ti ti-search i"></i><input placeholder="Tìm job, khách hàng…"></div>';
@@ -846,20 +858,26 @@ function screenDetail(id){
   var prep='';
   if(j.rehearsals&&j.rehearsals.length)j.rehearsals.forEach(function(r,i){prep+=drow('ti-music','Tập band '+(i+1),(r.date?dd(new Date(r.date)):'')+(r.time?(' · '+r.time):'')+(r.location?(' · '+r.location):''));});
   if(j.soundcheck&&j.soundcheck.on)prep+=drow('ti-device-speaker','Soundcheck',(j.soundcheck.date?dd(new Date(j.soundcheck.date)):'—')+(j.soundcheck.time?(' · '+j.soundcheck.time):''));
-  ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+(m.cost?(' · '+money(m.cost)):'')+(m.paid?' · ✅ đã TT':''));}});
-  if(j.beat&&j.beat.on&&j.beat.link)prep+='<div class="drow"><div class="di"><i class="ti ti-music"></i></div><div><div class="dk">Beat</div><div class="dv"><a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link beat</a></div></div></div>';
+  function payTag(cost,paid){return cost?(' · '+money(cost)+(paid?' · ✅ đã TT':' · ⏳ chưa TT')):'';}
+  ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+payTag(m.cost,m.paid));}});
+  if(j.dancer&&j.dancer.on)prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.count?(' · '+j.dancer.count+' người'):'')+(j.dancer.time?(' · '+j.dancer.time):'')+(j.dancer.phone?('\n📞 '+(j.dancer.contact?j.dancer.contact+' · ':'')+j.dancer.phone):'')+payTag(j.dancer.cost,j.dancer.paid));
+  if(j.beat&&j.beat.on&&j.beat.link)prep+='<div class="drow"><div class="di"><i class="ti ti-music"></i></div><div><div class="dk">Beat</div><div class="dv"><a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link beat</a> <button class="chip copybtn" data-copy="'+j.beat.link+'" style="padding:3px 8px"><i class="ti ti-link"></i></button></div></div></div>';
   if(j.dressCode&&j.dressCode.on&&j.dressCode.text)prep+=drow('ti-shirt','Dress code',j.dressCode.text);
   if(j.stay&&j.stay.on){var s=j.stay;
-   var sv=(s.hotel||'—')+(s.room?(' · phòng '+s.room):'')+((s.checkin||s.checkout)?('\nCheck-in '+(s.checkin||'?')+' · Check-out '+(s.checkout||'?')):'')+(s.distKm?('\n→ nơi diễn '+s.distKm+' km'+(s.distMin?(' · '+s.distMin+' phút'):'')):'')+(s.phone?('\n📞 '+s.phone):'');
+   var sv=(s.hotel||'—')+(s.room?(' · phòng '+s.room):'')+((s.checkin||s.checkout)?('\nCheck-in '+(s.checkin||'?')+' · Check-out '+(s.checkout||'?')):'')+(s.distKm?('\n→ nơi diễn '+s.distKm+' km'+(s.distMin?(' · '+s.distMin+' phút'):'')):'')+(s.phone?('\n📞 '+s.phone):'')+payTag(s.cost,s.paid);
    prep+=drow('ti-bed','Lưu trú',sv);
-   if(s.mode==='flight'&&s.flight&&(s.flight.no||s.flight.route))prep+=drow('ti-plane','Chuyến bay',(s.flight.no||'')+(s.flight.route?(' · '+s.flight.route):'')+((s.flight.depart||s.flight.arrive)?('\n'+(s.flight.depart||'?')+' → '+(s.flight.arrive||'?')+(s.flight.dur?(' ('+s.flight.dur+')'):'')):''));
-   else if(s.car&&s.car.name)prep+=drow('ti-car','Xe đưa đón',s.car.name+(s.car.phone?(' · '+s.car.phone):''));
+  }
+  if(j.move&&j.move.on){var mv=j.move;
+   if(mv.mode==='flight'&&mv.flight&&(mv.flight.no||mv.flight.route))prep+=drow('ti-plane','Di chuyển — máy bay',(mv.flight.no||'')+(mv.flight.route?(' · '+mv.flight.route):'')+((mv.flight.depart||mv.flight.arrive)?('\n'+(mv.flight.depart||'?')+' → '+(mv.flight.arrive||'?')+(mv.flight.dur?(' ('+mv.flight.dur+')'):'')):'')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):''));
+   else prep+=drow('ti-car','Di chuyển — xe',((mv.car&&mv.car.name)||'—')+((mv.car&&mv.car.phone)?(' · 📞 '+mv.car.phone):'')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):''));
   }
   if(prep)h+='<div class="gtitle">Chuẩn bị</div><div class="group">'+prep+'</div>';
   var canL=canLinks();
-  function chip(field,icon,label){var has=!!j[field];return '<button class="chip'+(has?' on':'')+'" data-link="'+field+'" data-jid="'+j.id+'" data-label="'+label+'"><i class="ti '+icon+'"></i>'+label+(has?'':(canL?' +':''))+'</button>';}
+  function chip(field,icon,label){var has=!!j[field];var b='<button class="chip'+(has?' on':'')+'" data-link="'+field+'" data-jid="'+j.id+'" data-label="'+label+'"><i class="ti '+icon+'"></i>'+label+(has?'':(canL?' +':''))+'</button>';if(has)b+='<button class="chip copybtn" data-copy="'+j[field]+'" title="Copy link"><i class="ti ti-link"></i></button>';return b;}
   var ch='<button class="chip" data-mapid="'+j.id+'"><i class="ti ti-map"></i>Bản đồ</button>'+chip('drive','ti-folder','Drive')+chip('beat','ti-music','Beat')+chip('lyrics','ti-file-text','Lyrics');
-  (j.chips||[]).forEach(function(c,idx){ ch+='<button class="chip on" data-cchip="'+idx+'" data-jid="'+j.id+'"><i class="ti ti-paperclip"></i>'+c.label+(c.url?'':' (ghi chú)')+'</button>'; });
+  var ctf=(contractById[j.id]||{}).fileUrl;
+  if(ctf)ch+='<button class="chip on" data-openstop="'+ctf+'"><i class="ti ti-file-text"></i>File HĐ</button><button class="chip copybtn" data-copy="'+ctf+'" title="Copy link"><i class="ti ti-link"></i></button>';
+  (j.chips||[]).forEach(function(c,idx){ ch+='<button class="chip on" data-cchip="'+idx+'" data-jid="'+j.id+'"><i class="ti ti-paperclip"></i>'+c.label+(c.url?'':' (ghi chú)')+'</button>'; if(c.url)ch+='<button class="chip copybtn" data-copy="'+c.url+'" title="Copy link"><i class="ti ti-link"></i></button>'; });
   if(canL) ch+='<button class="chip add" data-addchip="'+j.id+'"><i class="ti ti-plus"></i>Thêm</button>';
   h+='<div class="gtitle">Đính kèm & ghi chú</div><div class="chiprow">'+ch+'</div>';
  }
@@ -869,9 +887,10 @@ function screenDetail(id){
   var ct=contractById[id];
   if(ct){
    var acc=aById(ct.bankAccount);
-   h+='<div class="group">'+drow('ti-file-text','Số HĐ',ct.contractNo||'—')+drow('ti-building','Đối tác',ct.partner||'—')+drow('ti-calendar','Ngày ký',ct.signDate?dd(ct.signDate):'—')+drow('ti-wallet','Giá trị',money(ct.valuePreTax)+' + '+ct.taxRate+'% → '+money(ct.totalValue))+drow('ti-credit-card','TK nhận',acc?(acc.label+' · '+acc.number):'—')+'</div>';
+   var partnerInfo=(ct.partner||'—')+(ct.taxCode?('\nMST: '+ct.taxCode):'')+(ct.address?('\n'+ct.address):'')+(ct.rep?('\nĐại diện: '+ct.rep+(ct.repTitle?(' ('+ct.repTitle+')'):'')):'')+(ct.phone?('\n📞 '+ct.phone):'')+(ct.email?('\n✉️ '+ct.email):'')+((ct.bankNo||ct.bankName)?('\nTK: '+(ct.bankNo||'')+(ct.bankName?(' · '+ct.bankName):'')+(ct.branch?(' · '+ct.branch):'')):'');
+   h+='<div class="group">'+drow('ti-file-text','Số HĐ',ct.contractNo||'—')+drow('ti-building','Đối tác',partnerInfo)+drow('ti-calendar','Ngày ký',ct.signDate?dd(ct.signDate):'—')+drow('ti-wallet','Giá trị',money(ct.valuePreTax)+' + '+ct.taxRate+'% → '+money(ct.totalValue))+drow('ti-credit-card','TK nhận',acc?(acc.label+' · '+acc.number):'—')+'</div>';
    h+='<div class="gtitle">Các đợt thanh toán</div><div class="group">'+ct.installments.map(function(ins){var over=!ins.paid&&new Date(ins.dueDate)<stripT(now);var chip=ins.paid?'<span class="cstat" style="background:var(--greenbg);color:var(--green)">🟢 Hoàn tất</span>':over?'<span class="cstat" style="background:var(--redbg);color:var(--red)">🔴 Quá hạn</span>':'<span class="cstat" style="background:var(--amberbg);color:var(--amber)">Chờ TT</span>';return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">Đợt '+ins.pct+'% · '+money(ins.amount)+'</div><div class="s">'+(ins.dueNote||'')+' · dự kiến '+dd(new Date(ins.dueDate))+'</div></div>'+chip+'</div>';}).join('')+'</div>';
-   if(ct.fileUrl)h+='<div class="chiprow"><button class="chip on" onclick="openURL(\''+ct.fileUrl+'\')"><i class="ti ti-link"></i>File HĐ</button></div>';
+   if(ct.fileUrl)h+='<div class="chiprow"><button class="chip on" data-openstop="'+ct.fileUrl+'"><i class="ti ti-folder"></i>Mở file HĐ</button><button class="chip copybtn" data-copy="'+ct.fileUrl+'"><i class="ti ti-link"></i>Copy link</button></div>';
   } else h+='<div class="group">'+(jd?(drow('ti-file-text','Hợp đồng',L(CTL,jd.ct))+drow('ti-receipt','Hóa đơn',L(IVL,jd.inv))+drow('ti-list-check','Nghiệm thu',L(ACL,jd.acc))+drow('ti-clock','Deadline',dd(jd.dl))):emp('Chưa có hồ sơ'))+'</div>';
  }
  if(tab=='tasks')h+='<div class="group">'+(jt.length?jt.map(function(t){var sm=STMETA[t.s];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+t.n+'</div><div class="s">'+t.note+' · '+t.o+'</div></div><span class="badge" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
@@ -919,6 +938,7 @@ function addBizDays(d,n){var x=new Date(d);var c=0;while(c<n){x.setDate(x.getDat
 function parseMoney(s){return Math.round(parseFloat(String(s||'').replace(/[^\d]/g,''))||0);}
 function vendorOpts(role){return '<option value="">— chọn —</option>'+vendors.filter(function(v){return v.role===role;}).map(function(v){return '<option value="'+v.id+'" data-phone="'+v.phone+'" data-name="'+v.name.replace(/"/g,'')+'">'+v.name+'</option>';}).join('');}
 function acctOpts(){return accounts.map(function(a){return '<option value="'+a.id+'">'+a.label+' · '+a.number+'</option>';}).join('');}
+function paidSw(id){return '<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" id="'+id+'"><span class="slider"></span></label></div>';}
 function prepItem(key,label,icon,role,withLoc){
  var locHtml=withLoc?('<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input class="in" id="'+key+'Loc" placeholder="Địa chỉ"><button class="iconbtn" type="button" id="'+key+'Map"><i class="ti ti-map-pin"></i></button></div></div>'):'';
  return '<div class="swrow"><span class="swt"><i class="ti '+icon+'"></i> '+label+'</span><label class="switch"><input type="checkbox" id="sw'+key+'"><span class="slider"></span></label></div>'
@@ -963,6 +983,15 @@ function screenCreate(){
  /* dress code */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-shirt"></i> Dress code</span><label class="switch"><input type="checkbox" id="swDress"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="dressBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Mô tả / link</label><input id="dressText" class="in" placeholder="VD: Vest đen / link Pinterest"></div><div class="calcd" style="padding:6px 0 0">📷 Tải ảnh (≤10) lên Firebase Storage — Phase 2.</div></div>';
+ /* dancer */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-users"></i> Dancer</span><label class="switch"><input type="checkbox" id="swDancer"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="dancerBox">';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Tên group</label><input id="dcName" class="in" placeholder="VD: ABC Crew"></div><div class="fld"><label class="flbl">Số lượng</label><input id="dcCount" class="in" inputmode="numeric" placeholder="0"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Người liên hệ</label><input id="dcContact" class="in"></div><div class="fld"><label class="flbl">Giờ hẹn</label><input id="dcTime" type="time" class="in"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT liên hệ</label><div style="display:flex;gap:8px"><input id="dcPhone" class="in" inputmode="tel"><button class="iconbtn" type="button" id="dcTel"><i class="ti ti-phone"></i></button></div></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí</label><input id="dcCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"></div></div>';
+ H+=paidSw('dcPaid');
+ H+='</div>';/* dancerBox */
  /* lưu trú */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-bed"></i> Lưu trú</span><label class="switch"><input type="checkbox" id="swStay"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="stayBox">';
@@ -970,33 +999,47 @@ function screenCreate(){
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Mã booking / ghi chú</label><input id="stBooking" class="in" placeholder="Mã đặt phòng hoặc ghi chú"></div>';
  H+='<div class="calcd" style="padding:5px 0 0">📎 Tải file booking (ảnh/PDF) lên Drive — Phase 2.</div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT liên hệ</label><div style="display:flex;gap:8px"><input id="stPhone" class="in" inputmode="tel" placeholder="SĐT lễ tân/liên hệ"><button class="iconbtn" type="button" id="stTel"><i class="ti ti-phone"></i></button></div></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số phòng</label><input id="stRoom" class="in"></div><div class="fld"><label class="flbl"> </label><div class="calcd">&nbsp;</div></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số phòng</label><input id="stRoom" class="in"></div><div class="fld"><label class="flbl">Chi phí</label><input id="stCost" class="in" inputmode="numeric" placeholder="0"></div></div>';
+ H+=paidSw('stPaid');
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Check-in</label><input id="stCin" type="time" class="in"></div><div class="fld"><label class="flbl">Check-out</label><input id="stCout" type="time" class="in"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → nơi diễn (km)</label><input id="stDistKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="stDistMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
  H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính khoảng cách & thời gian bằng Maps API — Phase 2.</div>';
- /* di chuyển */
- H+='<div class="fld" style="padding:10px 0 0"><label class="flbl">Di chuyển</label><div class="segbtn" id="stMode"><button type="button" data-val="car" class="on"><i class="ti ti-car"></i> Xe</button><button type="button" data-val="flight"><i class="ti ti-plane"></i> Máy bay</button></div></div>';
- H+='<div id="stCarBox" style="margin-top:8px"><div class="frow" style="padding:0"><div class="fld"><label class="flbl">Tài xế / hãng xe</label><input id="stCarName" class="in" placeholder="Tên tài xế hoặc hãng"></div></div><div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT tài xế</label><div style="display:flex;gap:8px"><input id="stCarPhone" class="in" inputmode="tel"><button class="iconbtn" type="button" id="stCarTel"><i class="ti ti-phone"></i></button></div></div></div></div>';
- H+='<div id="stFlightBox" style="margin-top:8px;display:none">';
- H+='<div class="calcd">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, mã chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Mã chuyến bay</label><input id="stFlNo" class="in" placeholder="VD: VN213"></div><div class="fld"><label class="flbl">Lộ trình</label><input id="stFlRoute" class="in" placeholder="SGN → HAN"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giờ bay</label><input id="stFlDep" type="time" class="in"></div><div class="fld"><label class="flbl">Giờ đáp</label><input id="stFlArr" type="time" class="in"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Thời gian bay</label><input id="stFlDur" class="in" placeholder="VD: 2h10"></div><div class="fld"><label class="flbl">Chênh giờ điểm đến</label><input id="stFlTz" class="in" placeholder="VD: +0h"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → sân bay (km)</label><input id="stAirKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="stAirMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
- H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính KS → sân bay bằng Maps API — Phase 2.</div>';
- H+='</div>';/* stFlightBox */
  H+='</div>';/* stayBox */
+ /* di chuyển (riêng) */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-car"></i> Di chuyển</span><label class="switch"><input type="checkbox" id="swMove"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="moveBox">';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Hình thức</label><div class="segbtn" id="mvMode"><button type="button" data-val="car" class="on"><i class="ti ti-car"></i> Xe</button><button type="button" data-val="flight"><i class="ti ti-plane"></i> Máy bay</button></div></div>';
+ H+='<div id="mvCarBox" style="margin-top:8px"><div class="frow" style="padding:0"><div class="fld"><label class="flbl">Tài xế / hãng xe</label><input id="mvCarName" class="in" placeholder="Tên tài xế hoặc hãng"></div></div><div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT tài xế</label><div style="display:flex;gap:8px"><input id="mvCarPhone" class="in" inputmode="tel"><button class="iconbtn" type="button" id="mvCarTel"><i class="ti ti-phone"></i></button></div></div></div></div>';
+ H+='<div id="mvFlightBox" style="margin-top:8px;display:none">';
+ H+='<div class="calcd">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, mã chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Mã chuyến bay</label><input id="mvFlNo" class="in" placeholder="VD: VN213"></div><div class="fld"><label class="flbl">Lộ trình</label><input id="mvFlRoute" class="in" placeholder="SGN → HAN"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giờ bay</label><input id="mvFlDep" type="time" class="in"></div><div class="fld"><label class="flbl">Giờ đáp</label><input id="mvFlArr" type="time" class="in"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Thời gian bay</label><input id="mvFlDur" class="in" placeholder="VD: 2h10"></div><div class="fld"><label class="flbl">Chênh giờ điểm đến</label><input id="mvFlTz" class="in" placeholder="VD: +0h"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → sân bay (km)</label><input id="mvAirKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="mvAirMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
+ H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính KS → sân bay bằng Maps API — Phase 2.</div>';
+ H+='</div>';/* mvFlightBox */
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Chi phí di chuyển</label><input id="mvCost" class="in" inputmode="numeric" placeholder="0"></div>';
+ H+=paidSw('mvPaid');
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ghi chú</label><textarea id="mvNote" class="in" placeholder="Ghi chú di chuyển…"></textarea></div>';
+ H+='</div>';/* moveBox */
  H+='</div>';/* prepBox group */
  /* 3. HỢP ĐỒNG */
  H+='<div id="ctWrap">';
- H+='<div class="gtitle gtr"><span>Giấy tờ / Hợp đồng</span><label class="switch"><input type="checkbox" id="swCt"><span class="slider"></span></label></div>';
+ H+='<div class="gtitle gtr"><span>Hợp đồng</span><label class="switch"><input type="checkbox" id="swCt"><span class="slider"></span></label></div>';
  H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
  H+='<div class="segbtn" id="ctSource" style="margin:10px 0 8px"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải HĐ</button><button type="button" data-val="manual" class="on">Nhập tay</button><button type="button" data-val="template"><i class="ti ti-robot"></i> Tạo mẫu</button></div>';
  H+='<div id="ctSrcNote" class="calcd" style="margin-bottom:8px">Nhập thông tin hợp đồng bên dưới.</div>';
+ H+='<div id="ctGenWrap" style="display:none;margin-bottom:6px"><button type="button" class="bigbtn" id="ctGenBtn" style="height:46px;margin:2px 0"><i class="ti ti-robot i"></i> Tạo hợp đồng từ mẫu</button><div id="ctGenResult" class="calcd" style="padding-top:6px"></div></div>';
  H+='<div class="frow" style="padding:0"><div class="fld"><label class="flbl">Số HĐ</label><input id="ctNo" class="in"></div><div class="fld"><label class="flbl">Ngày ký</label><input id="ctSign" type="date" class="in"></div></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Công ty đối tác</label><input id="ctPartner" class="in"></div>';
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Tài khoản nhận</label><select id="ctAcct" class="in">'+acctOpts()+'</select></div>';
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link file HĐ (Drive) — tùy chọn</label><input id="ctFile" class="in" placeholder="Dán link…"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa chỉ công ty</label><input id="ctAddr" class="in"></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">MST</label><input id="ctMst" class="in" inputmode="numeric"></div><div class="fld"><label class="flbl">SĐT</label><input id="ctPhone" class="in" inputmode="tel"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Người đại diện</label><input id="ctRep" class="in"></div><div class="fld"><label class="flbl">Chức vụ</label><input id="ctRepTitle" class="in"></div></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Số tài khoản (đối tác)</label><input id="ctBankNo" class="in" inputmode="numeric"></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Ngân hàng</label><input id="ctBankName" class="in"></div><div class="fld"><label class="flbl">Chi nhánh</label><input id="ctBranch" class="in"></div></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Email nhận hóa đơn</label><input id="ctEmail" class="in" inputmode="email"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Tài khoản nhận (của mình)</label><select id="ctAcct" class="in">'+acctOpts()+'</select></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link file HĐ (Drive) — tự điền khi tạo mẫu</label><input id="ctFile" class="in" placeholder="Dán link…"></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giá trị trước thuế</label><input id="ctValue" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Thuế</label><div class="segbtn" id="ctTax"><button type="button" data-val="8" class="on">8%</button><button type="button" data-val="10">10%</button></div></div></div>';
  H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="ctTotal">0₫</span></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số đợt thanh toán</label><div class="segbtn" id="ctCount"><button type="button" data-val="1" class="on">1</button><button type="button" data-val="2">2</button><button type="button" data-val="3">3</button></div></div><div class="fld"><label class="flbl">Hóa đơn</label><div class="segbtn" id="ctInvMode"><button type="button" data-val="per" class="on">Từng đợt</button><button type="button" data-val="total">Tổng</button></div></div></div>';
@@ -1063,18 +1106,19 @@ function bindCreateForm(){
  qc={total:0,pcts:[100],n:1,dueDates:[]};
  function seg(id,cb){var c=document.getElementById(id);if(!c)return;c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');if(cb)cb(b.dataset.val);};});}
  function tog(sw,box){var s=document.getElementById(sw),b=document.getElementById(box);if(s&&b)s.onchange=function(){b.classList.toggle('on',s.checked);};}
- seg('evStatus');seg('ctSource',function(v){var n=document.getElementById('ctSrcNote');n.textContent=v==='upload'?'Phase 2: tự tải file lên Drive. Tạm thời dán link file HĐ bên dưới.':v==='template'?'Phase 2: tạo HĐ từ mẫu Google Doc. Tạm thời nhập tay + dán link.':'Nhập thông tin hợp đồng bên dưới.';});
+ seg('evStatus');seg('ctSource',function(v){var n=document.getElementById('ctSrcNote');n.textContent=v==='upload'?'Phase 2: tự tải file lên Drive. Tạm thời dán link file HĐ bên dưới.':v==='template'?'Điền thông tin bên dưới rồi bấm "Tạo hợp đồng từ mẫu" — file sẽ tạo trên Drive (ai có link đều comment được).':'Nhập thông tin hợp đồng bên dưới.';document.getElementById('ctGenWrap').style.display=v==='template'?'block':'none';});
+ var gb=document.getElementById('ctGenBtn');if(gb)gb.onclick=generateContract;
  seg('ctTax',_recalcTotal);
  seg('ctCount',function(v){_rebuildInst(+v,true);});
  seg('ctInvMode',function(v){document.getElementById('ctTotInvWrap').style.display=v==='total'?'block':'none';document.querySelectorAll('.iInvWrap').forEach(function(e){e.style.display=v==='per'?'block':'none';});});
- tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swStay','stayBox');tog('swCt','ctBox');
- seg('stMode',function(v){document.getElementById('stCarBox').style.display=v==='car'?'':'none';document.getElementById('stFlightBox').style.display=v==='flight'?'block':'none';});
+ tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swCt','ctBox');
+ seg('mvMode',function(v){document.getElementById('mvCarBox').style.display=v==='car'?'':'none';document.getElementById('mvFlightBox').style.display=v==='flight'?'block':'none';});
  var et=document.getElementById('evType');et.onchange=function(){document.getElementById('ctWrap').style.display=NOCT[et.value]?'none':'';};
  document.getElementById('evMap').onclick=function(){openMap(document.getElementById('evLoc').value);};
  document.getElementById('beatOpen').onclick=function(){openURL(document.getElementById('beatLink').value);};
  document.getElementById('stMap').onclick=function(){openMap(document.getElementById('stHotel').value);};
  function telBtn(btnId,inpId){var b=document.getElementById(btnId);if(b)b.onclick=function(){var p=(document.getElementById(inpId).value||'').replace(/\s/g,'');if(p)window.open('tel:'+p);else alert('Nhập số điện thoại trước.');};}
- telBtn('stTel','stPhone');telBtn('stCarTel','stCarPhone');
+ telBtn('stTel','stPhone');telBtn('mvCarTel','mvCarPhone');telBtn('dcTel','dcPhone');
  ['makeup','photo','social'].forEach(function(k){
   var tb=document.getElementById(k+'Tel');if(tb)tb.onclick=function(){var s=document.getElementById(k+'Vendor');var o=s.selectedOptions[0];if(o&&o.dataset.phone)window.open('tel:'+o.dataset.phone);else alert('Chọn vendor có số điện thoại trước.');};
   var mb=document.getElementById(k+'Map');if(mb)mb.onclick=function(){openMap((document.getElementById(k+'Loc')||{}).value);};
@@ -1084,6 +1128,30 @@ function bindCreateForm(){
  document.getElementById('ctFile').oninput=function(){for(var i=0;i<qc.n;i++)_instChip(i);};
  _rebuildInst(1,true);
  document.getElementById('evSave').onclick=saveEvent;
+}
+function ctCollectPayload(){
+ function V(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+ var v=parseMoney(V('ctValue'));var tax=+( (document.querySelector('#ctTax .on')||{dataset:{val:8}}).dataset.val );var total=Math.round(v*(1+tax/100));
+ var acc=aById(V('ctAcct'));
+ return {contractNo:V('ctNo'),signDate:V('ctSign'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),
+  ourAccount:acc?(acc.label+' · '+acc.number+' · '+acc.bank):'',valuePreTax:v,taxRate:tax,totalValue:total,
+  name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i]};})};
+}
+function generateContract(){
+ var btn=document.getElementById('ctGenBtn');var res=document.getElementById('ctGenResult');
+ var payload=ctCollectPayload();
+ if(!payload.partner){res.textContent='⚠️ Nhập tên công ty đối tác trước khi tạo.';return;}
+ var url=window.CONTRACT_GEN_URL||'';
+ if(!url){res.innerHTML='⚠️ Chưa cấu hình endpoint. Deploy file <b>contract-gen.gs</b> (Apps Script Web App) rồi dán URL vào biến CONTRACT_GEN_URL — xem hướng dẫn trong file.';return;}
+ btn.disabled=true;res.textContent='⏳ Đang tạo hợp đồng trên Drive…';
+ fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){return r.json();})
+  .then(function(d){btn.disabled=false;
+   if(d&&d.url){var fe=document.getElementById('ctFile');if(fe)fe.value=d.url;
+    res.innerHTML='✅ Đã tạo HĐ (ai có link đều comment được). <a href="'+d.url+'" target="_blank" style="color:var(--brand);font-weight:700">Mở file</a> &nbsp;<button type="button" class="chip on" id="ctCopy"><i class="ti ti-link"></i> Copy link</button>';
+    var cb=document.getElementById('ctCopy');if(cb)cb.onclick=function(){try{navigator.clipboard.writeText(d.url);}catch(e){}cb.innerHTML='<i class="ti ti-check"></i> Đã copy';applyIcons();};applyIcons();
+   } else {res.textContent='❌ Lỗi tạo HĐ: '+((d&&d.error)||'không rõ');}})
+  .catch(function(e){btn.disabled=false;res.textContent='❌ Lỗi kết nối Apps Script: '+e.message;});
 }
 function saveEvent(){
  var name=(document.getElementById('evName').value||'').trim();
@@ -1107,9 +1175,11 @@ function saveEvent(){
   makeup:vend('makeup'),photo:vend('photo'),social:vend('social'),
   beat:{on:C('swBeat'),link:V('beatLink')},
   dressCode:{on:C('swDress'),text:V('dressText'),fileLink:'',images:[]},
-  stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin'),mode:seg('stMode')||'car',
-   car:{name:V('stCarName'),phone:V('stCarPhone')},
-   flight:{no:V('stFlNo'),route:V('stFlRoute'),depart:V('stFlDep'),arrive:V('stFlArr'),dur:V('stFlDur'),tz:V('stFlTz'),airKm:V('stAirKm'),airMin:V('stAirMin')}}};
+  dancer:{on:C('swDancer'),name:V('dcName'),count:V('dcCount'),contact:V('dcContact'),phone:V('dcPhone'),time:V('dcTime'),cost:parseMoney(V('dcCost')),paid:C('dcPaid')},
+  stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),cost:parseMoney(V('stCost')),paid:C('stPaid'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin')},
+  move:{on:C('swMove'),mode:seg('mvMode')||'car',cost:parseMoney(V('mvCost')),paid:C('mvPaid'),note:V('mvNote'),
+   car:{name:V('mvCarName'),phone:V('mvCarPhone')},
+   flight:{no:V('mvFlNo'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin')}}};
  var contract=null,newPays=[];
  if(job.hasContract){
   var v=parseMoney(V('ctValue'));var tax=+seg('ctTax');var total=Math.round(v*(1+tax/100));
@@ -1124,13 +1194,21 @@ function saveEvent(){
    var st=paid?'da_thanh_toan':(new Date(qc.dueDates[i])<stripT(now)?'qua_han':((new Date(qc.dueDates[i])-stripT(now))/86400000<=7?'den_han':'chua_den_han'));
    newPays.push({id:'p_'+id+'_'+i,job:id,label:'Đợt '+(i+1)+(qc.n>1?(' ('+qc.pcts[i]+'%)'):''),amt:amts[i],pct:qc.pcts[i],due:new Date(qc.dueDates[i]),paid:paid?(pd?new Date(pd):new Date(now)):null,st:st});
   }
-  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:V('ctFile'),source:seg('ctSource')};
+  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:V('ctFile'),source:seg('ctSource')};
   job.net=total;
  }
  jobs.push(job);jById[job.id]=job;
  if(window.qtSave)window.qtSave('jobs',job.id,job);
  if(contract){contracts.push(contract);reContracts();if(window.qtSave)window.qtSave('contracts',contract.id,contract);
   newPays.forEach(function(p){pays.push(p);if(window.qtSave)window.qtSave('pays',p.id,p);});}
+ /* chi phí chuẩn bị → exps để công ty tổng hợp */
+ function pushExp(key,label,cat,vendor,cost,paid){if(cost>0){var e={id:'e_'+id+'_'+key,job:id,name:label,type:cat,vendor:vendor||'',est:cost,act:paid?cost:0,st:paid?'da_thanh_toan':'du_kien'};exps.push(e);if(window.qtSave)window.qtSave('exps',e.id,e);}}
+ if(job.makeup.on)pushExp('makeup','Makeup','Makeup',job.makeup.name,job.makeup.cost,job.makeup.paid);
+ if(job.photo.on)pushExp('photo','Photo','Photo',job.photo.name,job.photo.cost,job.photo.paid);
+ if(job.social.on)pushExp('social','Social','Social',job.social.name,job.social.cost,job.social.paid);
+ if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.contact,job.dancer.cost,job.dancer.paid);
+ if(job.stay.on)pushExp('stay','Lưu trú'+(job.stay.hotel?(' - '+job.stay.hotel):''),'Lưu trú',job.stay.hotel,job.stay.cost,job.stay.paid);
+ if(job.move.on)pushExp('move','Di chuyển ('+(job.move.mode==='flight'?'máy bay':'xe')+')','Di chuyển',job.move.mode==='flight'?job.move.flight.no:job.move.car.name,job.move.cost,job.move.paid);
  alert('Đã lưu sự kiện: '+name);
  openJob(id);
 }
