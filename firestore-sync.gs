@@ -1,0 +1,222 @@
+/**
+ * QT Manager sync  ->  Firestore (qt-manager-c55f4)
+ * MÔ HÌNH 2 TAB:
+ *   - Sync     = LỊCH + logistics (ngày/giờ/địa điểm/loại + Link Drive/Beat/Lyrics + ghi chú). Do Thi/Vi nhập.
+ *   - Hợp đồng = TIỀN/GIẤY TỜ (giá trị, VAT, đợt thanh toán, trạng thái HĐ/hóa đơn). Do kế toán nhập — NGUỒN CHÍNH.
+ *   Nối nhau bằng "Mã sự kiện". Khi Push: app GỘP lịch(Sync) + tiền(Hợp đồng).
+ *
+ * appsscript.json oauthScopes: ["https://www.googleapis.com/auth/datastore","https://www.googleapis.com/auth/spreadsheets"]
+ * Chạy bằng tài khoản sở hữu Firebase (janice.au9089).
+ */
+var PROJECT_ID='qt-manager-c55f4', SHEET_NAME='Sync', CTAB='Hợp đồng';
+var BASE='https://firestore.googleapis.com/v1/projects/'+PROJECT_ID+'/databases/(default)/documents/';
+
+/* ===== Cột Sync (lịch + logistics) ===== */
+var COLS=[['date','Ngày diễn'],['time','Giờ'],['title','Tên sự kiện'],['client','Khách hàng'],['venue','Địa điểm'],['province','Tỉnh/Thành'],
+['type','Loại'],['status','Trạng thái'],['drive','Link Drive'],['beat','Link Beat'],['lyrics','Link Lyrics'],['pw_notes','Ghi chú'],
+['eventId','Mã sự kiện'],['source','Nguồn']];
+var ORDER=COLS.map(function(c){return c[0];}); var KEY2VI={}; COLS.forEach(function(c){KEY2VI[c[0]]=c[1];});
+
+/* ===== Cột Hợp đồng (tiền/giấy tờ) ===== */
+var CCOLS=[['eventId','Mã sự kiện'],['title','Tên sự kiện (tự)'],['date','Ngày diễn (tự)'],['client','Khách hàng'],
+['contractNo','Số HĐ'],['signDate','Ngày ký HĐ'],['contractStatus','Trạng thái HĐ'],
+['value','Giá trị HĐ'],['tax','VAT %'],['totalValue','Tổng sau thuế'],
+['invoiceNo','Số hóa đơn'],['invoiceStatus','Trạng thái hóa đơn'],
+['inst1_amount','Đợt 1 · tiền'],['inst1_date','Đợt 1 · hạn'],['inst1_status','Đợt 1 · trạng thái'],
+['inst2_amount','Đợt 2 · tiền'],['inst2_date','Đợt 2 · hạn'],['inst2_status','Đợt 2 · trạng thái'],
+['driveLink','Link file HĐ'],['note','Ghi chú']];
+var CORDER=CCOLS.map(function(c){return c[0];}); var CK2VI={}; CCOLS.forEach(function(c){CK2VI[c[0]]=c[1];});
+var CAUTO=['title','date']; // cột tự điền bằng công thức từ Sync
+var CMONEY=['value','totalValue','inst1_amount','inst2_amount'];
+
+/* options dropdown */
+var OPT_TYPE=['Ticket','Public','Event','Gameshow','Podcast','Quay social','Thu âm','Phỏng vấn/Họp','Chụp hình','Livestream','Cá nhân','Khác'];
+var OPT_STATUS=['Đã chốt','Đang báo giá','Đang đàm phán','Đã ký HĐ','Hoàn thành','Đã hủy'];
+var OPT_CT=['Chưa có','Đang soạn','Đã gửi','Đã ký','Đã lưu final'];
+var OPT_INV=['Chưa xuất','Đã xuất','Đã gửi','Đã thanh toán'];
+var OPT_PAY=['Chưa đến hạn','Đến hạn','Quá hạn','Đã thanh toán'];
+var SYNC_DD={type:OPT_TYPE,status:OPT_STATUS};
+var C_DD={contractStatus:OPT_CT,invoiceStatus:OPT_INV,inst1_status:OPT_PAY,inst2_status:OPT_PAY};
+var MONEY_FMT='#,##0" ₫"';
+
+/* alias header -> key (đọc cũ/mới) */
+var ALIAS={date:['date','ngày diễn'],time:['time','giờ'],title:['title','tên sự kiện'],client:['client','khách hàng'],venue:['venue','địa điểm'],province:['province','tỉnh/thành'],type:['type','loại'],status:['status','trạng thái'],drive:['drive','link drive'],beat:['beat','link beat'],lyrics:['lyrics','link lyrics'],value:['value','giá trị hđ','giá trị (triệu)'],tax:['tax','vat %'],totalValue:['totalvalue','tổng sau thuế','tổng sau thuế (triệu)'],instCount:['instcount','số đợt'],finStatus:['finstatus','tình trạng thanh toán'],inst1_paid:['inst1_paid','đợt 1 · đã trả?'],inst1_pct:['inst1_pct','đợt 1 · %'],inst1_amount:['inst1_amount','đợt 1 · tiền'],inst1_date:['inst1_date','đợt 1 · ngày','đợt 1 · hạn'],inst1_note:['inst1_note','đợt 1 · ghi chú'],inst2_paid:['inst2_paid','đợt 2 · đã trả?'],inst2_pct:['inst2_pct','đợt 2 · %'],inst2_amount:['inst2_amount','đợt 2 · tiền'],inst2_date:['inst2_date','đợt 2 · ngày','đợt 2 · hạn'],inst2_note:['inst2_note','đợt 2 · ghi chú'],pw_notes:['pw_notes','ghi chú'],eventId:['eventid','mã sự kiện'],source:['source','nguồn']};
+var H2K={}; for(var k in ALIAS) ALIAS[k].forEach(function(s){H2K[s]=k;});
+function keyForHeader_(h){return H2K[String(h).trim().toLowerCase()]||null;}
+
+function onOpen(){SpreadsheetApp.getUi().createMenu('Firestore Sync')
+ .addItem('⟳ Đồng bộ lịch từ Google Calendar → Sync','importFromCalendar')
+ .addItem('① Định dạng tab Sync (+ cấp Mã sự kiện)','setupSheet')
+ .addItem('③ Tạo / Cập nhật tab Hợp đồng','setupContractsTab')
+ .addItem('② Đẩy lên app (gộp Sync + Hợp đồng)','pushToApp')
+ .addItem('↕ Sắp xếp lại theo ngày','sortSheet')
+ .addSeparator()
+ .addItem('⏰ Bật tự đồng bộ lịch mỗi sáng','enableAutoSync')
+ .addItem('⏰ Tắt tự đồng bộ','disableAutoSync')
+ .addItem('⚠ Xoá hết jobs/pays trên app (reset)','resetApp').addToUi();}
+
+/* ===== tiện ích ===== */
+function colL_(n){var s='';while(n>0){var m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-m-1)/26;}return s;}
+function toYMD_(v){if(v instanceof Date)return Utilities.formatDate(v,'Asia/Ho_Chi_Minh','yyyy-MM-dd');return String(v||'').slice(0,10);}
+function toMin_(v){if(v instanceof Date)return v.getHours()*60+v.getMinutes();var m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):0;}
+function pad_(n,l){n=String(n);while(n.length<l)n='0'+n;return n;}
+function sortKey_(d,t){return toYMD_(d)+'T'+pad_(toMin_(t),4);}
+function slug_(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,28);}
+function mkId_(date,title){return 'qt_'+String(date).replace(/-/g,'')+'_'+slug_(title);}
+
+/* ===== Đồng bộ thẳng từ Google Calendar -> tab Sync (khỏi tải/Import CSV) ===== */
+var CAL_ID='quocthienofficial@gmail.com';
+function cExtractTime_(s){var m=s.match(/\b(\d{1,2})\s*[:h]\s*(\d{2})\b/);if(m){var h=+m[1],mi=+m[2];if(h<24&&mi<60)return pad_(h,2)+':'+pad_(mi,2);}m=s.match(/\b(\d{1,2})\s*h\b/i);if(m){var h=+m[1];if(h<24)return pad_(h,2)+':00';}return '';}
+function cFee_(desc,name){var m=desc.match(/(\d{2,4})\s*[HhTt](?![0-9A-Za-zÀ-ỹ])/);if(m)return +m[1];var re=/\b(\d{3})\b/g,mm;while((mm=re.exec(name))){var idx=mm.index;var after=name.slice(idx+3,idx+4);if(/[hH:]/.test(after))continue;return +mm[1];}return 0;}
+function cForeign_(s){return /houston|portland|virginia|connecticut|adelaide|san jose|skynote|sydney|melbourne|perth|\boc\b|\bsj\b/i.test(s);}
+function cPersonal_(s){return /meeting|lăn tay|lan tay|\bvisa\b|đám cưới|dam cuoi|wedding|ko nhận|khong nhan/.test(s.toLowerCase());}
+function cType_(name){var t=name.toLowerCase();if(/gđ haha|gd haha|gia đình haha|gia dinh haha/.test(t))return 'Gameshow';if(cPersonal_(t))return 'Cá nhân';if(/\bmsd\b/.test(t))return 'Event';if(cForeign_(t))return 'Ticket';if(/\(va\)/.test(t))return 'Ticket';if(/quay|ghi hình|ghi hinh|content|\bmv\b|vtv/.test(t))return 'Quay social';if(/thu âm|thu am|record/.test(t))return 'Thu âm';if(/podcast/.test(t))return 'Podcast';if(/livestream|live stream/.test(t))return 'Livestream';if(/chụp|chup|photo|shoot/.test(t))return 'Chụp hình';if(/gameshow|game show|2 ngày 1 đêm/.test(t))return 'Gameshow';if(/gala|yep|award|tiệc|tiec|dinner|động thổ|dong tho|khai trương|khai truong|\bevent\b|vietinbank|vnpay|chicilon|tập đoàn|tap doan|y tế|y te|tân hoàng minh|tan hoang minh|private|\bmsb\b|pepsi|\bocb\b|petrosetco|\bfpt\b|\btcs\b/.test(t))return 'Event';if(/phố đi bộ|pho di bo|nguyễn huệ|nguyen hue|quảng trường|quang truong|khai mạc|khai mac|lễ hội|le hoi|giao thừa|giao thua|countdown|làng sen|lang sen/.test(t))return 'Public';if(/tập|tap |rehearsal|chạy sk|chay sk|sound ?check|concert|liveshow|show|mây|may |phòng trà|phong tra|nhà hát|nha hat|\bnh\b|\bpt\b|đêm nhạc|dem nhac|fantasy|dốc mộng|doc mong|trạm yêu|tram yeu|\bvé\b|\bve\b|melody|sky|lasong|musique|salon|nhạc|nhac|hát|hat|xuân|xuan|tết|tet|gao/.test(t))return 'Ticket';return 'Khác';}
+function cProv_(s,name){if(cForeign_(name))return 'Nước ngoài';s=(s||'').toLowerCase();if(/hà nội|ha noi|hoàn kiếm|hoan kiem|cầu giấy|cau giay|đống đa|dong da|mỹ đình|my dinh|hào nam|ba đình/.test(s))return 'Hà Nội';if(/hồ chí minh|ho chi minh|hcm|thủ đức|thu duc|bến thành|ben thanh|nguyễn huệ|nguyen hue|tân bình|tan binh|gem|secc|quận|q\.?\d/.test(s))return 'TP.HCM';if(/đà lạt|da lat|dalat|lâm đồng/.test(s))return 'Lâm Đồng';if(/hải phòng|hai phong/.test(s))return 'Hải Phòng';if(/đà nẵng|da nang/.test(s))return 'Đà Nẵng';if(/hội an|hoi an/.test(s))return 'Quảng Nam';if(/hạ long|ha long/.test(s))return 'Quảng Ninh';if(/huế|hue/.test(s))return 'Huế';if(/nghệ an|nghe an|làng sen|lang sen|kim liên|vinh/.test(s))return 'Nghệ An';if(/thanh hoá|thanh hoa/.test(s))return 'Thanh Hoá';return '';}
+function cClean_(s){var t=s.replace(/^\s*done\s+/i,'');t=t.replace(/^\s*c[oọ]c\s*(l[aâ]n\s*1|l\.?\s*1|1)\b\s*[:\-–]?\s*/i,'');t=t.replace(/^\s*\d{1,2}\s*h\s*\d{0,2}\s*/i,'');t=t.replace(/^\s*\d{1,3}\s+(?=[A-Za-zÀ-ỹ&])/,'');t=t.replace(/[-–·]?\s*\b\d{1,2}\s*[h:]\s*\d{2}\b/gi,' ');t=t.replace(/[-–·]?\s*\b\d{1,2}\s*h\b/gi,' ');t=t.replace(/\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/g,' ');t=t.replace(/\s*(done|xong)\s*$/i,'');t=t.replace(/[-–·]?\s*\b\d{2,4}\b\s*$/,'');t=t.replace(/\s*[&/]\s*$/,'');t=t.replace(/\s*[-–·:>]+\s*$/,'').replace(/^\s*[-–·:]\s*/,'');t=t.replace(/\s{2,}/g,' ').trim();if(!t)t=s.replace(/^\s*done\s+/i,'').trim();return t;}
+function cSpell_(t){if(/^[a-zà-ỹ]/.test(t))t=t.charAt(0).toUpperCase()+t.slice(1);return t;}
+
+function importFromCalendar(){
+ var ui=SpreadsheetApp.getUi();var ss=SpreadsheetApp.getActive();var sh=ss.getSheetByName(SHEET_NAME)||ss.insertSheet(SHEET_NAME);
+ var cal=CalendarApp.getCalendarById(CAL_ID);
+ if(!cal){ui.alert('Không truy cập được lịch '+CAL_ID+'.\nTrong Google Calendar của QT → Settings → share lịch cho tài khoản đang chạy script.');return;}
+ var from=new Date(2026,0,1);var to=new Date();to.setFullYear(to.getFullYear()+2);
+ var evs=cal.getEvents(from,to);
+ var data=sh.getDataRange().getValues();var header=(data[0]||[]).map(function(x){return String(x).trim();});var colKey={};header.forEach(function(h,i){var k=keyForHeader_(h);if(k)colKey[k]=i;});
+ var rowsArr=[],existing={};
+ for(var r=1;r<data.length;r++){var o={};ORDER.forEach(function(k){o[k]=(colKey[k]!==undefined)?data[r][colKey[k]]:'';});if(!o.title&&!o.date)continue;o.date=toYMD_(o.date);rowsArr.push(o);if(o.eventId)existing[o.eventId]=o;}
+ var added=0,updated=0;
+ evs.forEach(function(ev){var rawT=(ev.getTitle()||'').replace(/^\s*done\s+/i,'').trim();if(!rawT)return;
+  var desc=ev.getDescription()||'';var loc=ev.getLocation()||'';var st=ev.getStartTime();
+  var dateStr=Utilities.formatDate(st,'Asia/Ho_Chi_Minh','yyyy-MM-dd');var typeVI=cType_(rawT);var foreign=cForeign_(rawT);
+  var time=foreign?'':(cExtractTime_(rawT)||(ev.isAllDayEvent()?'':Utilities.formatDate(st,'Asia/Ho_Chi_Minh','HH:mm')));
+  var title=cSpell_(cClean_(rawT));var eid=mkId_(dateStr,title);var fee=cFee_(desc,rawT);
+  var nb=[];if(title!==rawT)nb.push('[Tên gốc: '+rawT+']');if(fee&&typeVI!=='Cá nhân')nb.push('[Gợi ý fee: '+fee+'tr]');if(desc)nb.push(desc.replace(/\n+/g,' / '));var note=nb.join(' ');
+  if(existing[eid]){var o=existing[eid];o.date=dateStr;o.time=time;o.title=title;o.venue=loc;o.province=cProv_(loc,rawT);o.type=typeVI;if(!o.pw_notes)o.pw_notes=note;updated++;}
+  else{rowsArr.push({date:dateStr,time:time,title:title,client:'',venue:loc,province:cProv_(loc,rawT),type:typeVI,status:'Đã chốt',drive:'',beat:'',lyrics:'',pw_notes:note,eventId:eid,source:'cal'});existing[eid]=1;added++;}
+ });
+ rowsArr.sort(function(a,b){var ka=sortKey_(a.date,a.time),kb=sortKey_(b.date,b.time);return ka<kb?1:(ka>kb?-1:0);});
+ var out=[ORDER.map(function(k){return KEY2VI[k];})];rowsArr.forEach(function(o){out.push(ORDER.map(function(k){return (o[k]===undefined?'':o[k]);}));});
+ sh.clear();sh.getRange(1,1,out.length,ORDER.length).setValues(out);sh.setFrozenColumns(2);
+ styleHead_(sh,ORDER.length,out.length);
+ for(var key in SYNC_DD){var i=ORDER.indexOf(key);if(i>=0&&out.length>1)setDD_(sh,i,SYNC_DD[key],2,out.length-1);}
+ ui.alert('Đồng bộ Google Calendar → Sync xong: thêm '+added+', cập nhật '+updated+' sự kiện. (Giữ nguyên Link/Ghi chú đã nhập tay)');
+}
+function enableAutoSync(){ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='importFromCalendar')ScriptApp.deleteTrigger(t);});ScriptApp.newTrigger('importFromCalendar').timeBased().everyDays(1).atHour(7).create();SpreadsheetApp.getUi().alert('Đã bật: tự đồng bộ lịch → Sync mỗi sáng ~7h.');}
+function disableAutoSync(){var n=0;ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='importFromCalendar'){ScriptApp.deleteTrigger(t);n++;}});SpreadsheetApp.getUi().alert('Đã tắt tự đồng bộ ('+n+' lịch).');}
+
+function styleHead_(sh,n,nRows){var head=sh.getRange(1,1,1,n);head.setBackground('#9DC3F0').setFontColor('#10355E').setFontWeight('bold').setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true);sh.setFrozenRows(1);sh.setRowHeight(1,38);sh.getBandings().forEach(function(b){b.remove();});var bd=sh.getRange(1,1,Math.max(nRows,2),n).applyRowBanding();bd.setHeaderRowColor('#9DC3F0').setFirstRowColor('#FFFFFF').setSecondRowColor('#EAF2FD');}
+function setDD_(sh,colIdx,opts,fromRow,nRows){if(nRows<1)return;var rule=SpreadsheetApp.newDataValidation().requireValueInList(opts,true).setAllowInvalid(true).build();sh.getRange(fromRow,colIdx+1,nRows,1).setDataValidation(rule);}
+
+/* ===== ① Sync ===== */
+function setupSheet(){
+ var ss=SpreadsheetApp.getActive();var sh=ss.getSheetByName(SHEET_NAME)||ss.getActiveSheet();if(sh.getName()!==SHEET_NAME)sh.setName(SHEET_NAME);
+ var data=sh.getDataRange().getValues();var header=(data[0]||[]).map(function(x){return String(x).trim();});
+ var colKey={};header.forEach(function(h,i){var key=keyForHeader_(h);if(key)colKey[key]=i;});
+ var rows=[];
+ for(var r=1;r<data.length;r++){var src=data[r],o={};ORDER.forEach(function(key){o[key]=(colKey[key]!==undefined)?src[colKey[key]]:'';});if(!o.title&&!o.date)continue;
+   if(!o.eventId)o.eventId=mkId_(toYMD_(o.date),o.title); // cấp Mã sự kiện
+   rows.push(o);}
+ rows.sort(function(a,b){var ka=sortKey_(a.date,a.time),kb=sortKey_(b.date,b.time);return ka<kb?1:(ka>kb?-1:0);});
+ var out=[ORDER.map(function(key){return KEY2VI[key];})];rows.forEach(function(o){out.push(ORDER.map(function(key){return o[key];}));});
+ sh.clear();sh.getRange(1,1,out.length,ORDER.length).setValues(out);sh.setFrozenColumns(2);
+ styleHead_(sh,ORDER.length,out.length);
+ for(var key in SYNC_DD){var i=ORDER.indexOf(key);if(i>=0&&out.length>1)setDD_(sh,i,SYNC_DD[key],2,out.length-1);}
+ function w(key,px){var i=ORDER.indexOf(key);if(i>=0)sh.setColumnWidth(i+1,px);}
+ w('date',100);w('time',70);w('title',240);w('venue',260);w('client',150);w('drive',150);w('beat',150);w('lyrics',150);w('pw_notes',320);w('eventId',230);
+ SpreadsheetApp.getUi().alert('Tab Sync: lịch + Link Drive/Beat/Lyrics, đã cấp Mã sự kiện, dropdown Loại/Trạng thái, tone xanh pastel ✓');
+}
+
+/* ===== ③ Hợp đồng (nối với Sync) ===== */
+function setupContractsTab(){
+ var ss=SpreadsheetApp.getActive();var sh=ss.getSheetByName(SHEET_NAME);
+ if(!sh){SpreadsheetApp.getUi().alert('Chưa có tab Sync. Chạy ① trước.');return;}
+ // đảm bảo Sync có Mã sự kiện
+ setupSheetIdsOnly_(sh);
+ var sh1=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x).trim();});
+ var idCol=-1,titleCol=-1,dateCol=-1; sh1.forEach(function(h,i){var k=keyForHeader_(h);if(k==='eventId')idCol=i;if(k==='title')titleCol=i;if(k==='date')dateCol=i;});
+ if(idCol<0){SpreadsheetApp.getUi().alert('Sync thiếu cột Mã sự kiện. Chạy ① trước.');return;}
+ var SID=colL_(idCol+1),STITLE=colL_(titleCol+1),SDATE=colL_(dateCol+1);
+ var ct=ss.getSheetByName(CTAB)||ss.insertSheet(CTAB);
+ var n=CORDER.length;
+ var cur=ct.getDataRange().getValues();var dataRows=(cur.length>1&&cur[0].join('')!=='')?(cur.length-1):0;
+ ct.getRange(1,1,1,n).setValues([CORDER.map(function(k){return CK2VI[k];})]); // ghi header (giữ data đã import bên dưới)
+ var ROWS=Math.max(dataRows,1)+200; // chừa chỗ nhập thêm
+ // công thức tự điền Tên / Ngày từ Sync theo Mã sự kiện (cột A) — kế toán khỏi gõ tên
+ var ci_title=CORDER.indexOf('title'),ci_date=CORDER.indexOf('date');var fT=[],fD=[];
+ for(var rr=2;rr<2+ROWS;rr++){fT.push(['=IFERROR(INDEX(Sync!'+STITLE+':'+STITLE+',MATCH($A'+rr+',Sync!'+SID+':'+SID+',0)),"")']);fD.push(['=IFERROR(TEXT(INDEX(Sync!'+SDATE+':'+SDATE+',MATCH($A'+rr+',Sync!'+SID+':'+SID+',0)),"yyyy-mm-dd"),"")']);}
+ ct.getRange(2,ci_title+1,ROWS,1).setFormulas(fT);
+ ct.getRange(2,ci_date+1,ROWS,1).setFormulas(fD);
+ ct.setFrozenRows(1);ct.setFrozenColumns(2);
+ styleHead_(ct,n,2+ROWS);
+ // dropdown Mã sự kiện = danh sách eventId bên Sync; + dropdown trạng thái
+ var idRange=sh.getRange(SID+'2:'+SID);
+ var idRule=SpreadsheetApp.newDataValidation().requireValueInRange(idRange,true).setAllowInvalid(true).build();
+ ct.getRange(2,1,ROWS,1).setDataValidation(idRule);
+ for(var key in C_DD){var i=CORDER.indexOf(key);if(i>=0)setDD_(ct,i,C_DD[key],2,ROWS);}
+ CMONEY.forEach(function(k){var i=CORDER.indexOf(k);if(i>=0)ct.getRange(2,i+1,ROWS,1).setNumberFormat(MONEY_FMT);});
+ // độ rộng
+ function w(key,px){var i=CORDER.indexOf(key);if(i>=0)ct.setColumnWidth(i+1,px);}
+ w('eventId',230);w('title',240);w('client',160);w('contractNo',150);w('driveLink',200);w('note',280);w('value',150);w('totalValue',150);w('inst1_amount',140);w('inst2_amount',140);
+ SpreadsheetApp.getUi().alert('Tab "Hợp đồng" đã định dạng: chọn Mã sự kiện ở cột A (dropdown) → Tên/Ngày tự hiện. Kế toán nhập tiền tại đây.');
+}
+function setupSheetIdsOnly_(sh){var d=sh.getDataRange().getValues();var h=d[0].map(function(x){return String(x).trim();});var ic=-1,tc=-1,dc=-1;h.forEach(function(x,i){var k=keyForHeader_(x);if(k==='eventId')ic=i;if(k==='title')tc=i;if(k==='date')dc=i;});if(ic<0)return;var chg=false;for(var r=1;r<d.length;r++){if(!d[r][ic]&&(d[r][tc]||d[r][dc])){sh.getRange(r+1,ic+1).setValue(mkId_(toYMD_(d[r][dc]),d[r][tc]));chg=true;}}return chg;}
+
+/* tự sắp xếp khi sửa ngày/giờ ở Sync */
+function onEdit(e){try{var sh=e.range.getSheet();if(sh.getName()!==SHEET_NAME)return;if(e.range.getRow()===1)return;var header=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x).trim();});var key=keyForHeader_(header[e.range.getColumn()-1]);if(key==='date'||key==='time')sortSheet();}catch(_){}}
+function sortSheet(){var sh=SpreadsheetApp.getActive().getSheetByName(SHEET_NAME)||SpreadsheetApp.getActiveSheet();var data=sh.getDataRange().getValues();if(data.length<3)return;var header=data[0].map(function(x){return String(x).trim();});var di=-1,ti=-1;header.forEach(function(h,i){var k=keyForHeader_(h);if(k==='date')di=i;if(k==='time')ti=i;});if(di<0)return;var body=data.slice(1).filter(function(r){return r.join('')!=='';});body.sort(function(a,b){var ka=sortKey_(a[di],ti>=0?a[ti]:''),kb=sortKey_(b[di],ti>=0?b[ti]:'');return ka<kb?1:(ka>kb?-1:0);});sh.getRange(2,1,body.length,data[0].length).setValues(body);}
+
+/* ===== Firestore ===== */
+function tok_(){return ScriptApp.getOAuthToken();}
+function fval_(v){if(v===null||v===undefined||v==='')return{nullValue:null};if(typeof v==='boolean')return{booleanValue:v};if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};if(Array.isArray(v))return{arrayValue:{values:v.map(fval_)}};return{stringValue:String(v)};}
+function toFields_(o){var f={};for(var k in o)f[k]=fval_(o[k]);return{fields:f};}
+function write_(coll,id,o){var res=UrlFetchApp.fetch(BASE+coll+'/'+encodeURIComponent(id),{method:'patch',contentType:'application/json',headers:{Authorization:'Bearer '+tok_()},payload:JSON.stringify(toFields_(o)),muteHttpExceptions:true});if(res.getResponseCode()>=300)throw new Error(coll+'/'+id+': '+res.getContentText());}
+function listIds_(coll){var ids=[],p='';do{var r=UrlFetchApp.fetch(BASE+coll+'?pageSize=300'+(p?('&pageToken='+p):''),{headers:{Authorization:'Bearer '+tok_()},muteHttpExceptions:true});var j=JSON.parse(r.getContentText()||'{}');(j.documents||[]).forEach(function(d){ids.push(d.name.split('/').pop());});p=j.nextPageToken||'';}while(p);return ids;}
+function del_(coll,id){UrlFetchApp.fetch(BASE+coll+'/'+encodeURIComponent(id),{method:'delete',headers:{Authorization:'Bearer '+tok_()},muteHttpExceptions:true});}
+
+var TYPE_MAP={'Ticket':'ticket','Public':'public','Event':'event_checkin','Gameshow':'gameshow','Podcast':'podcast','Quay social':'quay_social','Thu âm':'thu_am','Phỏng vấn/Họp':'phong_van','Chụp hình':'chup_hinh','Livestream':'livestream','Cá nhân':'canhan','Khác':'khac'};
+var STATUS_MAP={'Đã chốt':'da_chot','Đang báo giá':'bao_gia','Đang đàm phán':'dam_phan','Đã ký HĐ':'da_ky_hd','Hoàn thành':'hoan_thanh','Đã hủy':'da_huy','confirmed':'da_chot'};
+var PAYST_MAP={'Đã thanh toán':'da_thanh_toan','Quá hạn':'qua_han','Đến hạn':'den_han','Chưa đến hạn':'chua_den_han'};
+function isoStart_(d,t){t=t||'19:00';return d+'T'+(String(t).length>=4?String(t).slice(0,5):'19:00')+':00+07:00';}
+function addHours_(iso,h){var d=new Date(iso);d.setHours(d.getHours()+h);return d.toISOString();}
+
+function readContracts_(){ // map eventId -> finance từ tab Hợp đồng
+ var ss=SpreadsheetApp.getActive();var ct=ss.getSheetByName(CTAB);var m={};if(!ct)return m;
+ var d=ct.getDataRange().getValues();if(d.length<2)return m;var h=d[0].map(function(x){return String(x).trim();});var ci={};h.forEach(function(x,i){
+   var key=null; for(var k in CK2VI){ if(CK2VI[k].toLowerCase()===x.toLowerCase())key=k; } if(key)ci[key]=i;});
+ function g(row,key){var i=ci[key];return i===undefined?'':row[i];}
+ for(var r=1;r<d.length;r++){var eid=String(g(d[r],'eventId')||'').trim();if(!eid)continue;
+   m[eid]={value:Number(g(d[r],'value')||0),tax:Number(g(d[r],'tax')||0),totalValue:Number(g(d[r],'totalValue')||0),
+    inst:[{amt:Number(g(d[r],'inst1_amount')||0),date:toYMD_(g(d[r],'inst1_date')),st:String(g(d[r],'inst1_status')||'')},
+          {amt:Number(g(d[r],'inst2_amount')||0),date:toYMD_(g(d[r],'inst2_date')),st:String(g(d[r],'inst2_status')||'')}]};}
+ return m;}
+
+function pushToApp(){
+ var sh=SpreadsheetApp.getActive().getSheetByName(SHEET_NAME)||SpreadsheetApp.getActiveSheet();
+ setupSheetIdsOnly_(sh);
+ var data=sh.getDataRange().getValues();var header=data[0].map(function(x){return String(x).trim();});var col={};header.forEach(function(h,i){var k=keyForHeader_(h);if(k)col[k]=i;});
+ function gv(row,key){var i=col[key];return(i===undefined)?'':row[i];}
+ if(col['title']===undefined)throw new Error('Chưa thấy cột Tên sự kiện. Chạy ① trước.');
+ var HD=readContracts_();
+ var nJobs=0,nPays=0;
+ for(var r=1;r<data.length;r++){var row=data[r];var title=gv(row,'title');if(!title)continue;
+  var date=toYMD_(gv(row,'date'));var tm=String(gv(row,'time')||'');var tmm=tm.match(/(\d{1,2}):(\d{2})/);var start=isoStart_(date,tmm?(pad_(tmm[1],2)+':'+tmm[2]):'19:00');
+  var eventId=gv(row,'eventId')?String(gv(row,'eventId')):mkId_(date,title);
+  var fin=HD[eventId]||null;
+  var net=fin?fin.value:0;
+  var job={id:eventId,sourceApp:'qt-artist-manager',entityType:'job',artistId:'artist_quocthien',name:title,
+   type:TYPE_MAP[String(gv(row,'type')||'').trim()]||'khac',status:STATUS_MAP[String(gv(row,'status')||'').trim()]||'da_chot',
+   start:start,end:addHours_(start,2),loc:String(gv(row,'venue')||''),prov:String(gv(row,'province')||''),client:String(gv(row,'client')||''),
+   net:net,vat:fin?fin.tax:0,timeline:String(gv(row,'pw_notes')||''),note:String(gv(row,'pw_notes')||''),
+   drive:String(gv(row,'drive')||''),beat:String(gv(row,'beat')||''),lyrics:String(gv(row,'lyrics')||''),
+   setlist:'',contact:'',phone:'',call:null,follow:false,tags:['from-sheet'],updatedAt:new Date().toISOString()};
+  write_('jobs',eventId,job);nJobs++;
+  if(fin){ for(var k=0;k<fin.inst.length;k++){var it=fin.inst[k];if(!it.amt)continue;
+    var due=it.date?(it.date+'T00:00:00+07:00'):(k===0?start:addHours_(start,24*7));
+    write_('pays',eventId+'_'+(k+1),{id:eventId+'_'+(k+1),job:eventId,label:'Đợt '+(k+1),amt:it.amt,pct:fin.totalValue?Math.round(it.amt/fin.totalValue*100):0,due:due,st:PAYST_MAP[it.st.trim()]||'chua_den_han',paid:(it.st.trim()==='Đã thanh toán')?new Date().toISOString():null,sourceApp:'qt-artist-manager',entityType:'payment',jobId:eventId,updatedAt:new Date().toISOString()});nPays++;}}
+  if(col['eventId']!==undefined)sh.getRange(r+1,col['eventId']+1).setValue(eventId);
+  if(col['source']!==undefined)sh.getRange(r+1,col['source']+1).setValue('synced');
+ }
+ sortSheet();
+ SpreadsheetApp.getUi().alert('Đã đẩy lên app: '+nJobs+' job, '+nPays+' đợt (tiền lấy từ tab Hợp đồng).');
+}
+function resetApp(){var ui=SpreadsheetApp.getUi();if(ui.alert('Xoá toàn bộ jobs & pays trên app?','Để Sheet làm nguồn chính.',ui.ButtonSet.YES_NO)!==ui.Button.YES)return;['jobs','pays'].forEach(function(c){listIds_(c).forEach(function(id){del_(c,id);});});ui.alert('Đã xoá. Bấm ② để nạp lại.');}

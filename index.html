@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QT Manager · Quốc Thiên</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="color-scheme" content="light">
+<style>
+/* ===== SUNSET (default) ===== */
+:root{
+  --bg:#fff4ec;--surface:#ffffff;--text:#40233b;--muted:#b78a93;--faint:#e0bfc4;
+  --border:#ffe0d2;--brand:#ff6f61;--brand2:#ff9e5e;--grad:linear-gradient(135deg,#ff7a9c 0%,#ff7a5c 55%,#ffb04a 100%);
+  --soft:#ffe7df;--chip:#fff0e8;--glosstop:rgba(255,255,255,.72);--shadow:0 8px 22px rgba(255,120,92,.16);--bshadow:rgba(255,111,97,.45);
+  --m1:#ff7a9c;--m2:#ffc14d;--m3:#43d0bf;--m4:#7b6cf6;
+  --green:#2bb673;--greenbg:#e3f7ec;--amber:#ff9500;--amberbg:#fff1de;--red:#ff4d4f;--redbg:#ffe7e7;--blue:#3aa0ff;--bluebg:#e6f1ff;--indigo:#7b6cf6;--indigobg:#eeebff;
+}
+/* ===== BABY BLUE ===== */
+body.baby{
+  --bg:#eaf5ff;--surface:#ffffff;--text:#173a5e;--muted:#7ba6cc;--faint:#c3ddf3;
+  --border:#d9ecfc;--brand:#3aa0ff;--brand2:#8fd3ff;--grad:linear-gradient(135deg,#6db8ff 0%,#4aa6ff 55%,#7ee3d6 100%);
+  --soft:#e3f1ff;--chip:#eef7ff;--glosstop:rgba(255,255,255,.78);--shadow:0 8px 22px rgba(58,160,255,.16);--bshadow:rgba(58,160,255,.45);
+  --m1:#4aa6ff;--m2:#7ee3d6;--m3:#ffd36e;--m4:#ff8fb1;
+}
+/* ===== DARK (chung) ===== */
+body.dark{
+  --bg:#0e1116;--surface:#191e26;--text:#f3f5f8;--muted:#8b95a3;
+  --border:#2a313c;--brand:#ff9e7d;--brand2:#ffd36e;--grad:linear-gradient(135deg,#ff7a9c,#ff9e5e,#ffd36e);--faint:#5b6470;
+  --soft:rgba(255,158,125,.16);--chip:#232a34;--glosstop:rgba(255,255,255,.05);--shadow:0 10px 26px rgba(0,0,0,.5);--bshadow:rgba(0,0,0,.45);
+  --green:#36d399;--greenbg:rgba(54,211,153,.18);--amber:#ffb84d;--amberbg:rgba(255,184,77,.18);--red:#ff6b6b;--redbg:rgba(255,107,107,.2);--blue:#5bb0ff;--bluebg:rgba(91,176,255,.2);--indigo:#9d8cff;--indigobg:rgba(157,140,255,.2);
+}
+body.baby.dark{--brand:#7ec8ff;--brand2:#7ee3d6;--grad:linear-gradient(135deg,#6db8ff,#4aa6ff,#7ee3d6);--bshadow:rgba(0,0,0,.45);}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Be Vietnam Pro',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;transition:background .3s}
+button{font-family:inherit;cursor:pointer;color:inherit}
+.hidden{display:none!important}
+.i{font-size:20px;line-height:1}
+.ti{display:inline-flex;align-items:center;justify-content:center}
+.ti svg{width:1em;height:1em;display:block;flex-shrink:0}
+.phone{max-width:480px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
+
+/* glossy surfaces */
+.glass{background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
+
+/* LOGIN */
+#login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:28px 22px;position:relative;overflow:hidden}
+.sh{position:absolute;pointer-events:none;opacity:.9}
+.sh.dot{border-radius:50%}
+.sh.ring{border-radius:50%;background:transparent}
+.sh.sq{border-radius:7px}
+.sh.tri{width:0;height:0;background:transparent!important}
+.zig{position:absolute;opacity:.85}
+.llogo{width:72px;height:72px;border-radius:22px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin:0 auto 16px;position:relative;overflow:hidden;box-shadow:0 12px 28px var(--bshadow);z-index:2}
+.llogo::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.45),transparent)}
+#login h1{text-align:center;font-size:27px;font-weight:800;z-index:2}
+#login .s{text-align:center;color:var(--muted);font-size:14px;margin-top:4px;z-index:2}
+.themepick{display:flex;gap:8px;justify-content:center;margin:18px 0 4px;z-index:2;position:relative}
+.tp{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:30px;border:2px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--muted)}
+.tp .sw{width:18px;height:18px;border-radius:50%}
+.tp.on{border-color:var(--brand);color:var(--text)}
+.roles{margin-top:18px;display:flex;flex-direction:column;gap:12px;z-index:2;position:relative}
+.rcard{display:flex;align-items:center;gap:14px;border:1px solid var(--border);border-radius:18px;padding:15px;text-align:left;width:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
+.rcard:active{transform:scale(.99)}
+.rcard .ic{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.12)}
+.rcard .ic::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.4),transparent)}
+.rcard .nm{font-weight:700;font-size:16px}
+.rcard .d{color:var(--muted);font-size:13px;margin-top:2px}
+.lnote{text-align:center;color:var(--faint);font-size:12px;margin-top:22px;line-height:1.5;z-index:2;position:relative}
+.avatars{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;z-index:2;position:relative}
+.av{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;aspect-ratio:1;border:1px solid var(--border);border-radius:22px;padding:12px;background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
+.av:active{transform:scale(.98)}
+.av .circle{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:800;box-shadow:0 8px 20px var(--bshadow);overflow:hidden;background-size:cover;background-position:center;position:relative}
+.av .circle::before{content:"";position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.4),transparent)}
+.av .nm{font-weight:700;font-size:15px;color:var(--text)}
+
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;padding:14px 16px 10px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px)}
+.hdr .ttl{font-size:23px;font-weight:800;flex:1}
+.hbtn{position:relative;width:38px;height:38px;border:none;background:linear-gradient(180deg,var(--glosstop),var(--surface));border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--brand);font-size:18px;box-shadow:var(--shadow)}
+.hbtn .bdg{position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.hsub{padding:0 18px 6px;color:var(--muted);font-size:13px}
+.screen{padding:6px 16px 100px}
+
+/* generic */
+.group{border-radius:18px;overflow:hidden;margin-bottom:16px;background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
+.gtitle{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:18px 6px 8px}
+.item{display:flex;align-items:center;gap:12px;padding:14px 15px;width:100%;text-align:left;background:transparent;position:relative;border:none;font-family:inherit;color:inherit}
+.item:not(:last-child)::after{content:"";position:absolute;left:48px;right:14px;bottom:0;height:1px;background:var(--border);opacity:.7}
+.item:active{background:var(--chip)}
+.item:first-child{border-top-left-radius:18px;border-top-right-radius:18px}
+.item:last-child{border-bottom-left-radius:18px;border-bottom-right-radius:18px}
+.item .bar{width:6px;align-self:stretch;border-radius:6px;flex-shrink:0;min-height:34px}
+.tbadge{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;position:relative;overflow:hidden;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.14)}
+.tbadge::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.38),transparent)}
+.tbadge .ti{position:relative;z-index:1}
+.tbadge.big{width:50px;height:50px;border-radius:16px;font-size:26px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:linear-gradient(180deg,var(--glosstop),var(--surface));color:var(--brand);font-weight:700;font-size:13px;padding:9px 13px;border-radius:12px;box-shadow:var(--shadow)}
+.linkbtn.empty{color:var(--muted);font-weight:600}
+.editlink{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:11px;padding:9px 10px;font-size:15px}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--soft);color:var(--brand);font-weight:600;font-size:13px;padding:7px 12px;border-radius:30px}
+.chip .ti{font-size:16px}
+.chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip.add{background:transparent;color:var(--muted);border-style:dashed;font-weight:500}
+.item .t{font-weight:700;font-size:15px}
+.item .s{font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.chev{color:var(--faint);font-size:18px;margin-left:auto;flex-shrink:0}
+.badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.pill{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--chip);color:var(--muted);font-weight:600}
+.money{font-weight:800;font-size:14px;white-space:nowrap}
+.empty{color:var(--faint);font-size:14px;padding:26px 0;text-align:center}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px}
+.kpi{border-radius:18px;padding:14px;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
+.kpi .ico{width:32px;height:32px;border-radius:11px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:9px;position:relative;overflow:hidden;box-shadow:0 4px 10px var(--bshadow)}
+.kpi .ico::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.45),transparent)}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:18px;font-weight:800;margin-top:1px}
+
+.alert{display:flex;gap:11px;background:var(--amberbg);border-radius:16px;padding:13px 14px;margin-bottom:6px;font-size:13px;color:var(--amber);box-shadow:var(--shadow)}
+.alert .i{flex-shrink:0;font-size:20px}
+.alert b{display:block;margin-bottom:3px;font-size:14px}
+.alert ul{margin:0;padding-left:16px;color:var(--amber)}
+
+/* search */
+.searchbar{position:relative;margin:4px 0 14px}
+.searchbar .i{position:absolute;left:13px;top:12px;color:var(--faint);font-size:18px}
+.searchbar input{width:100%;height:42px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--glosstop),var(--surface));color:var(--text);padding:0 12px 0 40px;font-size:15px;font-family:inherit;box-shadow:var(--shadow)}
+.fab{position:fixed;bottom:92px;left:50%;transform:translateX(calc(240px - 80px));z-index:25;height:52px;border:none;border-radius:26px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px;padding:0 22px;box-shadow:0 10px 26px var(--bshadow);overflow:hidden}
+.fab::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent)}
+@media(max-width:520px){.fab{right:18px;left:auto;transform:none}}
+
+/* segmented */
+.seg{display:flex;background:var(--chip);border-radius:14px;padding:4px;margin-bottom:14px;box-shadow:inset 0 1px 3px rgba(0,0,0,.06);position:sticky;top:54px;z-index:20}
+.seg::before{content:"";position:absolute;left:-16px;right:-16px;top:-10px;bottom:-9px;background:var(--bg);z-index:-1}
+.seg button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:9px;border-radius:11px}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+
+/* iOS-like Calendar */
+.calhead{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 12px}
+.calhead .mo{font-size:22px;font-weight:800;text-transform:capitalize}
+.calhead .navs{display:flex;gap:8px}
+.calhead .navs button{width:36px;height:36px;border:none;border-radius:50%;background:linear-gradient(180deg,var(--glosstop),var(--surface));color:var(--brand);font-size:20px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.dow span{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:4px 0}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);row-gap:2px}
+.cday{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;border:none;background:transparent;position:relative}
+.cday .n{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:16px;font-weight:600}
+.cday.dim .n{color:var(--faint)}
+.cday.today .n{color:var(--red);font-weight:800}
+.cday.today:not(.sel) .n{box-shadow:inset 0 0 0 2px var(--red)}
+.calhead .navs button.todaybtn{width:auto;height:36px;border-radius:30px;background:var(--soft);color:var(--brand);font-weight:700;font-size:13px;padding:0 14px;white-space:nowrap}
+.cday.sel .n{background:var(--grad);color:#fff;font-weight:800;box-shadow:0 4px 12px var(--bshadow)}
+.cdots{display:flex;gap:3px;margin-top:3px;height:6px}
+.cdots i{width:6px;height:6px;border-radius:50%}
+.calcard{background:linear-gradient(180deg,var(--glosstop),var(--surface));border-radius:20px;box-shadow:var(--shadow);padding:14px 14px 10px;margin:0 0 18px}
+.calcard .calhead{margin:0 2px 10px}
+.dlist .dhead{font-size:15px;font-weight:800;margin:0 2px 8px;text-transform:capitalize}
+
+/* tasks */
+.task{display:flex;align-items:flex-start;gap:12px;padding:15px;background:transparent;width:100%;text-align:left;position:relative}
+.task:not(:last-child)::after{content:"";position:absolute;left:53px;right:15px;bottom:0;height:1px;background:var(--border);opacity:.7}
+.tcheck{width:28px;height:28px;border-radius:50%;border:2px solid var(--faint);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.tcheck.done{background:var(--grad);border-color:transparent;box-shadow:0 3px 8px var(--bshadow)}
+.tcheck.doing{border-color:var(--blue);color:var(--blue)}
+.tcheck.doing .i{font-size:13px}
+.task .tn{font-weight:700;font-size:15px}
+.task.isdone .tn{color:var(--faint);text-decoration:line-through}
+.task .nt{font-size:13px;color:var(--muted);margin-top:3px}
+.task .meta{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
+.stpill{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;border:none}
+
+/* detail */
+.back{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(180deg,var(--glosstop),var(--surface));border:1.5px solid var(--brand);color:var(--brand);font-size:15px;font-weight:700;padding:9px 16px 9px 11px;border-radius:30px;margin-bottom:14px;box-shadow:var(--shadow)}
+.back:active{transform:scale(.97)}
+.dtitle{font-size:22px;font-weight:800;margin:2px 0 8px}
+.bigbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border:none;border-radius:16px;background:var(--grad);color:#fff;font-weight:700;font-size:16px;margin:6px 0 16px;position:relative;overflow:hidden;box-shadow:0 10px 24px var(--bshadow)}
+.bigbtn::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent)}
+.bigbtn.alt{background:linear-gradient(180deg,var(--glosstop),var(--surface));color:var(--brand);box-shadow:var(--shadow)}
+.bigbtn.alt::before{display:none}
+.drow{display:flex;gap:13px;padding:14px 15px;align-items:flex-start;position:relative}
+.drow:not(:last-child)::after{content:"";position:absolute;left:64px;right:15px;bottom:0;height:1px;background:var(--border);opacity:.7}
+.drow .di{width:36px;height:36px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--brand);font-size:18px;flex-shrink:0}
+.drow .dk{font-size:12px;color:var(--muted)}
+.drow .dv{font-weight:700;font-size:15px;margin-top:1px;white-space:pre-wrap}
+.pre{white-space:pre-wrap;font-size:14px;line-height:1.6;padding:14px 15px;color:var(--text)}
+.tabs{display:flex;gap:4px;background:var(--chip);border-radius:14px;padding:4px;margin-bottom:14px;overflow:visible;box-shadow:inset 0 1px 3px rgba(0,0,0,.06);position:sticky;top:54px;z-index:20}
+.tabs::before{content:"";position:absolute;left:-16px;right:-16px;top:-10px;bottom:-9px;background:var(--bg);z-index:-1}
+.tabs button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:8px 6px;border-radius:11px;white-space:nowrap}
+.tabs button.on{background:var(--surface);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+
+/* bottom tabbar */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:40;display:flex;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;border:none;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px}
+.tabbar button .i{font-size:23px}
+.tabbar button.on{color:var(--brand)}
+.tabbar button.on .i{transform:translateY(-1px)}
+.noverlay{position:fixed;inset:0;z-index:55;display:none}
+.npanel{position:absolute;top:58px;right:12px;left:12px;z-index:60;border-radius:18px;background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:0 18px 44px rgba(0,0,0,.2);overflow:hidden;display:none;max-width:360px;margin-left:auto}
+.npanel.open{display:block}
+.nhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.nhead .t{font-weight:800;font-size:15px;flex:1}
+.nhead button{width:34px;height:34px;border:none;border-radius:50%;background:var(--chip);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px}
+.nrow{display:flex;gap:10px;padding:12px 14px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:none;position:relative;color:inherit;font-family:inherit}
+.nrow:active{background:var(--chip)}
+.nrow:not(:last-child)::after{content:"";position:absolute;left:34px;right:14px;bottom:0;height:1px;background:var(--border);opacity:.6}
+.nrow .ndot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.nrow.read{opacity:.5}
+.nrow.read .ndot{background:transparent!important;border:1.5px solid var(--faint)}
+.ntext{font-size:14px;font-weight:500;line-height:1.4}
+.nempty{padding:26px;text-align:center;color:var(--faint);font-size:14px}
+.grp{display:flex;align-items:center;gap:9px;width:100%;background:transparent;border:none;padding:16px 6px 8px;font-weight:700;font-size:15px;color:var(--text);text-align:left}
+.grp .ti{font-size:18px;color:var(--muted)}
+.grp .gcount{margin-left:auto;background:var(--chip);color:var(--muted);font-size:12px;font-weight:600;border-radius:20px;padding:2px 10px}
+.grp-year{font-size:17px;border-top:1px solid var(--border);margin-top:6px}
+.grp-year .gcount{background:var(--soft);color:var(--brand)}
+.pastlabel{font-size:12px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin:22px 6px 2px;border-top:1px solid var(--border);padding-top:14px}
+.pastwrap{opacity:.6}
+
+/* ===== FORM TẠO SỰ KIỆN ===== */
+.frm{padding-bottom:90px}
+.dtitle{font-size:22px;font-weight:800}
+.fld{padding:11px 14px}
+.flbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:none}
+.in,select.in,textarea.in{width:100%;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);font-family:inherit;font-size:15px;padding:10px 12px;outline:none;transition:border-color .15s}
+.in:focus{border-color:var(--brand)}
+textarea.in{resize:vertical;min-height:62px;line-height:1.5}
+select.in{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237ba6cc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+.frow{display:flex;gap:10px;padding:11px 14px}
+.frow .fld{flex:1;padding:0}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px}
+.swrow .swt{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px}
+.swrow .swt .ti{color:var(--brand);font-size:19px}
+.switch{position:relative;width:46px;height:27px;flex-shrink:0;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--faint);border-radius:27px;transition:.2s;cursor:pointer}
+.slider:before{content:"";position:absolute;height:21px;width:21px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked+.slider{background:var(--brand)}
+.switch input:checked+.slider:before{transform:translateX(19px)}
+.sub{display:none;padding:2px 15px 14px;border-top:1px solid var(--border)}
+.sub.on{display:block}
+.segbtn{display:flex;gap:6px}
+.segbtn button{flex:1;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-weight:700;font-size:13px;padding:9px 6px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.segbtn button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.iconbtn{border:1.5px solid var(--border);background:var(--surface);color:var(--brand);border-radius:11px;padding:0 13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:44px;flex-shrink:0;font-size:18px}
+.addrow{display:inline-flex;align-items:center;gap:6px;color:var(--brand);font-weight:700;font-size:14px;background:var(--soft);border:1px dashed var(--brand);border-radius:11px;padding:9px 14px;margin-top:10px}
+.subcard{border:1px solid var(--border);border-radius:13px;padding:12px;margin-top:10px;position:relative;background:var(--surface)}
+.subcard .ttl{font-weight:800;font-size:14px;margin-bottom:4px}
+.delx{position:absolute;top:8px;right:9px;border:none;background:var(--chip);color:var(--muted);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+.calcd{font-size:12.5px;color:var(--muted);line-height:1.5}
+.totbox{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:var(--soft);border-radius:13px;margin:6px 14px;font-weight:800;font-size:16px}
+.totbox span:last-child{color:var(--brand)}
+.cstat{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;gap:4px;align-items:center}
+.savebar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:45;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--border)}
+.savebar .bigbtn{margin:0}
+.gtr{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gtr span{flex:1}
+.gtr .switch{flex-shrink:0}
+.collapsable{display:none}
+.collapsable.on{display:block}
+</style>
+</head>
+<body class="baby">
+<div class="phone">
+
+<div id="login">
+  <div class="sh ring" style="width:80px;height:80px;border:7px solid var(--m1);top:40px;left:-20px"></div>
+  <div class="sh dot" style="width:26px;height:26px;background:var(--m2);top:90px;right:30px"></div>
+  <div class="sh sq" style="width:34px;height:34px;background:var(--m3);bottom:120px;left:18px;transform:rotate(18deg)"></div>
+  <div class="sh tri" style="border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:30px solid var(--m4);top:160px;right:-6px;transform:rotate(-15deg)"></div>
+  <div class="sh dot" style="width:14px;height:14px;background:var(--m4);bottom:80px;right:50px"></div>
+  <svg class="zig" style="top:130px;left:60px;width:70px;height:18px" viewBox="0 0 70 18"><polyline points="0,16 12,2 24,16 36,2 48,16 60,2 70,10" fill="none" stroke="var(--m1)" stroke-width="3"/></svg>
+  <div class="llogo">QT</div>
+  <h1>QT Manager</h1>
+  <div class="s">Quản lý nghệ sĩ Quốc Thiên</div>
+  <div class="avatars">
+    <button class="av" data-r="artist"><span class="circle" style="background:linear-gradient(135deg,#ff5e9c,#ff9a5e)">QT</span><span class="nm">Quốc Thiên</span></button>
+    <button class="av" data-r="vi"><span class="circle" style="background:linear-gradient(135deg,#ff9f43,#ffd36e)">V</span><span class="nm">Vi</span></button>
+    <button class="av" data-r="thi"><span class="circle" style="background:linear-gradient(135deg,#5b8cff,#7ec8ff)">T</span><span class="nm">Thi</span></button>
+    <button class="av" data-r="truc"><span class="circle" style="background:linear-gradient(135deg,#22b07d,#5fe0b0)">Tr</span><span class="nm">Trúc</span></button>
+  </div>
+  <div class="lnote">Bản demo — dữ liệu mẫu. Đổi tông màu ở trên để xem thử.</div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="hdr"><div class="ttl" id="hTitle">Tổng quan</div>
+    <button class="hbtn" id="bell"><i class="ti ti-bell"></i><span class="bdg" id="bellBdg">4</span></button>
+    <button class="hbtn" id="logout"><i class="ti ti-logout"></i></button>
+  </div>
+  <div class="noverlay" id="noverlay"></div>
+  <div class="npanel" id="npanel"></div>
+  <div class="screen" id="screen"></div>
+  <div class="tabbar" id="tabbar"></div>
+</div>
+
+</div>
+<script>
+function rel(d,h){var x=new Date();x.setDate(x.getDate()+d);x.setHours(h||19,0,0,0);return x;}
+function relEnd(d,h){var x=new Date();x.setDate(x.getDate()+d);x.setHours(h||21,0,0,0);return x;}
+var PERFORM_COLOR='#ff476f';
+var TC={ticket:PERFORM_COLOR,public:PERFORM_COLOR,event_checkin:PERFORM_COLOR,bieu_dien:PERFORM_COLOR,gameshow:'#f59e0b',podcast:'#14b8a6',quay_social:'#8b5cf6',thu_am:'#6366f1',phong_van:'#0ea5e9',chup_hinh:'#10b981',livestream:'#ec4899',canhan:'#94a3b8',khac:'#64748b'};
+var TL={ticket:'Ticket',public:'Public',event_checkin:'Event',bieu_dien:'Ticket',gameshow:'Gameshow',podcast:'Podcast',chup_hinh:'Chụp hình',quay_social:'Quay social',thu_am:'Thu âm',phong_van:'Phỏng vấn/Họp',livestream:'Livestream',canhan:'Cá nhân',khac:'Khác'};
+var PERFORM={ticket:1,public:1,event_checkin:1};
+var TI={ticket:'ti-ticket',public:'ti-tree',event_checkin:'ti-building',bieu_dien:'ti-ticket',gameshow:'ti-device-tv',podcast:'ti-microphone',quay_social:'ti-video',thu_am:'ti-music',phong_van:'ti-messages',chup_hinh:'ti-camera',livestream:'ti-broadcast',canhan:'ti-user',khac:'ti-calendar'};
+function tIcon(t){return TI[t]||'ti-calendar';}
+function tBadge(t,big){return '<span class="tbadge'+(big?' big':'')+'" style="background:'+(TC[t]||'#64748b')+';color:#fff"><i class="ti '+tIcon(t)+'"></i></span>';}
+var SL={inquiry:'Inquiry',bao_gia:'Đang báo giá',da_chot:'Đã chốt',da_ky_hd:'Đã ký HĐ',hoan_thanh:'Hoàn thành'};
+function sbadge(st){var m={bao_gia:['var(--amberbg)','var(--amber)'],da_chot:['var(--bluebg)','var(--blue)'],da_ky_hd:['var(--indigobg)','var(--indigo)'],hoan_thanh:['var(--greenbg)','var(--green)']};var c=m[st]||['var(--chip)','var(--muted)'];return '<span class="badge" style="background:'+c[0]+';color:'+c[1]+'">'+SL[st]+'</span>';}
+var jobs=[{id:"g1",name:"Đà Lạt - Show Tuấn Hải",type:"ticket",start:new Date("2026-01-02T17:00:00+07:00"),end:new Date("2026-01-02T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g2",name:"Giao hưởng mùa yêu",type:"khac",start:new Date("2026-01-03T17:00:00+07:00"),end:new Date("2026-01-03T19:00:00+07:00"),loc:"Nhà Hát Hồ Gươm, 40 Hàng Bài, P. Hàng Bài, Q. Hoàn Kiếm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:380000000,call:null,timeline:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",setlist:"",contact:"",phone:"",note:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",follow:false},
+{id:"g3",name:"Thu âm Gala nhạc Việt",type:"thu_am",start:new Date("2026-01-04T18:00:00+07:00"),end:new Date("2026-01-04T20:00:00+07:00"),loc:"CC 207 Bùi Viện, Phường Bến Thành (Studio 13)",prov:"TP.HCM",client:"",status:"da_chot",net:18000000,call:null,timeline:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",follow:false},
+{id:"g4",name:"Ghi hình Gala nhạc Việt Tết 2026",type:"quay_social",start:new Date("2026-01-06T23:00:00+07:00"),end:new Date("2026-01-06T23:00:00+07:00"),loc:"Star VN, 14 Đường Số 12, P. An Phú, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Ghi hình Gala nhạc Việt Tết 2026 - 23h quay] Phim trường StarVN - Quận 2",setlist:"",contact:"",phone:"",note:"[Tên gốc: Ghi hình Gala nhạc Việt Tết 2026 - 23h quay] Phim trường StarVN - Quận 2",follow:false},
+{id:"g5",name:"Tiệc Gala dinner Trung tâm đào tạo nhân lực VietinBank",type:"event_checkin",start:new Date("2026-01-09T19:00:00+07:00"),end:new Date("2026-01-09T21:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:460000000,call:null,timeline:"[Tên gốc: Tiệc Gala dinner tại TRung tâm đào tạo nhân lực VietinBank 460] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tiệc Gala dinner tại TRung tâm đào tạo nhân lực VietinBank 460] ",follow:false},
+{id:"g6",name:"Event VNPAY",type:"event_checkin",start:new Date("2026-01-09T20:30:00+07:00"),end:new Date("2026-01-09T22:30:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:550000000,call:null,timeline:"[Tên gốc: Event VNPAY 550] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Event VNPAY 550] ",follow:false},
+{id:"g7",name:"Thu âm",type:"thu_am",start:new Date("2026-01-10T16:00:00+07:00"),end:new Date("2026-01-10T18:00:00+07:00"),loc:"31 Lương Văn Can, P. Hàng Đào, Q. Hoàn Kiếm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 16h Thu âm 15/1 & 21/1] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 16h Thu âm 15/1 & 21/1] ",follow:false},
+{id:"g8",name:"Trạm yêu 3",type:"ticket",start:new Date("2026-01-11T00:00:00+07:00"),end:new Date("2026-01-11T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:460000000,call:null,timeline:"[Tên gốc: Trạm yêu 3 - 460] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Trạm yêu 3 - 460] ",follow:false},
+{id:"g9",name:"Tập show MSB HP Phòng Hòa nhạc lớn Học viện Âm nhạc quốc gia Việt Nam",type:"event_checkin",start:new Date("2026-01-13T13:30:00+07:00"),end:new Date("2026-01-13T15:30:00+07:00"),loc:"77 Hào Nam, P. Ô Chợ Dừa, Q. Đống Đa, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Tập show 17/1 MSB HP Phòng Hòa nhạc lớn Học viện Âm nhạc quốc gia Việt Nam] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tập show 17/1 MSB HP Phòng Hòa nhạc lớn Học viện Âm nhạc quốc gia Việt Nam] ",follow:false},
+{id:"g10",name:"Hoa Xuân Ca",type:"ticket",start:new Date("2026-01-15T15:00:00+07:00"),end:new Date("2026-01-15T17:00:00+07:00"),loc:"NHÀ THI ĐẤU TÂN BÌNH, Trung Tâm Văn Hóa Thể Thao Tân Bình, Phường 4, Q. Tân Bình, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Hoa Xuân Ca - 40] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Hoa Xuân Ca - 40] ",follow:false},
+{id:"g11",name:"MSB bank HP",type:"event_checkin",start:new Date("2026-01-17T17:00:00+07:00"),end:new Date("2026-01-17T19:00:00+07:00"),loc:"https://maps.app.goo.gl/71sSdLyb6veN65xw9",prov:"",client:"",status:"da_chot",net:500000000,call:null,timeline:"[Tên gốc: MSB bank HP 500] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: MSB bank HP 500] ",follow:false},
+{id:"g12",name:"Phòng trà Không Tên",type:"ticket",start:new Date("2026-01-18T00:00:00+07:00"),end:new Date("2026-01-18T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Phong tra Khong Ten] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Phong tra Khong Ten] ",follow:false},
+{id:"g13",name:"Pepsi",type:"event_checkin",start:new Date("2026-01-18T20:50:00+07:00"),end:new Date("2026-01-18T22:50:00+07:00"),loc:"Phố Đi Bộ Nguyễn Huệ, Nguyễn Huệ, P. Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:550000000,call:null,timeline:"[Tên gốc: Pepsi 550 - 20h 50] TAL 10%",setlist:"",contact:"",phone:"",note:"[Tên gốc: Pepsi 550 - 20h 50] TAL 10%",follow:false},
+{id:"g14",name:"Rehearsal show Pepsi",type:"event_checkin",start:new Date("2026-01-18T10:00:00+07:00"),end:new Date("2026-01-18T12:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Rehearsal show Pepsi - 10h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Rehearsal show Pepsi - 10h] ",follow:false},
+{id:"g15",name:"Tập Concert Hoà Minzy",type:"ticket",start:new Date("2026-01-19T15:00:00+07:00"),end:new Date("2026-01-19T17:00:00+07:00"),loc:"24Beat, 52 Đường Số 82, P. Thạnh Mỹ Lợi, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Tập Concert Hoà Minzy - 15h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tập Concert Hoà Minzy - 15h] ",follow:false},
+{id:"g16",name:"Quay hình \"Gió và tình yêu thổi trên đất nước tôi\" - Tết Giao thừa VTV",type:"quay_social",start:new Date("2026-01-20T18:00:00+07:00"),end:new Date("2026-01-20T20:00:00+07:00"),loc:"VTV - Đài Truyền hình Việt Nam, 43 Nguyễn Chí Thanh",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 30 Quay hình HN Ct Gió và tình yêu thổi trên đất nước tôi - Tết Giao thừa VtV] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 30 Quay hình HN Ct Gió và tình yêu thổi trên đất nước tôi - Tết Giao thừa VtV] ",follow:false},
+{id:"g17",name:"Quay hình HN",type:"quay_social",start:new Date("2026-01-21T14:00:00+07:00"),end:new Date("2026-01-21T16:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: TM 15 Quay hình HN] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: TM 15 Quay hình HN] ",follow:false},
+{id:"g18",name:"Thanh Âm Thông Zeo - Hạ Long",type:"khac",start:new Date("2026-01-24T18:00:00+07:00"),end:new Date("2026-01-24T20:00:00+07:00"),loc:"Hạ Long",prov:"Quảng Ninh",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Thanh Âm Thông Zeo - Hạ Long 450] TH",setlist:"",contact:"",phone:"",note:"[Tên gốc: Thanh Âm Thông Zeo - Hạ Long 450] TH",follow:false},
+{id:"g19",name:"Đám Cưới Chị Lê HN",type:"canhan",start:new Date("2026-01-24T11:00:00+07:00"),end:new Date("2026-01-24T13:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Đám Cưới Chị Lê - 11h HN] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Đám Cưới Chị Lê - 11h HN] ",follow:false},
+{id:"g20",name:"Chương trình Tính Tang OCB",type:"event_checkin",start:new Date("2026-01-25T17:00:00+07:00"),end:new Date("2026-01-25T19:00:00+07:00"),loc:"Phố đi bộ Nguyễn Huệ",prov:"TP.HCM",client:"",status:"da_chot",net:550000000,call:null,timeline:"[Tên gốc: Cọc L1 Ctrinh Tính Tang OCB - 550] 550H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 Ctrinh Tính Tang OCB - 550] 550H",follow:true},
+{id:"g21",name:"Event YEP Chicilon",type:"event_checkin",start:new Date("2026-01-27T20:30:00+07:00"),end:new Date("2026-01-27T22:30:00+07:00"),loc:"Khách sạn Hilton Sài Gòn, 11 Công Trường Mê Linh",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Event YEP Chicilon - 20:30] 27/01/2026 YEP Chicilon\n\nNghệ sĩ Quốc Thiên:\n- Giờ diễn: 20:30 \n- Giờ standby: Trước giờ diễn 15p\n- Địa điểm: KS Hilton Q1 - HCM \n- List: 03 bài.\n\nHôm đó em Take Care số phone 0969835988 ạ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Event YEP Chicilon - 20:30] 27/01/2026 YEP Chicilon\n\nNghệ sĩ Quốc Thiên:\n- Giờ diễn: 20:30 \n- Giờ standby: Trước giờ diễn 15p\n- Địa điểm: KS Hilton Q1 - HCM \n- List: 03 bài.\n\nHôm đó em Take Care số phone 0969835988 ạ",follow:false},
+{id:"g22",name:"Phòng trà Bến Thành",type:"ticket",start:new Date("2026-01-28T00:00:00+07:00"),end:new Date("2026-01-28T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:210000000,call:null,timeline:"[Tên gốc: Phòng trà Bến Thành 210 done] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Phòng trà Bến Thành 210 done] ",follow:false},
+{id:"g23",name:"Meeting a Quốc Thiên",type:"canhan",start:new Date("2026-01-28T14:00:00+07:00"),end:new Date("2026-01-28T16:00:00+07:00"),loc:"230/18 Pasteur, Phường 6, Quận 3, Thành phố Hồ Chí Minh, Vietnam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"Tham gia qua Google Meet: https://meet.google.com/aqh-hxwr-vic\nHoặc gọi điện đến số: (US) +1 252-692-0160 Mã PIN: 810152217#\nCác số điện thoại khác: https://tel.meet/aqh-hxwr-vic?pin=3371382314587&hs=7\n\nTìm hiểu thêm về Meet tại: https://support.google.com/a/users/answer/9282720",setlist:"",contact:"",phone:"",note:"Tham gia qua Google Meet: https://meet.google.com/aqh-hxwr-vic\nHoặc gọi điện đến số: (US) +1 252-692-0160 Mã PIN: 810152217#\nCác số điện thoại khác: https://tel.meet/aqh-hxwr-vic?pin=3371382314587&hs=7\n\nTìm hiểu thêm về Meet tại: https://support.google.com/a/users/answer/9282720",follow:false},
+{id:"g24",name:"Chạy SK Hoà Minzy",type:"ticket",start:new Date("2026-01-29T10:00:00+07:00"),end:new Date("2026-01-29T12:00:00+07:00"),loc:"The Global City, P. An Phú, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 10h Chạy SK Hoà Minzi] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 10h Chạy SK Hoà Minzi] ",follow:false},
+{id:"g25",name:"Quay hình Show a Trí",type:"quay_social",start:new Date("2026-01-29T13:45:00+07:00"),end:new Date("2026-01-29T15:45:00+07:00"),loc:"Nhà Hát Quân Đội Khu Vực Phía Nam, 140 Cộng Hòa, Phường 4, Q. Tân Bình, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Quay hình Show a Trí - 13:45] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Quay hình Show a Trí - 13:45] ",follow:false},
+{id:"g26",name:"Event Tập đoàn Y tế",type:"event_checkin",start:new Date("2026-01-30T20:00:00+07:00"),end:new Date("2026-01-30T22:00:00+07:00"),loc:"Cung thể thao Quần Ngựa, 30 Đường Văn Cao, P. Liễu Giai, Quận Ba Đình, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:500000000,call:null,timeline:"[Tên gốc: Event Tập đoàn Y tế 500] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Event Tập đoàn Y tế 500] ",follow:false},
+{id:"g27",name:"Xuân Phát Tài HN",type:"ticket",start:new Date("2026-01-31T10:00:00+07:00"),end:new Date("2026-01-31T12:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Xuan Phát Tài HN] 350net , 370 hợp đồng",setlist:"",contact:"",phone:"",note:"[Tên gốc: Xuan Phát Tài HN] 350net , 370 hợp đồng",follow:false},
+{id:"g28",name:"Concert Hoà Minzy",type:"ticket",start:new Date("2026-02-01T20:25:00+07:00"),end:new Date("2026-02-01T22:25:00+07:00"),loc:"The Global City, P. An Phú, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Concert Hoà Minzy - 20h có mặt ( 20h25 diễn )] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Concert Hoà Minzy - 20h có mặt ( 20h25 diễn )] ",follow:false},
+{id:"g29",name:"Event HN",type:"event_checkin",start:new Date("2026-02-06T19:00:00+07:00"),end:new Date("2026-02-06T21:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Event HN 450] 450H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Event HN 450] 450H",follow:false},
+{id:"g30",name:"Tập band Musique de salon show",type:"ticket",start:new Date("2026-02-10T14:00:00+07:00"),end:new Date("2026-02-10T16:00:00+07:00"),loc:"Nhà Hát Quân Đội Khu Vực Phía Nam, 140 Cộng Hòa, Phường 4, Q. Tân Bình, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Tập band Musique de salon show 12/2 - 14h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tập band Musique de salon show 12/2 - 14h] ",follow:false},
+{id:"g31",name:"Tập band show Hội An",type:"ticket",start:new Date("2026-02-11T13:00:00+07:00"),end:new Date("2026-02-11T15:00:00+07:00"),loc:"24BEAT Music School, 10 Nguyễn Văn Kỉnh, P. Thạnh Mỹ Lợi, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 13h Tập band show 21/2 Hội An] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 13h Tập band show 21/2 Hội An] ",follow:false},
+{id:"g32",name:"MSD nhạc Xuân",type:"event_checkin",start:new Date("2026-02-12T20:00:00+07:00"),end:new Date("2026-02-12T22:00:00+07:00"),loc:"Gem",prov:"TP.HCM",client:"",status:"da_chot",net:130000000,call:null,timeline:"[Tên gốc: MSD nhạc Xuân 130] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: MSD nhạc Xuân 130] ",follow:false},
+{id:"g33",name:"Rehearsal show a Trí",type:"ticket",start:new Date("2026-02-12T10:30:00+07:00"),end:new Date("2026-02-12T12:30:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Rehearsal show a Trí - 10:30] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Rehearsal show a Trí - 10:30] ",follow:false},
+{id:"g34",name:"Phòng trà Không Tên",type:"ticket",start:new Date("2026-02-17T00:00:00+07:00"),end:new Date("2026-02-17T02:00:00+07:00"),loc:"112 Lê Thánh Tôn, P. Bến Thành, Quận 1, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:150000000,call:null,timeline:"[Tên gốc: TM Phòng trà không tên 150] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: TM Phòng trà không tên 150] ",follow:false},
+{id:"g35",name:"Mây Lang Thang ĐL - Mây in the Nest",type:"ticket",start:new Date("2026-02-19T00:00:00+07:00"),end:new Date("2026-02-19T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: May Lang Thang DL - Mây in the nest 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: May Lang Thang DL - Mây in the nest 450] ",follow:false},
+{id:"g36",name:"Mây Hải Phòng",type:"ticket",start:new Date("2026-02-20T00:00:00+07:00"),end:new Date("2026-02-20T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Mây Hải Phòng - 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Mây Hải Phòng - 450] ",follow:false},
+{id:"g37",name:"The Pearl Hội An - Tết Concert",type:"ticket",start:new Date("2026-02-21T19:00:00+07:00"),end:new Date("2026-02-21T21:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: The Pearl HoiAn - Tết Concert 450] 450H",setlist:"",contact:"",phone:"",note:"[Tên gốc: The Pearl HoiAn - Tết Concert 450] 450H",follow:false},
+{id:"g38",name:"Dốc Mộng Mơ",type:"ticket",start:new Date("2026-02-22T16:00:00+07:00"),end:new Date("2026-02-22T18:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:400000000,call:null,timeline:"[Tên gốc: Dốc Mộng Mơ 400] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Dốc Mộng Mơ 400] ",follow:false},
+{id:"g39",name:"Mây Sài Gòn",type:"ticket",start:new Date("2026-02-25T00:00:00+07:00"),end:new Date("2026-02-25T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:430000000,call:null,timeline:"[Tên gốc: Mây Sài Gòn - 430] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Mây Sài Gòn - 430] ",follow:false},
+{id:"g40",name:"Golden Imperial Đà Lạt",type:"khac",start:new Date("2026-02-28T17:00:00+07:00"),end:new Date("2026-02-28T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:400000000,call:null,timeline:"[Tên gốc: Golden Imperial Đalat 400] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Golden Imperial Đalat 400] ",follow:false},
+{id:"g41",name:"Phòng trà Bến Thành",type:"ticket",start:new Date("2026-03-02T00:00:00+07:00"),end:new Date("2026-03-02T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:210000000,call:null,timeline:"[Tên gốc: CN Phòng Trà Bến Thành 210 done] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: CN Phòng Trà Bến Thành 210 done] ",follow:false},
+{id:"g42",name:"Cung điền kinh - Hà Nội",type:"khac",start:new Date("2026-03-07T00:00:00+07:00"),end:new Date("2026-03-07T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:400000000,call:null,timeline:"[Tên gốc: Cung điền kinh - Hà Nội 400] Phúc Giang",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cung điền kinh - Hà Nội 400] Phúc Giang",follow:false},
+{id:"g43",name:"Quay content vs Kiều Anh",type:"quay_social",start:new Date("2026-03-10T13:00:00+07:00"),end:new Date("2026-03-10T15:00:00+07:00"),loc:"45 Đường 5 Làng Báo Chí, Thảo Điền, Thủ Đức, Thành phố Hồ Chí Minh",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 13h Quay content vs Kiều Anh] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 13h Quay content vs Kiều Anh] ",follow:false},
+{id:"g44",name:"Lăn tay visa Úc",type:"canhan",start:new Date("2026-03-12T14:15:00+07:00"),end:new Date("2026-03-12T16:15:00+07:00"),loc:"Toà Nhà Resco, 96 Nguyễn Du, P. Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 14h15 Lăn tay visa Úc] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 14h15 Lăn tay visa Úc] ",follow:false},
+{id:"g45",name:"Sky Melody",type:"ticket",start:new Date("2026-03-14T13:00:00+07:00"),end:new Date("2026-03-14T15:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:460000000,call:null,timeline:"[Tên gốc: Sky Melody 460] VA",setlist:"",contact:"",phone:"",note:"[Tên gốc: Sky Melody 460] VA",follow:false},
+{id:"g46",name:"Tập band show MSB",type:"event_checkin",start:new Date("2026-03-18T14:40:00+07:00"),end:new Date("2026-03-18T16:40:00+07:00"),loc:"Tôn Dật Tiên, P. Tân Phú, Quận 7, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Tập band show MSB 20/3 - 14:40 -> 15:40] Địa chỉ: ERATO HỒ CHÍ MINH 107 Tôn Dật Tiên , CR2 22-23-24, phường Tân Phú, Q.7",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tập band show MSB 20/3 - 14:40 -> 15:40] Địa chỉ: ERATO HỒ CHÍ MINH 107 Tôn Dật Tiên , CR2 22-23-24, phường Tân Phú, Q.7",follow:false},
+{id:"g47",name:"Rehearsal show MSB",type:"event_checkin",start:new Date("2026-03-19T17:00:00+07:00"),end:new Date("2026-03-19T19:00:00+07:00"),loc:"SECC, 799 Nguyễn Văn Linh, P. Tân Phú, Quận 7, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Rehearsal show MSB 20/3 - 17h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Rehearsal show MSB 20/3 - 17h] ",follow:false},
+{id:"g48",name:"Private concert MSB",type:"event_checkin",start:new Date("2026-03-20T00:00:00+07:00"),end:new Date("2026-03-20T02:00:00+07:00"),loc:"SECC, 799 Nguyễn Văn Linh, P. Tân Phú, Quận 7, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Private concert MSB 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Private concert MSB 450] ",follow:false},
+{id:"g49",name:"Event HPG Award - Nhà hát Hồ Gươm",type:"event_checkin",start:new Date("2026-03-22T11:00:00+07:00"),end:new Date("2026-03-22T13:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:11000000,call:null,timeline:"[Tên gốc: event HPG award - NH Hồ Gươm 500] H\n\nEm confirm lại lịch tổng duyệt của anh Thiên nhé:\n1. Thời gian tổng duyệt: 11h00 đến 11h45\n2. Thời gian có mặt: TBU ( cho em ngày t6 báo lại nhé em đang final kịch bản ạ)\n2. Địa điểm: Nhà Hát Hồ Gươm \n3. Số điện thoại liên hệ: 0984589075 - Phú\n4. Anh ấy sẽ ghép với VMH và anh Tùng Dương luôn trong lúc tập ạ. \n- Văn Mai Hương sẽ RHS đến 11h và ghép với a Thiên ( có thể sớm hơn 10p)\n- Anh Thiên sẽ ghép với anh Tùng Dương lúc 11h45.\nEm update để chị nắm được nha chị",setlist:"",contact:"",phone:"",note:"[Tên gốc: event HPG award - NH Hồ Gươm 500] H\n\nEm confirm lại lịch tổng duyệt của anh Thiên nhé:\n1. Thời gian tổng duyệt: 11h00 đến 11h45\n2. Thời gian có mặt: TBU ( cho em ngày t6 báo lại nhé em đang final kịch bản ạ)\n2. Địa điểm: Nhà Hát Hồ Gươm \n3. Số điện thoại liên hệ: 0984589075 - Phú\n4. Anh ấy sẽ ghép với VMH và anh Tùng Dương luôn trong lúc tập ạ. \n- Văn Mai Hương sẽ RHS đến 11h và ghép với a Thiên ( có thể sớm hơn 10p)\n- Anh Thiên sẽ ghép với anh Tùng Dương lúc 11h45.\nEm update để chị nắm được nha chị",follow:false},
+{id:"g50",name:"Quay hình VTV",type:"quay_social",start:new Date("2026-03-23T00:00:00+07:00"),end:new Date("2026-03-23T02:00:00+07:00"),loc:"VTV - Đài Truyền hình Việt Nam, 43 Nguyễn Chí Thanh",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g51",name:"Tập band USA",type:"ticket",start:new Date("2026-03-24T13:00:00+07:00"),end:new Date("2026-03-24T15:00:00+07:00"),loc:"24BEAT Music School, 10 Nguyễn Văn Kỉnh, P. Thạnh Mỹ Lợi, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g52",name:"Mây Sài Gòn",type:"ticket",start:new Date("2026-03-27T00:00:00+07:00"),end:new Date("2026-03-27T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:420000000,call:null,timeline:"[Tên gốc: Mây Sài Gòn - 420] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Mây Sài Gòn - 420] ",follow:false},
+{id:"g53",name:"Skynote USA",type:"ticket",start:new Date("2026-04-05T12:00:00+07:00"),end:new Date("2026-04-05T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g54",name:"Adelaide",type:"ticket",start:new Date("2026-04-10T12:00:00+07:00"),end:new Date("2026-04-10T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g55",name:"Động thổ",type:"event_checkin",start:new Date("2026-04-22T11:00:00+07:00"),end:new Date("2026-04-22T13:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Động thổ 11h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Động thổ 11h] ",follow:false},
+{id:"g56",name:"FMT nhà trẻ",type:"ticket",start:new Date("2026-04-23T18:00:00+07:00"),end:new Date("2026-04-23T20:00:00+07:00"),loc:"Cung thiếu nhi HN - 17 Phạm Hùng Cầu Giấy HN",prov:"Hà Nội",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: FMT nhà trẻ 18h] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: FMT nhà trẻ 18h] ",follow:false},
+{id:"g57",name:"Tập GAIHOME",type:"ticket",start:new Date("2026-04-23T08:00:00+07:00"),end:new Date("2026-04-23T10:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g58",name:"Tập show",type:"ticket",start:new Date("2026-04-24T15:00:00+07:00"),end:new Date("2026-04-24T17:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Tập show 25/4] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Tập show 25/4] ",follow:false},
+{id:"g59",name:"Vé về thanh xuân",type:"ticket",start:new Date("2026-04-25T19:00:00+07:00"),end:new Date("2026-04-25T21:00:00+07:00"),loc:"Cung Thể Thao Điền Kinh Mỹ Đình, Cung Thi Đấu Điền Kinh Hà Nội, Đỗ Xuân Hợp, P. Cầu Diễn, Q. Nam Từ Liêm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:600000000,call:null,timeline:"[Tên gốc: Cọc L1 Vé về thanh xuân 600] H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 Vé về thanh xuân 600] H",follow:true},
+{id:"g60",name:"Concert anh Trai Hưng Yên",type:"ticket",start:new Date("2026-04-25T10:00:00+07:00"),end:new Date("2026-04-25T12:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:550000000,call:null,timeline:"[Tên gốc: Concert anh Trai Hưng Yên 550] H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Concert anh Trai Hưng Yên 550] H",follow:false},
+{id:"g61",name:"Thu âm Sao nhập ngũ",type:"thu_am",start:new Date("2026-04-29T12:00:00+07:00"),end:new Date("2026-04-29T14:00:00+07:00"),loc:"145 Phạm Thái Bường, P. Tân Phong, Quận 7, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 12h thu âm sao nhập ngũ] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 12h thu âm sao nhập ngũ] ",follow:false},
+{id:"g62",name:"Phố Nguyễn Huệ",type:"public",start:new Date("2026-04-30T10:00:00+07:00"),end:new Date("2026-04-30T12:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g63",name:"Lasong Show Thanh Hoá",type:"ticket",start:new Date("2026-05-01T17:00:00+07:00"),end:new Date("2026-05-01T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:480000000,call:null,timeline:"[Tên gốc: Lasong Show Thanh Hoá 480] H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Lasong Show Thanh Hoá 480] H",follow:false},
+{id:"g64",name:"Mây lang thang ĐL",type:"ticket",start:new Date("2026-05-02T00:00:00+07:00"),end:new Date("2026-05-02T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Mây lang thang ĐL - 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Mây lang thang ĐL - 450] ",follow:false},
+{id:"g65",name:"Mây Đà Nẵng",type:"ticket",start:new Date("2026-05-03T10:00:00+07:00"),end:new Date("2026-05-03T12:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Mây Đà Nẵng 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Mây Đà Nẵng 450] ",follow:false},
+{id:"g66",name:"Quay MV",type:"quay_social",start:new Date("2026-05-07T00:00:00+07:00"),end:new Date("2026-05-07T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g67",name:"Khai mạc Lễ hội Hoa Phượng Đỏ",type:"public",start:new Date("2026-05-08T18:00:00+07:00"),end:new Date("2026-05-08T20:00:00+07:00"),loc:"Quảng trường Trung tâm Chính trị - Hành chính thành phố Hải Phòng",prov:"Hải Phòng",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Cọc L1 CT Khai mạc Lễ hội Hoa Phượng Đỏ năm 2026] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 CT Khai mạc Lễ hội Hoa Phượng Đỏ năm 2026] ",follow:true},
+{id:"g68",name:"Sao nhập ngũ Day 2",type:"ticket",start:new Date("2026-05-09T16:00:00+07:00"),end:new Date("2026-05-09T18:00:00+07:00"),loc:"Hà Nội",prov:"Hà Nội",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g69",name:"Nhà hát Bến Thành",type:"ticket",start:new Date("2026-05-10T19:30:00+07:00"),end:new Date("2026-05-10T21:30:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:430000000,call:null,timeline:"[Tên gốc: NH Bến Thành 430] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: NH Bến Thành 430] ",follow:false},
+{id:"g70",name:"Tập band Bến Thành",type:"ticket",start:new Date("2026-05-10T11:40:00+07:00"),end:new Date("2026-05-10T13:40:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 11h40 Tập band Bến Thành] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 11h40 Tập band Bến Thành] ",follow:false},
+{id:"g71",name:"Fantasy",type:"ticket",start:new Date("2026-05-16T19:00:00+07:00"),end:new Date("2026-05-16T21:00:00+07:00"),loc:"Hà nội",prov:"Hà Nội",client:"",status:"da_chot",net:500000000,call:null,timeline:"[Tên gốc: Fantasy 500] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Fantasy 500] ",follow:false},
+{id:"g72",name:"Khai mạc Lễ hội Làng Sen",type:"public",start:new Date("2026-05-18T00:00:00+07:00"),end:new Date("2026-05-18T02:00:00+07:00"),loc:"Không gian biểu diễn bán thực cảnh tại sân vận động Làng sen, xã Kim Liên – Nghệ An",prov:"Nghệ An",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: KHAI MẠC LỄ HỘI LÀNG SEN NĂM 2026] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: KHAI MẠC LỄ HỘI LÀNG SEN NĂM 2026] ",follow:false},
+{id:"g73",name:"Chụp hình Mạnh Bi",type:"chup_hinh",start:new Date("2026-05-28T13:00:00+07:00"),end:new Date("2026-05-28T15:00:00+07:00"),loc:"SAINT 6 STUDIOS - Số 6 Bế Văn Cấm, Tân Kiểng, Quận 7",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 13h Chụp hình Mạnh Bi] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 13h Chụp hình Mạnh Bi] ",follow:false},
+{id:"g74",name:"Tập band anh Sa",type:"ticket",start:new Date("2026-05-29T01:30:00+07:00"),end:new Date("2026-05-29T03:30:00+07:00"),loc:"24BEAT Music School, 10 Nguyễn Văn Kỉnh, P. Thạnh Mỹ Lợi, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 1h30 tập band anh Sa show 13/6] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 1h30 tập band anh Sa show 13/6] ",follow:false},
+{id:"g75",name:"Cat & Mouse SG",type:"khac",start:new Date("2026-05-30T20:00:00+07:00"),end:new Date("2026-05-30T22:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Cat mouse SG 450] H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cat mouse SG 450] H",follow:false},
+{id:"g76",name:"Tập band C&M",type:"ticket",start:new Date("2026-05-30T12:00:00+07:00"),end:new Date("2026-05-30T14:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 12h tập band C&M] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 12h tập band C&M] ",follow:false},
+{id:"g77",name:"Mây Vinh",type:"ticket",start:new Date("2026-06-05T12:00:00+07:00"),end:new Date("2026-06-05T14:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g78",name:"Dốc Mộng Mơ - HN",type:"ticket",start:new Date("2026-06-06T00:05:00+07:00"),end:new Date("2026-06-06T02:05:00+07:00"),loc:"Nhà Hát Hồ Gươm, 40 Hàng Bài, P. Hàng Bài, Q. Hoàn Kiếm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Dốc Mộng Mơ - HN 450] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Dốc Mộng Mơ - HN 450] ",follow:false},
+{id:"g79",name:"Event Tân Hoàng Minh",type:"event_checkin",start:new Date("2026-06-09T20:00:00+07:00"),end:new Date("2026-06-09T22:00:00+07:00"),loc:"Fairmont Hanoi, 29 Lý Thái Tổ, Hoàn Kiếm, Hà Nội",prov:"Hà Nội",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g80",name:"Thu âm Uống nước nhớ nguồn",type:"thu_am",start:new Date("2026-06-10T18:00:00+07:00"),end:new Date("2026-06-10T20:00:00+07:00"),loc:"SQ Thảo Điền, 3 Hẻm 14 Đường Số 65, P. An Khánh, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: 18h Thu âm Uống nước nhớ nguồn] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: 18h Thu âm Uống nước nhớ nguồn] ",follow:false},
+{id:"g81",name:"Gala “Tổ quốc bình yên” - Phố Nguyễn Huệ",type:"event_checkin",start:new Date("2026-06-13T00:00:00+07:00"),end:new Date("2026-06-13T02:00:00+07:00"),loc:"Phố Đi Bộ Nguyễn Huệ, Nguyễn Huệ, P. Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g82",name:"TCS (Huế)",type:"event_checkin",start:new Date("2026-06-14T16:00:00+07:00"),end:new Date("2026-06-14T18:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Cọc L1 TCS (Huế)] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 TCS (Huế)] ",follow:true},
+{id:"g83",name:"Mây SG",type:"ticket",start:new Date("2026-06-18T20:00:00+07:00"),end:new Date("2026-06-18T22:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g84",name:"PETROSETCO",type:"event_checkin",start:new Date("2026-06-20T19:00:00+07:00"),end:new Date("2026-06-20T21:00:00+07:00"),loc:"GEM Center, P. Đa Kao, Quận 1, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:320000000,call:null,timeline:"[Tên gốc: Cọc L1 PETROSETCO 320] Thuỷ Tiên",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 PETROSETCO 320] Thuỷ Tiên",follow:true},
+{id:"g85",name:"Phòng trà Không Tên",type:"ticket",start:new Date("2026-06-20T21:00:00+07:00"),end:new Date("2026-06-20T23:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: PT Không tên] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: PT Không tên] ",follow:false},
+{id:"g86",name:"GĐ haha",type:"gameshow",start:new Date("2026-06-24T00:00:00+07:00"),end:new Date("2026-06-24T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g87",name:"L'amour Nights",type:"khac",start:new Date("2026-06-27T11:00:00+07:00"),end:new Date("2026-06-27T13:00:00+07:00"),loc:"Cung Xuân số 1 Võ Thị Sáu, Bạch Mai, Tp Hà Nội",prov:"Hà Nội",client:"",status:"da_chot",net:450000000,call:null,timeline:"[Tên gốc: Cọc L1 L'amour Nights 450] H, ký 470 back 20",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 L'amour Nights 450] H, ký 470 back 20",follow:true},
+{id:"g88",name:"GĐ haha",type:"gameshow",start:new Date("2026-06-28T00:00:00+07:00"),end:new Date("2026-06-28T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g89",name:"Mây Đà Lạt",type:"ticket",start:new Date("2026-07-04T00:00:00+07:00"),end:new Date("2026-07-04T02:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g90",name:"Hải Phòng (VA)",type:"ticket",start:new Date("2026-07-26T00:00:00+07:00"),end:new Date("2026-07-26T02:00:00+07:00"),loc:"Nhà Hát Hoa Phượng Hải Phòng",prov:"Hải Phòng",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Cọc L1 Hải Phòng (VA)] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 Hải Phòng (VA)] ",follow:true},
+{id:"g91",name:"Nhà hát Hồ Gươm",type:"ticket",start:new Date("2026-08-02T18:00:00+07:00"),end:new Date("2026-08-02T20:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:400000000,call:null,timeline:"[Tên gốc: Cọc L1 NH Hồ Gươm 400] H",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 NH Hồ Gươm 400] H",follow:true},
+{id:"g92",name:"OC",type:"ticket",start:new Date("2026-08-07T12:00:00+07:00"),end:new Date("2026-08-07T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g93",name:"OC",type:"ticket",start:new Date("2026-08-08T12:00:00+07:00"),end:new Date("2026-08-08T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g94",name:"Houston",type:"ticket",start:new Date("2026-08-09T12:00:00+07:00"),end:new Date("2026-08-09T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g95",name:"SJ",type:"ticket",start:new Date("2026-08-12T12:00:00+07:00"),end:new Date("2026-08-12T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g96",name:"OC",type:"ticket",start:new Date("2026-08-14T12:00:00+07:00"),end:new Date("2026-08-14T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g97",name:"Nhà Thờ Cha Tướng SJ",type:"ticket",start:new Date("2026-08-15T12:00:00+07:00"),end:new Date("2026-08-15T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g98",name:"Virginia",type:"ticket",start:new Date("2026-08-16T12:00:00+07:00"),end:new Date("2026-08-16T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g99",name:"Connecticut",type:"ticket",start:new Date("2026-08-22T12:00:00+07:00"),end:new Date("2026-08-22T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g100",name:"Portland",type:"ticket",start:new Date("2026-08-23T12:00:00+07:00"),end:new Date("2026-08-23T14:00:00+07:00"),loc:"",prov:"Nước ngoài",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g101",name:"Bảo tàng HN",type:"khac",start:new Date("2026-08-29T18:00:00+07:00"),end:new Date("2026-08-29T20:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:500000000,call:null,timeline:"[Tên gốc: Cọc L1 Bảo tàng HN 500] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 Bảo tàng HN 500] ",follow:true},
+{id:"g102",name:"Ko nhận bán vé HN",type:"canhan",start:new Date("2026-09-05T09:00:00+07:00"),end:new Date("2026-09-05T11:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g103",name:"Fantasy",type:"ticket",start:new Date("2026-09-12T19:00:00+07:00"),end:new Date("2026-09-12T21:00:00+07:00"),loc:"Hà nội",prov:"Hà Nội",client:"",status:"da_chot",net:500000000,call:null,timeline:"[Tên gốc: Cọc L1 Fantasy 500] ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Cọc L1 Fantasy 500] ",follow:true},
+{id:"g104",name:"Ko nhận bán vé HN",type:"canhan",start:new Date("2026-09-19T09:00:00+07:00"),end:new Date("2026-09-19T11:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g105",name:"MSD SG",type:"event_checkin",start:new Date("2026-12-11T08:00:00+07:00"),end:new Date("2026-12-11T10:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+{id:"g106",name:"MSD HN",type:"event_checkin",start:new Date("2026-12-19T08:00:00+07:00"),end:new Date("2026-12-19T10:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false}];
+var pays=[{job:"g2",label:"Cọc 50%",amt:190000000,pct:50,due:new Date("2025-12-27T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g2",label:"Còn lại 50%",amt:190000000,pct:50,due:new Date("2026-01-10T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g3",label:"Cọc 50%",amt:9000000,pct:50,due:new Date("2025-12-28T11:00:00.000Z"),st:"qua_han"},
+{job:"g3",label:"Còn lại 50%",amt:9000000,pct:50,due:new Date("2026-01-11T11:00:00.000Z"),st:"chua_den_han"},
+{job:"g5",label:"Cọc 50%",amt:230000000,pct:50,due:new Date("2026-01-02T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g5",label:"Còn lại 50%",amt:230000000,pct:50,due:new Date("2026-01-16T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g6",label:"Cọc 50%",amt:275000000,pct:50,due:new Date("2026-01-02T13:30:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g6",label:"Còn lại 50%",amt:275000000,pct:50,due:new Date("2026-01-16T13:30:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g8",label:"Cọc 50%",amt:230000000,pct:50,due:new Date("2026-01-03T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+{job:"g8",label:"Còn lại 50%",amt:230000000,pct:50,due:new Date("2026-01-17T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g11",label:"Cọc 50%",amt:250000000,pct:50,due:new Date("2026-01-10T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g11",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-01-24T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g13",label:"Cọc 50%",amt:275000000,pct:50,due:new Date("2026-01-11T13:50:00.000Z"),st:"qua_han"},
+{job:"g13",label:"Còn lại 50%",amt:275000000,pct:50,due:new Date("2026-01-25T13:50:00.000Z"),st:"chua_den_han"},
+{job:"g18",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-01-17T11:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g18",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-01-31T11:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g20",label:"Cọc đợt 1 (hạn)",amt:275000000,pct:50,due:new Date("2026-01-25T10:00:00.000Z"),st:"qua_han"},
+{job:"g20",label:"Còn lại 50%",amt:275000000,pct:50,due:new Date("2026-02-01T10:00:00.000Z"),st:"chua_den_han"},
+{job:"g22",label:"Cọc 50%",amt:105000000,pct:50,due:new Date("2026-01-20T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g22",label:"Còn lại 50%",amt:105000000,pct:50,due:new Date("2026-02-03T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g26",label:"Cọc 50%",amt:250000000,pct:50,due:new Date("2026-01-23T13:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g26",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-02-06T13:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g29",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-01-30T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g29",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-02-13T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g32",label:"Cọc 50%",amt:65000000,pct:50,due:new Date("2026-02-05T13:00:00.000Z"),st:"qua_han"},
+{job:"g32",label:"Còn lại 50%",amt:65000000,pct:50,due:new Date("2026-02-19T13:00:00.000Z"),st:"chua_den_han"},
+{job:"g34",label:"Cọc 50%",amt:75000000,pct:50,due:new Date("2026-02-09T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g34",label:"Còn lại 50%",amt:75000000,pct:50,due:new Date("2026-02-23T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g35",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-02-11T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g35",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-02-25T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g36",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-02-12T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g36",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-02-26T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g37",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-02-14T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g37",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-02-28T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g38",label:"Cọc 50%",amt:200000000,pct:50,due:new Date("2026-02-15T09:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g38",label:"Còn lại 50%",amt:200000000,pct:50,due:new Date("2026-03-01T09:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g39",label:"Cọc 50%",amt:215000000,pct:50,due:new Date("2026-02-17T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g39",label:"Còn lại 50%",amt:215000000,pct:50,due:new Date("2026-03-03T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g40",label:"Cọc 50%",amt:200000000,pct:50,due:new Date("2026-02-21T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g40",label:"Còn lại 50%",amt:200000000,pct:50,due:new Date("2026-03-07T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g41",label:"Cọc 50%",amt:105000000,pct:50,due:new Date("2026-02-22T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g41",label:"Còn lại 50%",amt:105000000,pct:50,due:new Date("2026-03-08T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g42",label:"Cọc 50%",amt:200000000,pct:50,due:new Date("2026-02-27T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g42",label:"Còn lại 50%",amt:200000000,pct:50,due:new Date("2026-03-13T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g45",label:"Cọc 50%",amt:230000000,pct:50,due:new Date("2026-03-07T06:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g45",label:"Còn lại 50%",amt:230000000,pct:50,due:new Date("2026-03-21T06:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g48",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-03-12T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g48",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-03-26T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g49",label:"Cọc 50%",amt:5500000,pct:50,due:new Date("2026-03-15T04:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g49",label:"Còn lại 50%",amt:5500000,pct:50,due:new Date("2026-03-29T04:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g52",label:"Cọc 50%",amt:210000000,pct:50,due:new Date("2026-03-19T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g52",label:"Còn lại 50%",amt:210000000,pct:50,due:new Date("2026-04-02T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g59",label:"Cọc đợt 1 (hạn)",amt:300000000,pct:50,due:new Date("2026-04-25T12:00:00.000Z"),st:"qua_han"},
+{job:"g59",label:"Còn lại 50%",amt:300000000,pct:50,due:new Date("2026-05-02T12:00:00.000Z"),st:"chua_den_han"},
+{job:"g60",label:"Cọc 50%",amt:275000000,pct:50,due:new Date("2026-04-18T03:00:00.000Z"),st:"qua_han"},
+{job:"g60",label:"Còn lại 50%",amt:275000000,pct:50,due:new Date("2026-05-02T03:00:00.000Z"),st:"chua_den_han"},
+{job:"g63",label:"Cọc 50%",amt:240000000,pct:50,due:new Date("2026-04-24T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g63",label:"Còn lại 50%",amt:240000000,pct:50,due:new Date("2026-05-08T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g64",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-04-24T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g64",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-05-08T17:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g65",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-04-26T03:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g65",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-05-10T03:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g69",label:"Cọc 50%",amt:215000000,pct:50,due:new Date("2026-05-03T12:30:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g69",label:"Còn lại 50%",amt:215000000,pct:50,due:new Date("2026-05-17T12:30:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g71",label:"Cọc 50%",amt:250000000,pct:50,due:new Date("2026-05-09T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g71",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-05-23T12:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g75",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-05-23T13:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g75",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-06-06T13:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.627Z"),st:"da_thanh_toan"},
+{job:"g78",label:"Cọc 50%",amt:225000000,pct:50,due:new Date("2026-05-29T17:05:00.000Z"),st:"qua_han"},
+{job:"g78",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-06-12T17:05:00.000Z"),st:"chua_den_han"},
+{job:"g84",label:"Cọc đợt 1 (hạn)",amt:160000000,pct:50,due:new Date("2026-06-20T12:00:00.000Z"),st:"qua_han"},
+{job:"g84",label:"Còn lại 50%",amt:160000000,pct:50,due:new Date("2026-06-27T12:00:00.000Z"),st:"chua_den_han"},
+{job:"g87",label:"Cọc đợt 1 (hạn)",amt:225000000,pct:50,due:new Date("2026-06-27T04:00:00.000Z"),st:"den_han"},
+{job:"g87",label:"Còn lại 50%",amt:225000000,pct:50,due:new Date("2026-07-04T04:00:00.000Z"),st:"chua_den_han"},
+{job:"g91",label:"Cọc đợt 1 (hạn)",amt:200000000,pct:50,due:new Date("2026-08-02T11:00:00.000Z"),st:"chua_den_han"},
+{job:"g91",label:"Còn lại 50%",amt:200000000,pct:50,due:new Date("2026-08-09T11:00:00.000Z"),st:"chua_den_han"},
+{job:"g101",label:"Cọc đợt 1 (hạn)",amt:250000000,pct:50,due:new Date("2026-08-29T11:00:00.000Z"),st:"chua_den_han"},
+{job:"g101",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-09-05T11:00:00.000Z"),st:"chua_den_han"},
+{job:"g103",label:"Cọc đợt 1 (hạn)",amt:250000000,pct:50,due:new Date("2026-09-12T12:00:00.000Z"),st:"chua_den_han"},
+{job:"g103",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-09-19T12:00:00.000Z"),st:"chua_den_han"}];
+var PSL={da_thanh_toan:['Đã TT','var(--greenbg)','var(--green)'],chua_den_han:['Chưa đến hạn','var(--chip)','var(--muted)'],den_han:['Đến hạn','var(--amberbg)','var(--amber)'],qua_han:['Quá hạn','var(--redbg)','var(--red)']};
+var exps=[{job:"g91",name:"Makeup & tóc",type:"Makeup",vendor:"MUA Tina",est:8000000,act:9000000,st:"cho_duyet"},
+{job:"g91",name:"Band/nhạc công",type:"Production",vendor:"Band Anh Em",est:35000000,act:0,st:"da_duyet"},
+{job:"g103",name:"Makeup & tóc",type:"Makeup",vendor:"MUA Tina",est:8000000,act:0,st:"du_kien"},
+{job:"g103",name:"Band/nhạc công",type:"Production",vendor:"Band Anh Em",est:35000000,act:0,st:"da_duyet"}];
+var docs=[{job:"g87",ct:"da_ky",inv:"da_xuat",acc:"chua_co",files:0,dl:new Date("2026-06-24T05:00:00.000Z")},
+{job:"g88",ct:"dang_soan",inv:"chua_xuat",acc:"da_gui",files:1,dl:new Date("2026-06-25T05:00:00.000Z")},
+{job:"g89",ct:"chua_co",inv:"da_gui",acc:"chua_co",files:0,dl:new Date("2026-07-01T05:00:00.000Z")},
+{job:"g90",ct:"final",inv:"da_xuat",acc:"da_gui",files:1,dl:new Date("2026-07-23T05:00:00.000Z")},
+{job:"g91",ct:"da_ky",inv:"chua_xuat",acc:"chua_co",files:0,dl:new Date("2026-07-30T05:00:00.000Z")},
+{job:"g92",ct:"dang_soan",inv:"da_gui",acc:"da_gui",files:1,dl:new Date("2026-08-04T05:00:00.000Z")},
+{job:"g93",ct:"chua_co",inv:"da_xuat",acc:"chua_co",files:0,dl:new Date("2026-08-05T05:00:00.000Z")},
+{job:"g94",ct:"final",inv:"chua_xuat",acc:"da_gui",files:1,dl:new Date("2026-08-06T05:00:00.000Z")},
+{job:"g95",ct:"da_ky",inv:"da_gui",acc:"chua_co",files:0,dl:new Date("2026-08-09T05:00:00.000Z")},
+{job:"g96",ct:"dang_soan",inv:"da_xuat",acc:"da_gui",files:1,dl:new Date("2026-08-11T05:00:00.000Z")}];
+var tasks=[{id:1,job:"g87",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-06-25T05:00:00.000Z"),s:"todo"},
+{id:2,job:"g87",n:"Theo dõi cọc & hợp đồng",note:"Nhắc cọc + ký HĐ",o:"Trúc",d:new Date("2026-06-22T05:00:00.000Z"),s:"doing"},
+{id:3,job:"g88",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-06-26T05:00:00.000Z"),s:"doing"},
+{id:4,job:"g88",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-06-23T05:00:00.000Z"),s:"waiting"},
+{id:5,job:"g89",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-07-02T05:00:00.000Z"),s:"waiting"},
+{id:6,job:"g89",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-06-29T05:00:00.000Z"),s:"done"},
+{id:7,job:"g90",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-07-24T05:00:00.000Z"),s:"done"},
+{id:8,job:"g90",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-07-21T05:00:00.000Z"),s:"todo"},
+{id:9,job:"g91",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-07-31T05:00:00.000Z"),s:"todo"},
+{id:10,job:"g91",n:"Theo dõi cọc & hợp đồng",note:"Nhắc cọc + ký HĐ",o:"Trúc",d:new Date("2026-07-28T05:00:00.000Z"),s:"doing"},
+{id:11,job:"g92",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-08-05T05:00:00.000Z"),s:"doing"},
+{id:12,job:"g92",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-08-02T05:00:00.000Z"),s:"waiting"},
+{id:13,job:"g93",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-08-06T05:00:00.000Z"),s:"waiting"},
+{id:14,job:"g93",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-08-03T05:00:00.000Z"),s:"done"},
+{id:15,job:"g94",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-08-07T05:00:00.000Z"),s:"done"},
+{id:16,job:"g94",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-08-04T05:00:00.000Z"),s:"todo"},
+{id:17,job:"g95",n:"Gửi timeline cho nghệ sĩ",note:"Gửi qua Zalo cho QT",o:"Vi",d:new Date("2026-08-10T05:00:00.000Z"),s:"todo"},
+{id:18,job:"g95",n:"Xác nhận thông tin",note:"Hỏi rõ yêu cầu",o:"Trúc",d:new Date("2026-08-07T05:00:00.000Z"),s:"doing"}];
+var STSEQ=['todo','doing','waiting','done'];
+var STMETA={todo:['Cần làm','var(--chip)','var(--muted)'],doing:['Đang làm','var(--bluebg)','var(--blue)'],waiting:['Chờ','var(--amberbg)','var(--amber)'],done:['Xong','var(--greenbg)','var(--green)']};
+var USERS={thi:{nm:'Thi',rl:'Quản lý'},truc:{nm:'Trúc',rl:'Admin'},vi:{nm:'Vi',rl:'Trợ lý'},artist:{nm:'Quốc Thiên',rl:'Nghệ sĩ'}};
+var TABS={
+ thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Booking','ti-briefcase'],['calendar','Lịch','ti-calendar'],['tasks','Việc','ti-list-check'],['money','Tiền','ti-wallet']],
+ truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Booking','ti-briefcase'],['calendar','Lịch','ti-calendar'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
+ vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Booking','ti-briefcase'],['calendar','Lịch','ti-calendar'],['tasks','Việc','ti-list-check']],
+ artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['qtmoney','Thu chi','ti-cash']]
+};
+var TITLES={dash:'Tổng quan',jobs:'Lịch & Booking',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện'};
+var jById={};jobs.forEach(function(j){jById[j.id]=j});
+var now=new Date();
+/* ===== CẤU HÌNH DÙNG CHUNG (vendor + 3 tài khoản) ===== */
+var vendors=[
+ {id:"v1",name:"MUA Tina",role:"makeup",phone:"0901234567"},
+ {id:"v2",name:"Makeup Hồng Anh",role:"makeup",phone:"0903222111"},
+ {id:"v3",name:"Studio Lá",role:"photo",phone:"0908765432"},
+ {id:"v4",name:"Photo Khoa",role:"photo",phone:"0907111222"},
+ {id:"v5",name:"Social - Linh",role:"social",phone:"0912345678"},
+ {id:"v6",name:"Team Content QT",role:"social",phone:"0911999888"}
+];
+var accounts=[
+ {id:"a1",label:"Công ty - Vietcombank",bank:"Vietcombank",number:"0123456789"},
+ {id:"a2",label:"Công ty - Techcombank",bank:"Techcombank",number:"19001234567"},
+ {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
+];
+var contracts=[]; var contractById={};
+function reContracts(){contractById={};contracts.forEach(function(c){contractById[c.id]=c;});}
+function vById(id){for(var i=0;i<vendors.length;i++)if(vendors[i].id===id)return vendors[i];return null;}
+function aById(id){for(var i=0;i<accounts.length;i++)if(accounts[i].id===id)return accounts[i];return null;}
+var CTL={chua_co:'Chưa có',dang_soan:'Đang soạn',da_gui:'Đã gửi',da_ky:'Đã ký',final:'Đã lưu final'};
+var IVL={chua_xuat:'Chưa xuất',da_xuat:'Đã xuất',da_gui:'Đã gửi',da_thanh_toan:'Đã thanh toán'};
+var ACL={chua_co:'Chưa có',da_gui:'Đã gửi',da_ky:'Đã ký'};
+var ESL={du_kien:'Dự kiến',cho_duyet:'Chờ duyệt',da_duyet:'Đã duyệt',da_thanh_toan:'Đã thanh toán',huy:'Hủy'};
+function L(map,v){return map[v]||v;}
+function money(n){if(!n)return '0₫';return n.toLocaleString('vi-VN')+'₫';}
+function dt(d){if(!d)return '—';return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' · '+tm(d);}
+function dd(d){if(!d)return '—';return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function tm(d){return d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});}
+function sameDay(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate();}
+function recvOf(id){var s=0;pays.forEach(function(p){if(p.job==id&&p.st=='da_thanh_toan')s+=p.amt});return s;}
+function fin(){return state.role=='thi'||state.role=='truc';}
+var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',collapsed:{}};
+function isColl(k,def){return (k in state.collapsed)?state.collapsed[k]:def;}
+function monthLabel(y,m){return 'Tháng '+(m+1)+'/'+y;}
+
+var ICON={
+'ti-music':'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+'ti-list-check':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3.5 6l1.2 1.2L7 5"/><path d="M3.5 12l1.2 1.2L7 11"/><path d="M3.5 18l1.2 1.2L7 17"/>',
+'ti-layout-dashboard':'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
+'ti-file-text':'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/>',
+'ti-palette':'<path d="M12 3a9 9 0 0 0 0 18 2 2 0 0 0 2-2 2 2 0 0 1 2-2h1.5a3.5 3.5 0 0 0 3.5-3.5C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="11" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/>',
+'ti-bell':'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+'ti-logout':'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+'ti-briefcase':'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+'ti-calendar':'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+'ti-calendar-plus':'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M12 14v4"/><path d="M10 16h4"/>',
+'ti-wallet':'<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/><path d="M21 11h-5a2 2 0 0 0 0 4h5z"/>',
+'ti-clock':'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+'ti-chevron-right':'<path d="M9 6l6 6-6 6"/>',
+'ti-chevron-left':'<path d="M15 6l-6 6 6 6"/>',
+'ti-chevron-down':'<path d="M6 9l6 6 6-6"/>',
+'ti-ticket':'<path d="M4 7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v3a2 2 0 0 0 0 4v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-4z"/><path d="M14 6v12"/>',
+'ti-tree':'<path d="M12 2l5 8h-3l4 6H6l4-6H7z"/><path d="M12 16v6"/>',
+'ti-building':'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2"/><path d="M13 7h2"/><path d="M9 11h2"/><path d="M13 11h2"/><path d="M9 15h2"/><path d="M13 15h2"/>',
+'ti-device-tv':'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3l-4 4-4-4"/>',
+'ti-microphone':'<rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/>',
+'ti-video':'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
+'ti-camera':'<path d="M3 9a2 2 0 0 1 2-2h2l1.5-2h7L19 7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
+'ti-messages':'<path d="M4 5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3v-3H5a1 1 0 0 1-1-1z"/>',
+'ti-pencil':'<path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+'ti-paperclip':'<path d="M21 11l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 0 1-3-3l8.5-8.5"/>',
+'ti-broadcast':'<circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4"/><path d="M7.8 16.2a6 6 0 0 1 0-8.4"/><path d="M19 5a10 10 0 0 1 0 14"/><path d="M5 19a10 10 0 0 1 0-14"/>',
+'ti-music':'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+'ti-alert-triangle':'<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+'ti-trending-up':'<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>',
+'ti-trending-down':'<path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/>',
+'ti-search':'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/>',
+'ti-map-pin':'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+'ti-plus':'<path d="M12 5v14"/><path d="M5 12h14"/>',
+'ti-cash':'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4"/><path d="M18 10v4"/>',
+'ti-receipt':'<path d="M5 3v18l2-1.2L9 21l2-1.2L13 21l2-1.2L17 21l2-1.2V3l-2 1.2L15 3l-2 1.2L11 3 9 4.2 7 3z"/><path d="M8 9h8"/><path d="M8 13h6"/>',
+'ti-coin':'<circle cx="12" cy="12" r="9"/><path d="M15 9.2a3 2.3 0 0 0-3-1.2c-1.6 0-3 .9-3 2s1.4 1.8 3 1.8 3 .8 3 1.9-1.4 2-3 2a3 2.3 0 0 1-3-1.2"/><path d="M12 6v1.8"/><path d="M12 16.2V18"/>',
+'ti-check':'<path d="M20 6L9 17l-5-5"/>',
+'ti-checks':'<path d="M1 13l4 4L13 9"/><path d="M11 13l4 4L23 9"/>',
+'ti-trash':'<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+'ti-dots-vertical':'<circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/>',
+'ti-user':'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+'ti-map':'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/>',
+'ti-folder':'<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+'ti-info-circle':'<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>'
+};
+function applyIcons(){document.querySelectorAll('i.ti').forEach(function(el){if(el.dataset.ic)return;var name='';el.classList.forEach(function(c){if(c.indexOf('ti-')==0)name=c;});var p=ICON[name];if(p){el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';el.dataset.ic='1';}});}
+
+var notifs=[{id:1,sev:"red",text:"8 khoản thu đang quá hạn (3660 tr)",read:false},{id:2,sev:"amber",text:"1 khoản thu đến hạn trong tuần",read:false},{id:3,sev:"amber",text:"Có job chưa ký hợp đồng — kiểm tra mục Giấy tờ",read:false}];
+function renderNotif(){
+ var unread=notifs.filter(function(n){return !n.read;}).length;
+ var bdg=document.getElementById('bellBdg');
+ if(unread>0){bdg.style.display='flex';bdg.textContent=unread;}else{bdg.style.display='none';}
+ var p=document.getElementById('npanel');
+ var rows=notifs.length?notifs.map(function(n){var col=n.sev=='red'?'var(--red)':'var(--amber)';return '<button class="nrow'+(n.read?' read':'')+'" data-nread="'+n.id+'"><span class="ndot" style="background:'+col+'"></span><span class="ntext">'+n.text+'</span></button>';}).join(''):'<div class="nempty">Không có thông báo nào 🎉</div>';
+ p.innerHTML='<div class="nhead"><span class="t">Thông báo</span><button id="nmark" title="Đánh dấu tất cả đã đọc"><i class="ti ti-checks"></i></button><button id="nclear" title="Xóa hết"><i class="ti ti-trash"></i></button></div>'+rows;
+ applyIcons();
+ var m=document.getElementById('nmark');if(m)m.onclick=function(e){e.stopPropagation();notifs.forEach(function(n){n.read=true;});renderNotif();};
+ var c=document.getElementById('nclear');if(c)c.onclick=function(e){e.stopPropagation();notifs=[];renderNotif();};
+ p.querySelectorAll('[data-nread]').forEach(function(el){el.onclick=function(){var n=notifs.filter(function(x){return x.id==+el.dataset.nread;})[0];if(n)n.read=true;renderNotif();};});
+}
+function closeNotif(){document.getElementById('npanel').classList.remove('open');document.getElementById('noverlay').style.display='none';}
+function toggleNotif(){var p=document.getElementById('npanel');var o=document.getElementById('noverlay');var open=p.classList.toggle('open');o.style.display=open?'block':'none';}
+
+function pad(n){return n<10?'0'+n:''+n;}
+function icsDate(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';}
+function addToCal(id){var j=jById[id];
+ var desc=('Khách: '+j.client+'\\nLiên hệ: '+j.contact+' '+j.phone+(j.call?('\\nCall time: '+dt(j.call)):'')+(j.timeline?('\\n\\n'+j.timeline.replace(/\n/g,'\\n')):'')).replace(/\n/g,'\\n');
+ var ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//QT Manager//VI\r\nBEGIN:VEVENT\r\nUID:'+id+'@qtmanager\r\nDTSTART:'+icsDate(j.start)+'\r\nDTEND:'+icsDate(j.end)+'\r\nSUMMARY:'+j.name+'\r\nLOCATION:'+j.loc+', '+j.prov+'\r\nDESCRIPTION:'+desc+'\r\nBEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Nhắc lịch\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR';
+ var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});var url=URL.createObjectURL(blob);
+ var a=document.createElement('a');a.href=url;a.download=j.name+'.ics';document.body.appendChild(a);a.click();document.body.removeChild(a);
+ setTimeout(function(){URL.revokeObjectURL(url);},1500);
+}
+window.addToCal=addToCal;
+var scrollNext=true;
+function go(s){scrollNext=true;state.screen=s;render();}
+function openJob(id){scrollNext=true;state.screen='job:'+id;state.tab='overview';render();}
+window.openJob=openJob;
+function openMap(q){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q||''),'_blank');}
+function openURL(u){if(u)window.open(u,'_blank');}
+function setLink(id,field,label){var j=jById[id];var v=prompt('Dán link '+label+' cho "'+j.name+'":',j[field]||'');if(v!==null){j[field]=v.trim();if(window.qtSave)window.qtSave('jobs',j.id,j);render();}}
+function canLinks(){return state.role==='thi'||state.role==='truc';}
+window.openMap=openMap;window.openURL=openURL;window.setLink=setLink;
+
+function renderTabs(){
+ var tb=document.getElementById('tabbar');tb.innerHTML='';
+ TABS[state.role].forEach(function(t){var b=document.createElement('button');if(state.screen==t[0])b.className='on';
+  b.innerHTML='<i class="ti '+t[2]+' i"></i>'+t[1];b.onclick=function(){scrollNext=true;state.screen=t[0];render();};tb.appendChild(b);});
+}
+function render(){
+ var base=state.screen.indexOf('job:')==0?'jobs':state.screen;
+ document.getElementById('hTitle').textContent=TITLES[base]||'QT';
+ var sc=document.getElementById('screen');var s=state.screen;
+ if(s.indexOf('job:')==0)sc.innerHTML=screenDetail(s.slice(4));
+ else if(s=='dash')sc.innerHTML=screenDash();
+ else if(s=='jobs')sc.innerHTML=screenJobs();
+ else if(s=='calendar')sc.innerHTML=screenCal();
+ else if(s=='money')sc.innerHTML=screenMoney();
+ else if(s=='tasks')sc.innerHTML=screenTasks();
+ else if(s=='documents')sc.innerHTML=screenDocs();
+ else if(s=='artist')sc.innerHTML=screenArtist();
+ else if(s=='qtmoney')sc.innerHTML=screenQtMoney();
+ else if(s=='create')sc.innerHTML=screenCreate();
+ renderTabs();bind();applyIcons();
+ if(s=='create')bindCreateForm();
+ if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
+}
+function bind(){
+ document.querySelectorAll('[data-job]').forEach(function(el){el.onclick=function(){openJob(el.dataset.job);};});
+ document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
+ document.querySelectorAll('[data-day]').forEach(function(el){el.onclick=function(){state.selDate=new Date(+el.dataset.day);render();};});
+ document.querySelectorAll('[data-mo]').forEach(function(el){el.onclick=function(){state.calMonth=new Date(state.calMonth.getFullYear(),state.calMonth.getMonth()+ +el.dataset.mo,1);render();};});
+ document.querySelectorAll('[data-today]').forEach(function(el){el.onclick=function(){state.calMonth=new Date(now.getFullYear(),now.getMonth(),1);state.selDate=new Date(now);render();};});
+ document.querySelectorAll('[data-mapid]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.mapid];openMap(j.loc||j.prov||j.name);};});
+ document.querySelectorAll('[data-link]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var f=el.dataset.link;if(j[f]){openURL(j[f]);}else if(canLinks()){setLink(j.id,f,el.dataset.label);}else{alert('Chưa có link '+el.dataset.label+'.');}};});
+ document.querySelectorAll('[data-edit]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();setLink(el.dataset.jid,el.dataset.edit,el.dataset.label);};});
+ document.querySelectorAll('[data-cchip]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var c=(j.chips||[])[+el.dataset.cchip];if(!c)return;if(c.url)openURL(c.url);else alert(c.label+(c.note?(': '+c.note):''));};});
+ document.querySelectorAll('[data-addchip]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var label=prompt('Tên chip (vd: Trang phục, Drive thông tin, Beat...):');if(!label)return;var url=prompt('Dán link (Drive/Beat...) — để trống nếu chỉ là ghi chú:','');j.chips=j.chips||[];j.chips.push({label:label.trim(),url:(url||'').trim()});if(window.qtSave)window.qtSave('jobs',j.id,j);render();};});
+ document.querySelectorAll('[data-mt]').forEach(function(el){el.onclick=function(){state.moneyTab=el.dataset.mt;render();};});
+ document.querySelectorAll('[data-tab]').forEach(function(el){el.onclick=function(){state.tab=el.dataset.tab;render();};});
+ document.querySelectorAll('[data-tf]').forEach(function(el){el.onclick=function(){state.taskFilter=el.dataset.tf;render();};});
+ document.querySelectorAll('[data-tog]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();var t=tasks.filter(function(x){return x.id==+el.dataset.tog})[0];t.s=STSEQ[(STSEQ.indexOf(t.s)+1)%4];if(window.qtSave)window.qtSave('tasks',String(t.id),t);render();};});
+ document.querySelectorAll('[data-coll]').forEach(function(el){el.onclick=function(){var k=el.dataset.coll;var def=el.dataset.def==='1';var cur=(k in state.collapsed)?state.collapsed[k]:def;state.collapsed[k]=!cur;render();};});
+}
+function kpi(ic,l,v){return '<div class="kpi"><div class="ico"><i class="ti '+ic+'"></i></div><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';}
+function jobItem(j,sub){return '<button class="item" data-job="'+j.id+'"><span class="bar" style="background:'+TC[j.type]+'"></span><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+(sub||dt(j.start))+'</div></div>'+sbadge(j.status)+'<i class="ti ti-chevron-right chev"></i></button>';}
+function emp(t){return '<div class="empty">'+t+'</div>';}
+
+function screenDash(){
+ var up=jobs.filter(function(j){return j.start>=now}).sort(function(a,b){return a.start-b.start}).slice(0,4);
+ var fu=jobs.filter(function(j){return j.follow});
+ var od=pays.filter(function(p){return p.st=='qua_han'});
+ var h='<div class="hsub">Chào '+USERS[state.role].nm+' 👋 — '+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
+ var al=(typeof notifs!=='undefined'?notifs:[]).slice(0,4);
+ if(al.length)h+='<div class="alert"><i class="ti ti-alert-triangle i"></i><div><b>'+notifs.length+' cảnh báo</b><ul>'+al.map(function(n){return '<li>'+n.text+'</li>';}).join('')+'</ul></div></div>';
+ if(fin()){var inc=0,rec=0;jobs.forEach(function(j){inc+=j.net;rec+=recvOf(j.id)});
+  h+='<div class="kpis">'+kpi('ti-wallet','Incoming dự kiến',money(inc))+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-trending-down','Quá hạn',money(80000000))+'</div>';}
+ h+='<div class="gtitle">Sắp diễn ra</div><div class="group">'+up.map(function(j){return jobItem(j)}).join('')+'</div>';
+ h+='<div class="gtitle">Cần follow-up</div><div class="group">'+(fu.length?fu.map(function(j){return jobItem(j,SL[j.status])}).join(''):emp('Không có'))+'</div>';
+ if(fin())h+='<div class="gtitle">Thanh toán quá hạn</div><div class="group">'+(od.length?od.map(function(p){var j=jById[p.job];return '<button class="item" data-job="'+p.job+'"><span class="bar" style="background:var(--red)"></span><div style="flex:1"><div class="t">'+j.name+'</div><div class="s" style="color:var(--red)">'+p.label+' · quá hạn</div></div><span class="money" style="color:var(--red)">'+money(p.amt)+'</span></button>'}).join(''):emp('Không có'))+'</div>';
+ return h;
+}
+// Gom theo tháng: sắp tới ở trên (tăng dần), đã qua dồn xuống dưới + làm mờ
+// + đảo ngược (tháng gần nhất trước), năm cũ là nhóm bấm mở ra mới hiện tháng.
+function buildGrouped(list, itemFn){
+ if(!list.length) return '<div class="empty">Không có lịch</div>';
+ var sorted=list.slice().sort(function(a,b){return a.start-b.start});
+ var curY=now.getFullYear();
+ var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ function monthsOf(items){var map={},order=[];items.forEach(function(j){var y=j.start.getFullYear(),m=j.start.getMonth();var k=y+'_'+m;if(!map[k]){map[k]={y:y,m:m,items:[]};order.push(k);}map[k].items.push(j);});return order.map(function(k){return map[k];});}
+ var active=monthsOf(sorted.filter(function(j){return j.start>=todayStart;}));         // từ hôm nay trở đi
+ var past=monthsOf(sorted.filter(function(j){return j.start<todayStart;}).reverse());  // đã qua (giảm dần)
+
+ function monthBlock(M,monthDef,indent){var mk='m'+M.y+'_'+M.m;var coll=isColl(mk,monthDef);
+   var h='<button class="grp" data-coll="'+mk+'" data-def="'+(monthDef?1:0)+'"'+(indent?' style="padding-left:20px"':'')+'><i class="ti '+(coll?'ti-chevron-right':'ti-chevron-down')+'"></i><span>'+monthLabel(M.y,M.m)+'</span><span class="gcount">'+M.items.length+'</span></button>';
+   if(!coll)h+='<div class="group">'+M.items.map(itemFn).join('')+'</div>';
+   return h;}
+ function section(ms,monthDef){var h='';var ys=[],byY={};
+   ms.forEach(function(M){if(!byY[M.y]){byY[M.y]=[];ys.push(M.y);}byY[M.y].push(M);});
+   ys.forEach(function(y){var arr=byY[y];
+     if(y===curY){arr.forEach(function(M){h+=monthBlock(M,monthDef,false);});}
+     else{var yk='y'+y;var yDef=(y<curY);var yColl=isColl(yk,yDef);var tot=arr.reduce(function(s,M){return s+M.items.length},0);
+       h+='<button class="grp grp-year" data-coll="'+yk+'" data-def="'+(yDef?1:0)+'"><i class="ti '+(yColl?'ti-chevron-right':'ti-chevron-down')+'"></i><span>Năm '+y+'</span><span class="gcount">'+tot+'</span></button>';
+       if(!yColl)arr.forEach(function(M){h+=monthBlock(M,monthDef,true);});}
+   });
+   return h;}
+
+ var h=section(active,false);
+ if(past.length)h+='<div class="pastlabel">Đã qua</div><div class="pastwrap">'+section(past,true)+'</div>';
+ return h;
+}
+function jobItemFull(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"><i class="ti ti-map-pin"></i>'+(j.loc||j.prov||'—')+' · '+dt(j.start)+'</div></div>'+(fin()&&j.net?'<span class="money">'+money(j.net)+'</span>':'')+'<i class="ti ti-chevron-right chev"></i></button>';}
+function artItem(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+dt(j.start)+' · '+(j.loc||j.prov||'')+'</div></div><span class="pill">'+TL[j.type]+'</span></button>';}
+function screenJobs(){
+ var h='<div class="searchbar"><i class="ti ti-search i"></i><input placeholder="Tìm job, khách hàng…"></div>';
+ h+=buildGrouped(jobs, jobItemFull);
+ if(state.role!='truc')h+='<button class="fab" data-go="create"><i class="ti ti-plus"></i> Job mới</button>';
+ return h;
+}
+function screenCal(){
+ var artist=state.role=='artist';
+ var pool=artist?jobs.filter(function(j){return j.status=='da_chot'||j.status=='da_ky_hd'||j.status=='hoan_thanh'}):jobs.filter(function(j){return j.status!='da_huy'});
+ var cm=state.calMonth;var y=cm.getFullYear(),m=cm.getMonth();
+ var first=new Date(y,m,1);var sd=(first.getDay()+6)%7;
+ var h='<div class="calcard"><div class="calhead"><div class="mo">'+cm.toLocaleDateString('vi-VN',{month:'long',year:'numeric'})+'</div><div class="navs"><button class="todaybtn" data-today="1">Hôm nay</button><button data-mo="-1"><i class="ti ti-chevron-left"></i></button><button data-mo="1"><i class="ti ti-chevron-right"></i></button></div></div>';
+ h+='<div class="dow"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>';
+ h+='<div class="calgrid">';
+ for(var i=0;i<42;i++){var dnum=i-sd+1;var date=new Date(y,m,dnum);var dim=date.getMonth()!=m;
+  var evs=pool.filter(function(j){return sameDay(j.start,date)});
+  var cls='cday'+(dim?' dim':'')+(sameDay(date,now)?' today':'')+(sameDay(date,state.selDate)?' sel':'');
+  var dots='';evs.slice(0,4).forEach(function(j){dots+='<i style="background:'+TC[j.type]+'"></i>'});
+  h+='<button class="'+cls+'" data-day="'+(+date)+'"><span class="n">'+date.getDate()+'</span><span class="cdots">'+dots+'</span></button>';
+ }
+ h+='</div></div>';
+ var dayEvs=pool.filter(function(j){return sameDay(j.start,state.selDate)}).sort(function(a,b){return a.start-b.start});
+ var dlabel=sameDay(state.selDate,now)?'Hôm nay':state.selDate.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'});
+ h+='<div class="dlist"><div class="dhead">'+dlabel+'</div>';
+ if(!dayEvs.length)h+=emp('Không có lịch trong ngày này');
+ else h+='<div class="group">'+dayEvs.map(function(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+tm(j.start)+' - '+tm(j.end)+' · '+j.loc+'</div></div><i class="ti ti-chevron-right chev"></i></button>'}).join('')+'</div>';
+ h+='</div>';
+ var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ var upcoming=pool.filter(function(j){return j.start>=todayStart;}).sort(function(a,b){return a.start-b.start;}).slice(0,1);
+ h+='<div class="gtitle" style="margin-top:20px">Lịch tiếp theo</div>';
+ h+=upcoming.length?('<div class="group">'+upcoming.map(function(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+dt(j.start)+' · '+(j.loc||j.prov||'')+'</div></div><i class="ti ti-chevron-right chev"></i></button>'}).join('')+'</div>'):emp('Không có sự kiện sắp tới');
+ return h;
+}
+function screenMoney(){
+ var h='<div class="seg"><button data-mt="pay" class="'+(state.moneyTab=='pay'?'on':'')+'">Tài chính thu</button><button data-mt="exp" class="'+(state.moneyTab=='exp'?'on':'')+'">Chi phí</button></div>';
+ if(state.moneyTab=='pay'){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt});
+  h+='<div class="kpis">'+kpi('ti-wallet','Dự kiến',money(inc))+kpi('ti-cash','Đã nhận',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-cash','Tháng này',money(160000000))+'</div>';
+  h+='<div class="group">'+pays.slice().sort(function(a,b){return a.due-b.due}).map(function(p){var j=jById[p.job];var c=PSL[p.st];return '<button class="item" data-job="'+p.job+'"><div style="flex:1"><div class="t">'+j.name+'</div><div class="s">'+p.label+' · dự kiến '+dd(p.due)+'</div></div><div style="text-align:right"><div class="money">'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></button>'}).join('')+'</div>';
+ } else {var est=0,act=0;exps.forEach(function(e){est+=e.est;act+=e.act});
+  h+='<div class="kpis">'+kpi('ti-receipt','Chi dự kiến',money(est))+kpi('ti-coin','Chi thực tế',money(act))+'</div>';
+  h+='<div class="group">'+exps.map(function(e){var j=jById[e.job];var over=e.act>e.est&&e.act>0;return '<button class="item" data-job="'+e.job+'"><div style="flex:1"><div class="t">'+e.name+(over?' <i class="ti ti-alert-triangle" style="color:var(--red)"></i>':'')+'</div><div class="s">'+j.name+' · '+e.vendor+'</div></div><div style="text-align:right"><div class="money" style="'+(over?'color:var(--red)':'')+'">'+money(e.act||e.est)+'</div><span class="pill" style="margin-top:3px;display:inline-block">'+L(ESL,e.st)+'</span></div></button>'}).join('')+'</div>';
+ }
+ return h;
+}
+function screenTasks(){
+ var filt=state.taskFilter;
+ var list=tasks.filter(function(t){return filt=='mine'?t.o=='Vi':filt=='open'?t.s!='done':true});
+ list=list.slice().sort(function(a,b){return (a.s=='done')-(b.s=='done')||a.d-b.d;});
+ var h='<div class="seg"><button data-tf="all" class="'+(filt=='all'?'on':'')+'">Tất cả</button><button data-tf="open" class="'+(filt=='open'?'on':'')+'">Chưa xong</button><button data-tf="mine" class="'+(filt=='mine'?'on':'')+'">Của Vi</button></div>';
+ h+='<div class="group">';
+ list.forEach(function(t){var j=jById[t.job];var over=t.s!='done'&&t.d<now;var sm=STMETA[t.s];
+  var chk=t.s=='done'?'<div class="tcheck done"><i class="ti ti-check"></i></div>':t.s=='doing'?'<div class="tcheck doing"><i class="ti ti-dots-vertical i"></i></div>':'<div class="tcheck"></div>';
+  h+='<div class="task'+(t.s=='done'?' isdone':'')+'"><button data-tog="'+t.id+'" style="border:none;background:none;padding:0">'+chk+'</button><div style="flex:1;min-width:0"><div class="tn">'+t.n+'</div><div class="nt">'+t.note+'</div><div class="meta"><button class="stpill" data-tog="'+t.id+'" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</button><span class="s" style="font-size:12px;color:'+(over?'var(--red)':'var(--muted)')+'"><i class="ti ti-clock"></i> '+dd(t.d)+'</span><span class="s" style="font-size:12px;color:var(--muted)">· '+j.name+'</span></div></div></div>';
+ });
+ if(!list.length)h+=emp('Không có công việc');
+ h+='</div><div style="text-align:center;color:var(--faint);font-size:12px;margin-top:-6px">Chạm vòng tròn hoặc nhãn để đổi: Cần làm → Đang làm → Chờ → Xong</div>';
+ return h;
+}
+function screenDocs(){
+ var h='<div class="group">'+docs.map(function(d){var j=jById[d.job];return '<button class="item" data-job="'+d.job+'" style="flex-wrap:wrap"><div style="flex:1;min-width:0;width:100%"><div class="t">'+j.name+'</div><div class="s" style="margin-top:6px"><span class="pill">HĐ: '+L(CTL,d.ct)+'</span><span class="pill">HĐơn: '+L(IVL,d.inv)+'</span><span class="pill">NT: '+L(ACL,d.acc)+'</span></div><div class="s" style="margin-top:5px"><i class="ti ti-clock"></i> Deadline '+dd(d.dl)+' · '+d.files+' file</div></div></button>'}).join('')+'</div>';
+ return h;
+}
+function screenDetail(id){
+ var j=jById[id];var tab=state.tab;
+ var jp=pays.filter(function(p){return p.job==id});var je=exps.filter(function(e){return e.job==id});var jt=tasks.filter(function(t){return t.job==id});var jd=docs.filter(function(d){return d.job==id})[0];
+ var rec=recvOf(id),est=0,act=0;je.forEach(function(e){est+=e.est;act+=e.act});
+ var h='<button class="back" data-go="'+(state.role=='artist'?'artist':'jobs')+'"><i class="ti ti-chevron-left"></i> Quay lại</button>';
+ h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:6px">'+tBadge(j.type,true)+'<div><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div></div>';
+ h+='<button class="bigbtn" onclick="addToCal(\''+id+'\')"><i class="ti ti-calendar-plus i"></i> Thêm vào Lịch iPhone</button>';
+ var tabsArr=[['overview','Thông tin']];if(fin()){tabsArr.push(['finance','Tiền']);tabsArr.push(['expenses','Chi phí']);}if(state.role!=='artist'){tabsArr.push(['documents','Giấy tờ']);tabsArr.push(['tasks','Việc']);}
+ h+='<div class="tabs">'+tabsArr.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(tab==t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
+ if(tab=='overview'){
+  h+='<div class="group">';
+  h+=drow('ti-calendar','Thời gian',dt(j.start)+'  →  '+tm(j.end));
+  h+=drow('ti-clock','Call time',dt(j.call));
+  h+=drow('ti-map-pin','Địa điểm',[j.loc,j.prov].filter(Boolean).join(', ')||'—');
+  var ctc=[j.client,[j.contact,j.phone].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
+  h+=drow('ti-user','Khách / liên hệ',ctc||'—');
+  h+='</div>';
+  if(j.timeline){h+='<div class="gtitle">Timeline</div><div class="group"><div class="pre">'+j.timeline+'</div></div>';}
+  if(j.setlist){h+='<div class="gtitle">Setlist / cần chuẩn bị</div><div class="group"><div class="pre">'+j.setlist+'</div></div>';}
+  if(j.note){h+='<div class="gtitle">Ghi chú</div><div class="group"><div class="pre">'+j.note+'</div></div>';}
+  var prep='';
+  if(j.rehearsals&&j.rehearsals.length)j.rehearsals.forEach(function(r,i){prep+=drow('ti-music','Tập band '+(i+1),(r.date?dd(new Date(r.date)):'')+(r.time?(' · '+r.time):'')+(r.location?(' · '+r.location):''));});
+  if(j.soundcheck&&j.soundcheck.on)prep+=drow('ti-device-speaker','Soundcheck',(j.soundcheck.date?dd(new Date(j.soundcheck.date)):'—')+(j.soundcheck.time?(' · '+j.soundcheck.time):''));
+  ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+(m.cost?(' · '+money(m.cost)):'')+(m.paid?' · ✅ đã TT':''));}});
+  if(j.beat&&j.beat.on&&j.beat.link)prep+='<div class="drow"><div class="di"><i class="ti ti-music"></i></div><div><div class="dk">Beat</div><div class="dv"><a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link beat</a></div></div></div>';
+  if(j.dressCode&&j.dressCode.on&&j.dressCode.text)prep+=drow('ti-shirt','Dress code',j.dressCode.text);
+  if(prep)h+='<div class="gtitle">Chuẩn bị</div><div class="group">'+prep+'</div>';
+  var canL=canLinks();
+  function chip(field,icon,label){var has=!!j[field];return '<button class="chip'+(has?' on':'')+'" data-link="'+field+'" data-jid="'+j.id+'" data-label="'+label+'"><i class="ti '+icon+'"></i>'+label+(has?'':(canL?' +':''))+'</button>';}
+  var ch='<button class="chip" data-mapid="'+j.id+'"><i class="ti ti-map"></i>Bản đồ</button>'+chip('drive','ti-folder','Drive')+chip('beat','ti-music','Beat')+chip('lyrics','ti-file-text','Lyrics');
+  (j.chips||[]).forEach(function(c,idx){ ch+='<button class="chip on" data-cchip="'+idx+'" data-jid="'+j.id+'"><i class="ti ti-paperclip"></i>'+c.label+(c.url?'':' (ghi chú)')+'</button>'; });
+  if(canL) ch+='<button class="chip add" data-addchip="'+j.id+'"><i class="ti ti-plus"></i>Thêm</button>';
+  h+='<div class="gtitle">Đính kèm & ghi chú</div><div class="chiprow">'+ch+'</div>';
+ }
+ if(tab=='finance'&&fin())h+='<div class="group">'+(jp.length?jp.map(function(p){var c=PSL[p.st];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+p.label+'</div><div class="s">dự kiến '+dd(p.due)+'</div></div><div style="text-align:right"><div class="money">'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></div>'}).join(''):emp('Chưa có'))+'</div>';
+ if(tab=='expenses'&&fin())h+='<div class="group">'+(je.length?je.map(function(e){var over=e.act>e.est&&e.act>0;return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+e.name+(over?' <i class="ti ti-alert-triangle" style="color:var(--red)"></i>':'')+'</div><div class="s">'+e.vendor+' · DK '+money(e.est)+'</div></div><span class="pill">'+L(ESL,e.st)+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
+ if(tab=='documents'){
+  var ct=contractById[id];
+  if(ct){
+   var acc=aById(ct.bankAccount);
+   h+='<div class="group">'+drow('ti-file-text','Số HĐ',ct.contractNo||'—')+drow('ti-building','Đối tác',ct.partner||'—')+drow('ti-calendar','Ngày ký',ct.signDate?dd(ct.signDate):'—')+drow('ti-wallet','Giá trị',money(ct.valuePreTax)+' + '+ct.taxRate+'% → '+money(ct.totalValue))+drow('ti-credit-card','TK nhận',acc?(acc.label+' · '+acc.number):'—')+'</div>';
+   h+='<div class="gtitle">Các đợt thanh toán</div><div class="group">'+ct.installments.map(function(ins){var over=!ins.paid&&new Date(ins.dueDate)<stripT(now);var chip=ins.paid?'<span class="cstat" style="background:var(--greenbg);color:var(--green)">🟢 Hoàn tất</span>':over?'<span class="cstat" style="background:var(--redbg);color:var(--red)">🔴 Quá hạn</span>':'<span class="cstat" style="background:var(--amberbg);color:var(--amber)">Chờ TT</span>';return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">Đợt '+ins.pct+'% · '+money(ins.amount)+'</div><div class="s">'+(ins.dueNote||'')+' · dự kiến '+dd(new Date(ins.dueDate))+'</div></div>'+chip+'</div>';}).join('')+'</div>';
+   if(ct.fileUrl)h+='<div class="chiprow"><button class="chip on" onclick="openURL(\''+ct.fileUrl+'\')"><i class="ti ti-link"></i>File HĐ</button></div>';
+  } else h+='<div class="group">'+(jd?(drow('ti-file-text','Hợp đồng',L(CTL,jd.ct))+drow('ti-receipt','Hóa đơn',L(IVL,jd.inv))+drow('ti-list-check','Nghiệm thu',L(ACL,jd.acc))+drow('ti-clock','Deadline',dd(jd.dl))):emp('Chưa có hồ sơ'))+'</div>';
+ }
+ if(tab=='tasks')h+='<div class="group">'+(jt.length?jt.map(function(t){var sm=STMETA[t.s];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+t.n+'</div><div class="s">'+t.note+' · '+t.o+'</div></div><span class="badge" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
+ return h;
+}
+function drow(ic,k,v){return '<div class="drow"><div class="di"><i class="ti '+ic+'"></i></div><div><div class="dk">'+k+'</div><div class="dv">'+v+'</div></div></div>';}
+function daysOver(d){return Math.floor((now-d)/86400000);}
+function payRow(p,danger){var j=jById[p.job];var c=PSL[p.st];var od=daysOver(p.due);var sub=p.label+' · hạn '+dd(p.due)+(p.st=='qua_han'?(' · trễ '+od+' ngày'):'');
+ return '<button class="item" data-job="'+p.job+'"><span class="bar" style="background:'+(danger?'var(--red)':TC[j.type])+'"></span><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"'+(p.st=='qua_han'?' style="color:var(--red)"':'')+'>'+sub+'</div></div><div style="text-align:right"><div class="money"'+(danger?' style="color:var(--red)"':'')+'>'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></button>';}
+function screenQtMoney(){
+ var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt;});
+ var ar=inc-rec;
+ var chi=0;exps.forEach(function(e){chi+=(e.act||0);});
+ var pending=pays.filter(function(p){return p.st=='chua_den_han'||p.st=='den_han';}).sort(function(a,b){return a.due-b.due;});
+ var overdue=pays.filter(function(p){return p.st=='qua_han';});
+ var od30=overdue.filter(function(p){return daysOver(p.due)>30;}).sort(function(a,b){return a.due-b.due;});
+ var odShort=overdue.filter(function(p){return daysOver(p.due)<=30;}).sort(function(a,b){return a.due-b.due;});
+ var odSum=overdue.reduce(function(s,p){return s+p.amt;},0);
+ var h='<div class="hsub">Tình hình dòng tiền — cập nhật '+now.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+'</div>';
+ h+='<div class="kpis">'+kpi('ti-wallet','Incoming dự kiến',money(inc))+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Còn phải thu',money(ar))+kpi('ti-trending-down','Đã chi',money(chi))+'</div>';
+ if(odSum>0)h+='<div class="alert" style="background:var(--redbg);color:var(--red)"><i class="ti ti-alert-triangle i"></i><div><b>Đang có '+money(odSum)+' quá hạn thu</b>'+(od30.length?' — trong đó '+od30.length+' khoản trễ trên 30 ngày':'')+'</div></div>';
+ h+='<div class="gtitle">Khoản sắp thu</div><div class="group">'+(pending.length?pending.map(function(p){return payRow(p);}).join(''):emp('Không có khoản sắp thu'))+'</div>';
+ if(odShort.length)h+='<div class="gtitle">Quá hạn ≤ 30 ngày</div><div class="group">'+odShort.map(function(p){return payRow(p);}).join('')+'</div>';
+ h+='<div class="gtitle" style="color:var(--red)">⚠ Quá hạn trên 30 ngày — cần xử lý gấp</div><div class="group">'+(od30.length?od30.map(function(p){return payRow(p,true);}).join(''):emp('Không có khoản nào trễ quá lâu 🎉'))+'</div>';
+ return h;
+}
+function screenArtist(){
+ var vis=jobs.filter(function(j){return j.status=='da_chot'||j.status=='da_ky_hd'||j.status=='hoan_thanh'}).sort(function(a,b){return a.start-b.start});
+ var up=vis.filter(function(j){return j.end>=now});var past=vis.filter(function(j){return j.end<now});
+ var today=up.filter(function(j){return sameDay(j.start,now)});
+ var h='<div class="hsub">'+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
+ if(today.length){h+='<div class="gtitle">Hôm nay</div>';today.forEach(function(j){
+   h+='<div class="group" style="padding:16px;border-left:6px solid '+TC[j.type]+'"><div style="font-size:18px;font-weight:800">'+j.name+'</div><div class="s" style="margin-top:6px"><i class="ti ti-clock"></i> '+tm(j.call||j.start)+' call · <i class="ti ti-map-pin"></i> '+j.loc+'</div><div style="display:flex;gap:10px;margin-top:12px"><button class="bigbtn" style="margin:0;height:46px" data-job="'+j.id+'"><i class="ti ti-info-circle i"></i> Chi tiết</button><button class="bigbtn alt" style="margin:0;height:46px" onclick="addToCal(\''+j.id+'\')"><i class="ti ti-calendar-plus i"></i> Vào Lịch</button></div></div>';});}
+ h+=buildGrouped(vis, artItem);
+ return h;
+}
+
+/* ====================== FORM TẠO SỰ KIỆN ====================== */
+var ETYPES=[['ticket','Ticket (bán vé)'],['public','Public show'],['event_checkin','Event / Tiệc'],['gameshow','Gameshow / Reality'],['thu_am','Thu âm'],['quay_social','Quay / Social'],['phong_van','Phỏng vấn / Họp'],['chup_hinh','Chụp hình'],['livestream','Livestream'],['canhan','Cá nhân / Visit'],['khac','Khác']];
+var NOCT={canhan:1,phong_van:1};
+function dIn(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function tIn(d){return pad(d.getHours())+':'+pad(d.getMinutes());}
+function stripT(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function addBizDays(d,n){var x=new Date(d);var c=0;while(c<n){x.setDate(x.getDate()+1);var w=x.getDay();if(w!==0&&w!==6)c++;}return x;}
+function parseMoney(s){return Math.round(parseFloat(String(s||'').replace(/[^\d]/g,''))||0);}
+function vendorOpts(role){return '<option value="">— chọn —</option>'+vendors.filter(function(v){return v.role===role;}).map(function(v){return '<option value="'+v.id+'" data-phone="'+v.phone+'" data-name="'+v.name.replace(/"/g,'')+'">'+v.name+'</option>';}).join('');}
+function acctOpts(){return accounts.map(function(a){return '<option value="'+a.id+'">'+a.label+' · '+a.number+'</option>';}).join('');}
+function prepItem(key,label,icon,role,withLoc){
+ var locHtml=withLoc?('<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input class="in" id="'+key+'Loc" placeholder="Địa chỉ"><button class="iconbtn" type="button" id="'+key+'Map"><i class="ti ti-map-pin"></i></button></div></div>'):'';
+ return '<div class="swrow"><span class="swt"><i class="ti '+icon+'"></i> '+label+'</span><label class="switch"><input type="checkbox" id="sw'+key+'"><span class="slider"></span></label></div>'
+ +'<div class="sub" id="'+key+'Box">'
+ +'<div class="fld" style="padding:8px 0 0"><label class="flbl">Người / vendor</label><div style="display:flex;gap:8px"><select class="in" id="'+key+'Vendor">'+vendorOpts(role)+'</select><button class="iconbtn" type="button" id="'+key+'Tel"><i class="ti ti-phone"></i></button></div></div>'
+ +'<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí</label><input class="in" id="'+key+'Cost" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Giờ hẹn</label><input class="in" id="'+key+'Time" type="time"></div></div>'
+ +locHtml
+ +'<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" id="'+key+'Paid"><span class="slider"></span></label></div>'
+ +'</div>';
+}
+function screenCreate(){
+ var d=(state.selDate&&stripT(state.selDate)>=stripT(now))?state.selDate:now;
+ var H='';
+ H+='<button class="back" data-go="jobs"><i class="ti ti-chevron-left"></i> Hủy</button>';
+ H+='<div class="dtitle" style="margin-bottom:10px">Tạo sự kiện</div>';
+ H+='<div class="frm">';
+ /* 1. THÔNG TIN CHÍNH */
+ H+='<div class="gtitle">Thông tin chính</div><div class="group">';
+ H+='<div class="fld"><label class="flbl">Tên sự kiện *</label><input id="evName" class="in" placeholder="VD: Mây Sài Gòn"></div>';
+ H+='<div class="fld"><label class="flbl">Trạng thái</label><div class="segbtn" id="evStatus"><button type="button" data-val="du_kien" class="on">Dự kiến</button><button type="button" data-val="da_xac_nhan">Đã xác nhận</button></div></div>';
+ H+='<div class="fld"><label class="flbl">Loại</label><select id="evType" class="in">'+ETYPES.map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('')+'</select></div>';
+ H+='<div class="frow"><div class="fld"><label class="flbl">Ngày</label><input id="evDate" type="date" class="in" value="'+dIn(d)+'"></div><div class="fld"><label class="flbl">Giờ</label><input id="evTime" type="time" class="in" value="19:00"></div></div>';
+ H+='<div class="fld"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input id="evLoc" class="in" placeholder="Tên / địa chỉ"><button class="iconbtn" type="button" id="evMap"><i class="ti ti-map-pin"></i></button></div></div>';
+ H+='<div class="fld"><label class="flbl">Ghi chú / link họp online / cần mang theo</label><textarea id="evNote" class="in" placeholder="Dán link Google Meet, giờ standby, cần mang theo…"></textarea></div>';
+ H+='</div>';
+ /* 2. CHUẨN BỊ */
+ H+='<div class="gtitle gtr"><span>Chuẩn bị</span><label class="switch"><input type="checkbox" id="swPrep"><span class="slider"></span></label></div>';
+ H+='<div class="group collapsable" id="prepBox">';
+ /* tập band */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-music"></i> Tập band</span><label class="switch"><input type="checkbox" id="swReh"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="rehBox"><div id="rehRows"></div><button type="button" class="addrow" id="rehAdd"><i class="ti ti-plus"></i> Thêm buổi tập</button></div>';
+ /* soundcheck */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-device-speaker"></i> Soundcheck</span><label class="switch"><input type="checkbox" id="swSc"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="scBox"><div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Ngày</label><input id="scDate" type="date" class="in"></div><div class="fld"><label class="flbl">Giờ</label><input id="scTime" type="time" class="in"></div></div></div>';
+ /* makeup / photo / social */
+ H+=prepItem('makeup','Makeup','ti-brush','makeup',true);
+ H+=prepItem('photo','Photo','ti-camera','photo',false);
+ H+=prepItem('social','Social','ti-video','social',false);
+ /* beat */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-music"></i> Beat</span><label class="switch"><input type="checkbox" id="swBeat"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="beatBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Link beat</label><div style="display:flex;gap:8px"><input id="beatLink" class="in" placeholder="Dán link Drive/Dropbox…"><button class="iconbtn" type="button" id="beatOpen"><i class="ti ti-external-link"></i></button></div></div></div>';
+ /* dress code */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-shirt"></i> Dress code</span><label class="switch"><input type="checkbox" id="swDress"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="dressBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Mô tả / link</label><input id="dressText" class="in" placeholder="VD: Vest đen / link Pinterest"></div><div class="calcd" style="padding:6px 0 0">📷 Tải ảnh (≤10) lên Firebase Storage — Phase 2.</div></div>';
+ H+='</div>';/* prepBox group */
+ /* 3. HỢP ĐỒNG */
+ H+='<div id="ctWrap">';
+ H+='<div class="gtitle gtr"><span>Giấy tờ / Hợp đồng</span><label class="switch"><input type="checkbox" id="swCt"><span class="slider"></span></label></div>';
+ H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
+ H+='<div class="segbtn" id="ctSource" style="margin:10px 0 8px"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải HĐ</button><button type="button" data-val="manual" class="on">Nhập tay</button><button type="button" data-val="template"><i class="ti ti-robot"></i> Tạo mẫu</button></div>';
+ H+='<div id="ctSrcNote" class="calcd" style="margin-bottom:8px">Nhập thông tin hợp đồng bên dưới.</div>';
+ H+='<div class="frow" style="padding:0"><div class="fld"><label class="flbl">Số HĐ</label><input id="ctNo" class="in"></div><div class="fld"><label class="flbl">Ngày ký</label><input id="ctSign" type="date" class="in"></div></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Công ty đối tác</label><input id="ctPartner" class="in"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Tài khoản nhận</label><select id="ctAcct" class="in">'+acctOpts()+'</select></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link file HĐ (Drive) — tùy chọn</label><input id="ctFile" class="in" placeholder="Dán link…"></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giá trị trước thuế</label><input id="ctValue" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Thuế</label><div class="segbtn" id="ctTax"><button type="button" data-val="8" class="on">8%</button><button type="button" data-val="10">10%</button></div></div></div>';
+ H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="ctTotal">0₫</span></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số đợt thanh toán</label><div class="segbtn" id="ctCount"><button type="button" data-val="1" class="on">1</button><button type="button" data-val="2">2</button><button type="button" data-val="3">3</button></div></div><div class="fld"><label class="flbl">Hóa đơn</label><div class="segbtn" id="ctInvMode"><button type="button" data-val="per" class="on">Từng đợt</button><button type="button" data-val="total">Tổng</button></div></div></div>';
+ H+='<div id="instRows"></div>';
+ H+='<div class="fld" id="ctTotInvWrap" style="padding:8px 0 0;display:none"><label class="flbl">Số hóa đơn (tổng)</label><input id="ctTotInv" class="in"></div>';
+ H+='</div></div>';/* padding wrap + ctBox group */
+ H+='</div>';/* ctWrap */
+ H+='<button class="bigbtn" id="evSave"><i class="ti ti-check i"></i> Lưu sự kiện</button>';
+ H+='</div>';/* frm */
+ return H;
+}
+var qc={total:0,pcts:[100],n:1,dueDates:[]};
+function _defPcts(n){return n===1?[100]:n===2?[50,50]:[40,30,30];}
+function _amts(){var a=[],s=0;for(var i=0;i<qc.n;i++){if(i<qc.n-1){var v=Math.round(qc.total*qc.pcts[i]/100);a.push(v);s+=v;}else{a.push(qc.total-s);}}return a;}
+function _instChip(i){
+ var pe=document.querySelector('.iPaid[data-i="'+i+'"]');var paid=pe&&pe.checked;
+ var dd=qc.dueDates[i];var over=!paid&&dd&&new Date(dd)<stripT(now);
+ var html='';
+ if(paid)html='<span class="cstat" style="background:var(--greenbg);color:var(--green)">🟢 Hoàn tất</span>';
+ else if(over)html='<span class="cstat" style="background:var(--redbg);color:var(--red)">🔴 Quá hạn</span>';
+ var fe=document.getElementById('ctFile');if(fe&&fe.value.trim())html+=' <span class="cstat" style="background:var(--bluebg);color:var(--blue)">🔗 File</span>';
+ var c=document.getElementById('iChip'+i);if(c)c.innerHTML=html;
+}
+function _renderInst(){
+ var box=document.getElementById('instRows');if(!box)return;
+ var amts=_amts();var invMode=(document.querySelector('#ctInvMode .on')||{dataset:{val:'per'}}).dataset.val;
+ var html='';
+ for(var i=0;i<qc.n;i++){
+  html+='<div class="subcard"><div class="ttl">Đợt '+(i+1)+'</div>';
+  html+='<div class="frow" style="padding:0"><div class="fld"><label class="flbl">%</label><input type="number" class="in iPct" data-i="'+i+'" value="'+qc.pcts[i]+'"'+(i>0?' readonly':'')+'></div><div class="fld"><label class="flbl">Số tiền</label><input class="in iAmt" data-i="'+i+'" value="'+money(amts[i])+'" readonly></div></div>';
+  html+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ngày dự kiến TT</label><input type="date" class="in iDue" data-i="'+i+'" value="'+(qc.dueDates[i]||'')+'"></div>';
+  html+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Mốc thanh toán (điều khoản)</label><input class="in iNote" data-i="'+i+'" placeholder="VD: sau khi ký / sau khi diễn"></div>';
+  html+='<div class="fld iInvWrap" data-i="'+i+'" style="padding:8px 0 0;display:'+(invMode==='per'?'block':'none')+'"><label class="flbl">Số hóa đơn đợt</label><input class="in iInv" data-i="'+i+'"></div>';
+  html+='<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" class="iPaid" data-i="'+i+'"><span class="slider"></span></label></div>';
+  html+='<div class="fld iPaidDateWrap" data-i="'+i+'" style="padding:8px 0 0;display:none"><label class="flbl">Ngày TT thực</label><input type="date" class="in iPaidDate" data-i="'+i+'"></div>';
+  html+='<div class="chiprow" style="margin-top:8px" id="iChip'+i+'"></div>';
+  html+='</div>';
+ }
+ box.innerHTML=html;applyIcons();
+ box.querySelectorAll('.iPct[data-i="0"]').forEach(function(el){el.oninput=function(){var p=Math.max(0,Math.min(100,parseFloat(el.value)||0));qc.pcts[0]=p;var rem=100-p;for(var i=1;i<qc.n;i++){qc.pcts[i]=(i<qc.n-1)?Math.round(rem/(qc.n-1)):(rem-Math.round(rem/(qc.n-1))*(qc.n-2));}_syncInst();};});
+ box.querySelectorAll('.iDue').forEach(function(el){el.onchange=function(){qc.dueDates[+el.dataset.i]=el.value;_instChip(+el.dataset.i);};});
+ box.querySelectorAll('.iPaid').forEach(function(el){el.onchange=function(){var i=+el.dataset.i;document.querySelector('.iPaidDateWrap[data-i="'+i+'"]').style.display=el.checked?'block':'none';_instChip(i);};});
+ for(var k=0;k<qc.n;k++)_instChip(k);
+}
+function _syncInst(){var amts=_amts();for(var i=0;i<qc.n;i++){var pe=document.querySelector('.iPct[data-i="'+i+'"]');if(pe&&i>0)pe.value=qc.pcts[i];var ae=document.querySelector('.iAmt[data-i="'+i+'"]');if(ae)ae.value=money(amts[i]);_instChip(i);}}
+function _recalcTotal(){var v=parseMoney((document.getElementById('ctValue')||{}).value);var tax=+(document.querySelector('#ctTax .on')||{dataset:{val:8}}).dataset.val;qc.total=Math.round(v*(1+tax/100));var t=document.getElementById('ctTotal');if(t)t.textContent=money(qc.total);_syncInst();}
+function _rebuildInst(n,resetDue){
+ qc.n=n;qc.pcts=_defPcts(n);
+ if(resetDue){var ds=document.getElementById('evDate').value;var base=ds?new Date(ds+'T00:00:00'):new Date(now);qc.dueDates=[dIn(base)];if(n>=2)qc.dueDates.push(dIn(addBizDays(base,15)));if(n>=3)qc.dueDates.push(dIn(addBizDays(base,30)));}
+ else{while(qc.dueDates.length<n)qc.dueDates.push('');qc.dueDates=qc.dueDates.slice(0,n);}
+ _renderInst();
+}
+function _rehRow(){
+ return '<div class="subcard reh"><button type="button" class="delx" data-delreh="1"><i class="ti ti-x"></i></button>'
+ +'<div class="frow" style="padding:0"><div class="fld"><label class="flbl">Ngày</label><input type="date" class="in rDate"></div><div class="fld"><label class="flbl">Giờ</label><input type="time" class="in rTime"></div></div>'
+ +'<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input class="in rLoc" placeholder="Phòng tập…"><button class="iconbtn rMap" type="button"><i class="ti ti-map-pin"></i></button></div></div>'
+ +'</div>';
+}
+function _bindReh(){
+ document.querySelectorAll('[data-delreh]').forEach(function(el){el.onclick=function(){el.closest('.reh').remove();};});
+ document.querySelectorAll('.rMap').forEach(function(el){el.onclick=function(){openMap(el.closest('.reh').querySelector('.rLoc').value);};});
+}
+function bindCreateForm(){
+ qc={total:0,pcts:[100],n:1,dueDates:[]};
+ function seg(id,cb){var c=document.getElementById(id);if(!c)return;c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');if(cb)cb(b.dataset.val);};});}
+ function tog(sw,box){var s=document.getElementById(sw),b=document.getElementById(box);if(s&&b)s.onchange=function(){b.classList.toggle('on',s.checked);};}
+ seg('evStatus');seg('ctSource',function(v){var n=document.getElementById('ctSrcNote');n.textContent=v==='upload'?'Phase 2: tự tải file lên Drive. Tạm thời dán link file HĐ bên dưới.':v==='template'?'Phase 2: tạo HĐ từ mẫu Google Doc. Tạm thời nhập tay + dán link.':'Nhập thông tin hợp đồng bên dưới.';});
+ seg('ctTax',_recalcTotal);
+ seg('ctCount',function(v){_rebuildInst(+v,true);});
+ seg('ctInvMode',function(v){document.getElementById('ctTotInvWrap').style.display=v==='total'?'block':'none';document.querySelectorAll('.iInvWrap').forEach(function(e){e.style.display=v==='per'?'block':'none';});});
+ tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swCt','ctBox');
+ var et=document.getElementById('evType');et.onchange=function(){document.getElementById('ctWrap').style.display=NOCT[et.value]?'none':'';};
+ document.getElementById('evMap').onclick=function(){openMap(document.getElementById('evLoc').value);};
+ document.getElementById('beatOpen').onclick=function(){openURL(document.getElementById('beatLink').value);};
+ ['makeup','photo','social'].forEach(function(k){
+  var tb=document.getElementById(k+'Tel');if(tb)tb.onclick=function(){var s=document.getElementById(k+'Vendor');var o=s.selectedOptions[0];if(o&&o.dataset.phone)window.open('tel:'+o.dataset.phone);else alert('Chọn vendor có số điện thoại trước.');};
+  var mb=document.getElementById(k+'Map');if(mb)mb.onclick=function(){openMap((document.getElementById(k+'Loc')||{}).value);};
+ });
+ document.getElementById('rehAdd').onclick=function(){var w=document.getElementById('rehRows');w.insertAdjacentHTML('beforeend',_rehRow());applyIcons();_bindReh();};
+ document.getElementById('ctValue').oninput=_recalcTotal;
+ document.getElementById('ctFile').oninput=function(){for(var i=0;i<qc.n;i++)_instChip(i);};
+ _rebuildInst(1,true);
+ document.getElementById('evSave').onclick=saveEvent;
+}
+function saveEvent(){
+ var name=(document.getElementById('evName').value||'').trim();
+ if(!name){alert('Nhập tên sự kiện');return;}
+ function V(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+ function C(id){var e=document.getElementById(id);return e?e.checked:false;}
+ function seg(id){var e=document.querySelector('#'+id+' .on');return e?e.dataset.val:'';}
+ var ds=V('evDate'),ts=V('evTime')||'19:00';
+ var start=new Date(ds+'T'+ts+':00');var end=new Date(start.getTime()+2*3600000);
+ var type=V('evType');var status=seg('evStatus');
+ var id='j'+Date.now();
+ var rehearsals=[];
+ if(C('swReh'))document.querySelectorAll('#rehRows .reh').forEach(function(r){var dd=r.querySelector('.rDate').value;if(!dd)return;rehearsals.push({date:dd,time:r.querySelector('.rTime').value,location:r.querySelector('.rLoc').value.trim(),mapLink:''});});
+ function vend(k){var s=document.getElementById(k+'Vendor');var o=s?s.selectedOptions[0]:null;return {on:C('sw'+k),vendorId:s?s.value:'',name:o?(o.dataset.name||''):'',phone:o?(o.dataset.phone||''):'',cost:parseMoney(V(k+'Cost')),paid:C(k+'Paid'),time:V(k+'Time'),location:V(k+'Loc'),mapLink:''};}
+ var job={id:id,name:name,type:type,status:status,start:start,end:end,
+  loc:V('evLoc'),prov:'',client:'',contact:'',phone:'',call:null,timeline:'',setlist:'',
+  note:V('evNote'),follow:false,chips:[],net:0,
+  hasContract:C('swCt')&&!NOCT[type],
+  rehearsals:rehearsals,
+  soundcheck:{on:C('swSc'),date:V('scDate'),time:V('scTime')},
+  makeup:vend('makeup'),photo:vend('photo'),social:vend('social'),
+  beat:{on:C('swBeat'),link:V('beatLink')},
+  dressCode:{on:C('swDress'),text:V('dressText'),fileLink:'',images:[]}};
+ var contract=null,newPays=[];
+ if(job.hasContract){
+  var v=parseMoney(V('ctValue'));var tax=+seg('ctTax');var total=Math.round(v*(1+tax/100));
+  var invMode=seg('ctInvMode');var amts=_amts();
+  var insts=[];
+  for(var i=0;i<qc.n;i++){
+   var paid=document.querySelector('.iPaid[data-i="'+i+'"]').checked;
+   var pd=document.querySelector('.iPaidDate[data-i="'+i+'"]').value;
+   var ino=document.querySelector('.iNote[data-i="'+i+'"]').value.trim();
+   var inv=(document.querySelector('.iInv[data-i="'+i+'"]')||{value:''}).value.trim();
+   insts.push({pct:qc.pcts[i],amount:amts[i],dueNote:ino,dueDate:qc.dueDates[i],invoiced:!!inv,invoiceNo:inv,paid:paid,paidDate:paid?(pd||dIn(now)):''});
+   var st=paid?'da_thanh_toan':(new Date(qc.dueDates[i])<stripT(now)?'qua_han':((new Date(qc.dueDates[i])-stripT(now))/86400000<=7?'den_han':'chua_den_han'));
+   newPays.push({id:'p_'+id+'_'+i,job:id,label:'Đợt '+(i+1)+(qc.n>1?(' ('+qc.pcts[i]+'%)'):''),amt:amts[i],pct:qc.pcts[i],due:new Date(qc.dueDates[i]),paid:paid?(pd?new Date(pd):new Date(now)):null,st:st});
+  }
+  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:V('ctFile'),source:seg('ctSource')};
+  job.net=total;
+ }
+ jobs.push(job);jById[job.id]=job;
+ if(window.qtSave)window.qtSave('jobs',job.id,job);
+ if(contract){contracts.push(contract);reContracts();if(window.qtSave)window.qtSave('contracts',contract.id,contract);
+  newPays.forEach(function(p){pays.push(p);if(window.qtSave)window.qtSave('pays',p.id,p);});}
+ alert('Đã lưu sự kiện: '+name);
+ openJob(id);
+}
+window.screenCreate=screenCreate;window.bindCreateForm=bindCreateForm;
+
+document.querySelectorAll('.av').forEach(function(b){b.onclick=function(){
+ state.role=b.dataset.r;state.screen=TABS[b.dataset.r][0][0];scrollNext=true;
+ document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');render();};});
+document.getElementById('logout').onclick=function(){document.getElementById('app').classList.add('hidden');document.getElementById('login').classList.remove('hidden');};
+document.getElementById('bell').onclick=function(e){e.stopPropagation();toggleNotif();};
+document.getElementById('noverlay').onclick=closeNotif;
+renderNotif();
+applyIcons();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
+const SEED_VERSION="2026-06-26-create-form"; // tang so nay de lam moi du lieu mau tren app
+const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts"];
+const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[]};
+function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
+function hyd(c,o){(DF[c]||[]).forEach(function(f){if(typeof o[f]==="string")o[f]=new Date(o[f]);});return o;}
+function reindex(){window.jById={};(window.jobs||[]).forEach(function(j){window.jById[j.id]=j;});if(window.reContracts)window.reContracts();}
+try{ const app=initializeApp(cfg); const auth=getAuth(app); const db=getFirestore(app);
+ async function wipeAll(){ for(const name of COLLS){ const snap=await getDocs(collection(db,name)); for(let i=0;i<snap.docs.length;i+=400){ const batch=writeBatch(db); snap.docs.slice(i,i+400).forEach(function(d){batch.delete(d.ref);}); await batch.commit(); } } }
+ async function seedAll(){ const colls={jobs:window.jobs,pays:window.pays,exps:window.exps,docs:window.docs,tasks:window.tasks,contracts:window.contracts,vendors:window.vendors,accounts:window.accounts};
+   for(const name in colls){ const arr=colls[name]||[]; for(let i=0;i<arr.length;i+=400){ const batch=writeBatch(db); arr.slice(i,i+400).forEach(function(it,k){var id=(it.id!=null)?String(it.id):(name+"_"+(i+k));it.id=id;batch.set(doc(db,name,id),ser(name,it));}); await batch.commit(); } } }
+ async function loadAll(){
+   const metaRef=doc(db,"app_meta","seed"); let need=true;
+   try{ const ms=await getDoc(metaRef); if(ms.exists() && ms.data().v===SEED_VERSION) need=false; }catch(e){}
+   const jSnap=await getDocs(collection(db,"jobs"));
+   if(need || jSnap.empty){ await wipeAll(); await seedAll(); try{ await setDoc(metaRef,{v:SEED_VERSION,at:new Date().toISOString()}); }catch(e){} reindex(); }
+   else { const out={}; for(const name of COLLS){ const snap=await getDocs(collection(db,name)); out[name]=snap.docs.map(function(d){return hyd(name,Object.assign({id:d.id},d.data()));}); }
+     window.jobs=out.jobs;window.pays=out.pays;window.exps=out.exps;window.docs=out.docs;window.tasks=out.tasks;
+     if(out.contracts&&out.contracts.length)window.contracts=out.contracts;
+     if(out.vendors&&out.vendors.length)window.vendors=out.vendors;
+     if(out.accounts&&out.accounts.length)window.accounts=out.accounts;
+     reindex(); }
+   if(window.render)window.render(); console.log("QT: Firebase synced ("+(window.jobs||[]).length+" jobs, seed "+SEED_VERSION+")"); }
+ window.qtSave=function(coll,id,obj){try{setDoc(doc(db,coll,id),ser(coll,obj),{merge:true});}catch(e){console.warn(e);}};
+ signInAnonymously(auth).then(loadAll).catch(function(e){console.warn("QT: Firebase auth loi, dung du lieu cuc bo.",e);});
+}catch(e){console.warn("QT: Firebase init loi.",e);}
+</script>
+</body>
+</html>

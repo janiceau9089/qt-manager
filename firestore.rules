@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // App nội bộ 4 người: ai đã đăng nhập đều đọc/ghi được dữ liệu app.
+    // (Phân quyền chi tiết theo vai trò đã xử lý ở giao diện.)
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
