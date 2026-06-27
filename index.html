@@ -266,6 +266,9 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .paidseg button[data-val="0"].on{background:var(--amber);border-color:var(--amber)}
 .chip.copybtn{padding:7px 10px}
 .minichip{display:inline-flex;align-items:center;gap:3px;background:var(--soft);color:var(--brand);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:12px;font-weight:700;margin-right:6px;flex-shrink:0}
+.minibtn{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--soft);color:var(--brand);border-radius:16px;padding:2px 9px;font-size:12px;font-weight:700;margin:2px 0 2px 5px;vertical-align:middle}
+.minibtn .ti{font-size:14px}
+.actwrap{display:inline-flex;flex-wrap:wrap;gap:2px;vertical-align:middle}
 #qtToast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;max-width:80%;text-align:center;pointer-events:none}
 </style>
 </head>
@@ -714,7 +717,9 @@ window.addToCal=addToCal;
 var scrollNext=true;
 function go(s){scrollNext=true;state.screen=s;render();}
 function openJob(id){scrollNext=true;state.screen='job:'+id;state.tab='overview';render();}
-window.openJob=openJob;
+function openCreate(){state.editId=null;scrollNext=true;state.screen='create';render();}
+function openEdit(id){state.editId=id;scrollNext=true;state.screen='create';render();}
+window.openJob=openJob;window.openCreate=openCreate;window.openEdit=openEdit;
 function openMap(q){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q||''),'_blank');}
 function openURL(u){if(u)window.open(u,'_blank');}
 function toast(msg){var t=document.getElementById('qtToast');if(!t){t=document.createElement('div');t.id='qtToast';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(window.__toastT);window.__toastT=setTimeout(function(){t.style.opacity='0';},1600);}
@@ -760,6 +765,8 @@ function bind(){
  document.querySelectorAll('[data-addchip]').forEach(function(el){el.onclick=function(){var j=jById[el.dataset.jid];var label=prompt('Tên chip (vd: Trang phục, Drive thông tin, Beat...):');if(!label)return;var url=prompt('Dán link (Drive/Beat...) — để trống nếu chỉ là ghi chú:','');j.chips=j.chips||[];j.chips.push({label:label.trim(),url:(url||'').trim()});if(window.qtSave)window.qtSave('jobs',j.id,j);render();};});
  document.querySelectorAll('[data-copy]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();copyLink(el.dataset.copy);};});
  document.querySelectorAll('[data-openstop]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();openURL(el.dataset.openstop);};});
+ document.querySelectorAll('[data-tel]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();var p=(el.dataset.tel||'').replace(/\s/g,'');if(p)window.open('tel:'+p);};});
+ document.querySelectorAll('[data-mapq]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();openMap(el.dataset.mapq);};});
  document.querySelectorAll('[data-mt]').forEach(function(el){el.onclick=function(){state.moneyTab=el.dataset.mt;render();};});
  document.querySelectorAll('[data-tab]').forEach(function(el){el.onclick=function(){state.tab=el.dataset.tab;render();};});
  document.querySelectorAll('[data-tf]').forEach(function(el){el.onclick=function(){state.taskFilter=el.dataset.tf;render();};});
@@ -818,7 +825,7 @@ function artItem(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.
 function screenJobs(){
  var h='<div class="searchbar"><i class="ti ti-search i"></i><input placeholder="Tìm job, khách hàng…"></div>';
  h+=buildGrouped(jobs, jobItemFull);
- if(state.role!='truc')h+='<button class="fab" data-go="create"><i class="ti ti-plus"></i> Job mới</button>';
+ if(state.role!='truc')h+='<button class="fab" onclick="openCreate()"><i class="ti ti-plus"></i> Job mới</button>';
  return h;
 }
 function screenCal(){
@@ -883,46 +890,48 @@ function screenDetail(id){
  var rec=recvOf(id),est=0,act=0;je.forEach(function(e){est+=e.est;act+=e.act});
  var h='<button class="back" data-go="'+(state.role=='artist'?'artist':'jobs')+'"><i class="ti ti-chevron-left"></i> Quay lại</button>';
  h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:6px">'+tBadge(j.type,true)+'<div><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div></div>';
- h+='<button class="bigbtn" onclick="addToCal(\''+id+'\')"><i class="ti ti-calendar-plus i"></i> Thêm vào Lịch iPhone</button>';
+ h+='<div style="display:flex;gap:10px">';
+ h+='<button class="bigbtn" style="flex:1" onclick="addToCal(\''+id+'\')"><i class="ti ti-calendar-plus i"></i> Vào Lịch iPhone</button>';
+ if(canLinks())h+='<button class="bigbtn alt" style="flex:1" onclick="openEdit(\''+id+'\')"><i class="ti ti-pencil i"></i> Sửa sự kiện</button>';
+ h+='</div>';
  var tabsArr=[['overview','Thông tin']];if(fin()){tabsArr.push(['finance','Tiền']);tabsArr.push(['expenses','Chi phí']);}if(state.role!=='artist'){tabsArr.push(['documents','Giấy tờ']);tabsArr.push(['tasks','Việc']);}
  h+='<div class="tabs">'+tabsArr.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(tab==t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
  if(tab=='overview'){
   h+='<div class="group">';
   h+=drow('ti-calendar','Thời gian',dt(j.start)+'  →  '+tm(j.end));
   h+=drow('ti-clock','Call time',dt(j.call));
-  h+=drow('ti-map-pin','Địa điểm',[j.loc,j.prov].filter(Boolean).join(', ')||'—');
+  var locstr=[j.loc,j.prov].filter(Boolean).join(', ')||'—';
+  h+=drow('ti-map-pin','Địa điểm',locstr+((j.loc||j.prov)?actBtns(null,null,j.loc||j.prov):''));
   var ctc=[j.client,[j.contact,j.phone].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
-  h+=drow('ti-user','Khách / liên hệ',ctc||'—');
+  h+=drow('ti-user','Khách / liên hệ',(ctc||'—')+(j.phone?actBtns(j.phone,null,null):''));
   h+='</div>';
   if(j.timeline){h+='<div class="gtitle">Timeline</div><div class="group"><div class="pre">'+j.timeline+'</div></div>';}
   if(j.setlist){h+='<div class="gtitle">Setlist / cần chuẩn bị</div><div class="group"><div class="pre">'+j.setlist+'</div></div>';}
   if(j.note){h+='<div class="gtitle">Ghi chú</div><div class="group"><div class="pre">'+j.note+'</div></div>';}
   var prep='';
-  if(j.band&&j.band.on&&j.band.name)prep+=drow('ti-music','Band',j.band.name+(j.band.phone?('\n📞 '+j.band.phone):''));
+  if(j.band&&j.band.on&&j.band.name)prep+=drow('ti-music','Band',j.band.name+actBtns(j.band.phone,vfb(j.band.vendorId),null));
   if(j.rehearsals&&j.rehearsals.length)j.rehearsals.forEach(function(r,i){prep+=drow('ti-music','Tập band '+(i+1),(r.date?dd(new Date(r.date)):'')+(r.time?(' · '+r.time):'')+(r.location?(' · '+r.location):''));});
   if(j.soundcheck&&j.soundcheck.on)prep+=drow('ti-device-speaker','Soundcheck',(j.soundcheck.date?dd(new Date(j.soundcheck.date)):'—')+(j.soundcheck.time?(' · '+j.soundcheck.time):''));
   function payTag(cost,paid){return cost?(' · '+money(cost)+(paid?' · ✅ đã TT':' · ⏳ chưa TT')):'';}
-  ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+payTag(m.cost,m.paid));}});
-  if(j.dancer&&j.dancer.on)prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.count?(' · '+j.dancer.count+' người'):'')+(j.dancer.songs?(' · '+j.dancer.songs+' bài'):'')+(j.dancer.time?(' · '+j.dancer.time):'')+(j.dancer.phone?('\n📞 '+j.dancer.phone):'')+payTag(j.dancer.total,j.dancer.paid));
+  ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+payTag(m.cost,m.paid)+actBtns(m.phone,vfb(m.vendorId),k==='makeup'?m.location:null));}});
+  if(j.dancer&&j.dancer.on)prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.count?(' · '+j.dancer.count+' người'):'')+(j.dancer.songs?(' · '+j.dancer.songs+' bài'):'')+(j.dancer.time?(' · '+j.dancer.time):'')+payTag(j.dancer.total,j.dancer.paid)+actBtns(j.dancer.phone,vfb(j.dancer.vendorId),null));
   if(j.beat&&j.beat.on&&(j.beat.link||j.beat.songs)){var bl=j.beat.link?('<a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link nhạc</a> <button class="chip copybtn" data-copy="'+j.beat.link+'" style="padding:3px 8px"><i class="ti ti-link"></i></button>'):'';prep+='<div class="drow"><div class="di"><i class="ti ti-list-numbers"></i></div><div style="min-width:0"><div class="dk">Setlist</div><div class="dv" style="white-space:pre-wrap">'+(j.beat.songs||'')+((j.beat.songs&&bl)?'<br>':'')+bl+'</div></div></div>';}
   if(j.dressCode&&j.dressCode.on&&j.dressCode.text)prep+=drow('ti-shirt','Dress code',j.dressCode.text);
   if(j.stay&&j.stay.on){var s=j.stay;
-   var sv=(s.hotel||'—')+(s.room?(' · phòng '+s.room):'')+((s.checkin||s.checkout)?('\nCheck-in '+(s.checkin||'?')+' · Check-out '+(s.checkout||'?')):'')+(s.distKm?('\n→ nơi diễn '+s.distKm+' km'+(s.distMin?(' · '+s.distMin+' phút'):'')):'')+(s.phone?('\n📞 '+s.phone):'')+payTag(s.cost,s.paid);
+   var sv=(s.hotel||'—')+(s.room?(' · phòng '+s.room):'')+((s.checkin||s.checkout)?('\nCheck-in '+(s.checkin||'?')+' · Check-out '+(s.checkout||'?')):'')+(s.distKm?('\n→ nơi diễn '+s.distKm+' km'+(s.distMin?(' · '+s.distMin+' phút'):'')):'')+payTag(s.cost,s.paid)+actBtns(s.phone,null,s.hotel);
    prep+=drow('ti-bed','Lưu trú',sv);
   }
   if(j.move&&j.move.on){var mv=j.move;
    if(mv.mode==='flight'&&mv.flight&&(mv.flight.no||mv.flight.route))prep+=drow('ti-plane','Di chuyển — máy bay',(mv.flight.no||'')+(mv.flight.route?(' · '+mv.flight.route):'')+((mv.flight.depart||mv.flight.arrive)?('\n'+(mv.flight.depart||'?')+' → '+(mv.flight.arrive||'?')+(mv.flight.dur?(' ('+mv.flight.dur+')'):'')):'')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):''));
-   else prep+=drow('ti-car','Di chuyển — xe',((mv.car&&mv.car.name)||'—')+((mv.car&&mv.car.phone)?(' · 📞 '+mv.car.phone):'')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):''));
+   else prep+=drow('ti-car','Di chuyển — xe',((mv.car&&mv.car.name)||'—')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):'')+actBtns(mv.car&&mv.car.phone,vfb(mv.car&&mv.car.vendorId),null));
   }
   if(prep)h+='<div class="gtitle">Chuẩn bị</div><div class="group">'+prep+'</div>';
   var canL=canLinks();
-  function chip(field,icon,label){var has=!!j[field];var b='<button class="chip'+(has?' on':'')+'" data-link="'+field+'" data-jid="'+j.id+'" data-label="'+label+'"><i class="ti '+icon+'"></i>'+label+(has?'':(canL?' +':''))+'</button>';if(has)b+='<button class="chip copybtn" data-copy="'+j[field]+'" title="Copy link"><i class="ti ti-link"></i></button>';return b;}
-  var ch='<button class="chip" data-mapid="'+j.id+'"><i class="ti ti-map"></i>Bản đồ</button>'+chip('drive','ti-folder','Drive')+chip('beat','ti-music','Beat')+chip('lyrics','ti-file-text','Lyrics');
-  var ctf=(contractById[j.id]||{}).fileUrl;
-  if(ctf)ch+='<button class="chip on" data-openstop="'+ctf+'"><i class="ti ti-file-text"></i>File HĐ</button><button class="chip copybtn" data-copy="'+ctf+'" title="Copy link"><i class="ti ti-link"></i></button>';
+  function chip(field,icon,label){var has=!!j[field];if(!has&&!canL)return '';var b='<button class="chip'+(has?' on':'')+'" data-link="'+field+'" data-jid="'+j.id+'" data-label="'+label+'"><i class="ti '+icon+'"></i>'+label+(has?'':' +')+'</button>';if(has)b+='<button class="chip copybtn" data-copy="'+j[field]+'" title="Copy link"><i class="ti ti-link"></i></button>';return b;}
+  var ch=chip('drive','ti-folder','Drive')+chip('lyrics','ti-file-text','Lyrics');
   (j.chips||[]).forEach(function(c,idx){ ch+='<button class="chip on" data-cchip="'+idx+'" data-jid="'+j.id+'"><i class="ti ti-paperclip"></i>'+c.label+(c.url?'':' (ghi chú)')+'</button>'; if(c.url)ch+='<button class="chip copybtn" data-copy="'+c.url+'" title="Copy link"><i class="ti ti-link"></i></button>'; });
   if(canL) ch+='<button class="chip add" data-addchip="'+j.id+'"><i class="ti ti-plus"></i>Thêm</button>';
-  h+='<div class="gtitle">Đính kèm & ghi chú</div><div class="chiprow">'+ch+'</div>';
+  if(ch)h+='<div class="gtitle">Đính kèm & ghi chú</div><div class="chiprow">'+ch+'</div>';
  }
  if(tab=='finance'&&fin())h+='<div class="group">'+(jp.length?jp.map(function(p){var c=PSL[p.st];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+p.label+'</div><div class="s">dự kiến '+dd(p.due)+'</div></div><div style="text-align:right"><div class="money">'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></div>'}).join(''):emp('Chưa có'))+'</div>';
  if(tab=='expenses'&&fin())h+='<div class="group">'+(je.length?je.map(function(e){var over=e.act>e.est&&e.act>0;return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+e.name+(over?' <i class="ti ti-alert-triangle" style="color:var(--red)"></i>':'')+'</div><div class="s">'+e.vendor+' · DK '+money(e.est)+'</div></div><span class="pill">'+L(ESL,e.st)+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
@@ -939,7 +948,9 @@ function screenDetail(id){
  if(tab=='tasks')h+='<div class="group">'+(jt.length?jt.map(function(t){var sm=STMETA[t.s];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+t.n+'</div><div class="s">'+t.note+' · '+t.o+'</div></div><span class="badge" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
  return h;
 }
-function drow(ic,k,v){return '<div class="drow"><div class="di"><i class="ti '+ic+'"></i></div><div><div class="dk">'+k+'</div><div class="dv">'+v+'</div></div></div>';}
+function drow(ic,k,v){return '<div class="drow"><div class="di"><i class="ti '+ic+'"></i></div><div style="min-width:0"><div class="dk">'+k+'</div><div class="dv">'+v+'</div></div></div>';}
+function vfb(id){var v=vById(id);return v&&v.fb?v.fb:'';}
+function actBtns(phone,fb,mapq){var h='';if(phone)h+='<button class="minibtn" data-tel="'+phone+'"><i class="ti ti-phone"></i> Gọi</button>';if(fb)h+='<button class="minibtn" data-openstop="'+fb+'"><i class="ti ti-brand-facebook"></i> FB</button>';if(mapq)h+='<button class="minibtn" data-mapq="'+String(mapq).replace(/"/g,'&quot;')+'"><i class="ti ti-map-pin"></i> Map</button>';return h?('<div class="actwrap" style="margin-top:5px">'+h+'</div>'):'';}
 function daysOver(d){return Math.floor((now-d)/86400000);}
 function payRow(p,danger){var j=jById[p.job];var c=PSL[p.st];var od=daysOver(p.due);var sub=p.label+' · hạn '+dd(p.due)+(p.st=='qua_han'?(' · trễ '+od+' ngày'):'');
  return '<button class="item" data-job="'+p.job+'"><span class="bar" style="background:'+(danger?'var(--red)':TC[j.type])+'"></span><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"'+(p.st=='qua_han'?' style="color:var(--red)"':'')+'>'+sub+'</div></div><div style="text-align:right"><div class="money"'+(danger?' style="color:var(--red)"':'')+'>'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></button>';}
@@ -1025,8 +1036,9 @@ function prepItem(key,label,icon,role,withLoc){
 function screenCreate(){
  var d=(state.selDate&&stripT(state.selDate)>=stripT(now))?state.selDate:now;
  var H='';
- H+='<button class="back" data-go="jobs"><i class="ti ti-chevron-left"></i> Hủy</button>';
- H+='<div class="dtitle" style="margin-bottom:10px">Tạo sự kiện</div>';
+ var editing=!!state.editId;
+ H+='<button class="back" data-go="'+(editing?('job:'+state.editId):'jobs')+'"><i class="ti ti-chevron-left"></i> Hủy</button>';
+ H+='<div class="dtitle" style="margin-bottom:10px">'+(editing?'Sửa sự kiện':'Tạo sự kiện')+'</div>';
  H+='<div class="frm">';
  /* 1. THÔNG TIN CHÍNH */
  H+='<div class="gtitle">Thông tin chính</div><div class="group">';
@@ -1121,7 +1133,7 @@ function screenCreate(){
  H+='<div class="fld" id="ctTotInvWrap" style="padding:8px 0 0;display:none"><label class="flbl">Số hóa đơn (tổng)</label><input id="ctTotInv" class="in"></div>';
  H+='</div></div>';/* padding wrap + ctBox group */
  H+='</div>';/* ctWrap */
- H+='<button class="bigbtn" id="evSave"><i class="ti ti-check i"></i> Lưu sự kiện</button>';
+ H+='<button class="bigbtn" id="evSave"><i class="ti ti-check i"></i> '+(editing?'Cập nhật sự kiện':'Lưu sự kiện')+'</button>';
  H+='</div>';/* frm */
  return H;
 }
@@ -1203,6 +1215,34 @@ function bindCreateForm(){
  document.getElementById('ctFile').oninput=function(){for(var i=0;i<qc.n;i++)_instChip(i);};
  _rebuildInst(1,true);
  document.getElementById('evSave').onclick=saveEvent;
+ if(state.editId&&jById[state.editId])prefillForm(jById[state.editId]);
+}
+function prefillForm(j){
+ function setV(id,val){var e=document.getElementById(id);if(e)e.value=(val==null?'':val);}
+ function setSeg(id,val){var b=document.querySelector('#'+id+' button[data-val="'+val+'"]');if(b)b.onclick();}
+ function setSw(id){var e=document.getElementById(id);if(e&&!e.checked){e.checked=true;if(e.onchange)e.onchange();}}
+ function setSup(key,obj){var sel=document.getElementById(key+'Vendor');if(!sel)return;if(obj&&obj.vendorId&&vById(obj.vendorId))sel.value=obj.vendorId;else if(obj&&obj.name)sel.value='__other__';else sel.value='';if(sel.onchange)sel.onchange();if(obj&&!obj.vendorId&&obj.name){setV(key+'OName',obj.name);setV(key+'OPhone',obj.phone);}}
+ setV('evName',j.name);setSeg('evStatus',j.status==='da_xac_nhan'?'da_xac_nhan':'du_kien');
+ var ty=document.getElementById('evType');if(ty){ty.value=j.type;if(ty.onchange)ty.onchange();}
+ if(j.start){setV('evDate',dIn(j.start));setV('evTime',tIn(j.start));}
+ setV('evLoc',j.loc);setV('evNote',j.note);
+ var anyPrep=(j.band&&j.band.on)||(j.rehearsals&&j.rehearsals.length)||(j.soundcheck&&j.soundcheck.on)||(j.makeup&&j.makeup.on)||(j.photo&&j.photo.on)||(j.social&&j.social.on)||(j.beat&&j.beat.on)||(j.dressCode&&j.dressCode.on)||(j.dancer&&j.dancer.on)||(j.stay&&j.stay.on)||(j.move&&j.move.on);
+ if(anyPrep)setSw('swPrep');
+ if((j.band&&j.band.on)||(j.rehearsals&&j.rehearsals.length)){setSw('swReh');if(j.band)setSup('band',j.band);
+  if(j.rehearsals&&j.rehearsals.length){var w=document.getElementById('rehRows');w.innerHTML='';j.rehearsals.forEach(function(){w.insertAdjacentHTML('beforeend',_rehRow());});applyIcons();_bindReh();var rows=w.querySelectorAll('.reh');j.rehearsals.forEach(function(r,i){var row=rows[i];if(!row)return;row.querySelector('.rDate').value=r.date||'';row.querySelector('.rTime').value=r.time||'';row.querySelector('.rLoc').value=r.location||'';});}}
+ if(j.soundcheck&&j.soundcheck.on){setSw('swSc');setV('scDate',j.soundcheck.date);setV('scTime',j.soundcheck.time);}
+ ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){setSw('sw'+k);setSup(k,m);setV(k+'Cost',m.cost||'');setV(k+'Time',m.time);if(document.getElementById(k+'Loc'))setV(k+'Loc',m.location);setSeg(k+'Paid',m.paid?'1':'0');}});
+ if(j.beat&&j.beat.on){setSw('swBeat');setV('beatLink',j.beat.link);setV('beatSongs',j.beat.songs);}
+ if(j.dressCode&&j.dressCode.on){setSw('swDress');setV('dressText',j.dressCode.text);}
+ if(j.dancer&&j.dancer.on){setSw('swDancer');setSup('dancer',j.dancer);setV('dcCount',j.dancer.count);setV('dcSongs',j.dancer.songs);setV('dcTime',j.dancer.time);setV('dcCost',j.dancer.cost||'');setSeg('dcTax',String(j.dancer.taxRate||0));setSeg('dcPaid',j.dancer.paid?'1':'0');}
+ if(j.stay&&j.stay.on){setSw('swStay');setV('stHotel',j.stay.hotel);setV('stBooking',j.stay.booking);setV('stPhone',j.stay.phone);setV('stRoom',j.stay.room);setV('stCost',j.stay.cost||'');setSeg('stPaid',j.stay.paid?'1':'0');setV('stCin',j.stay.checkin);setV('stCout',j.stay.checkout);setV('stDistKm',j.stay.distKm);setV('stDistMin',j.stay.distMin);}
+ if(j.move&&j.move.on){setSw('swMove');setSeg('mvMode',j.move.mode||'car');if(j.move.mode==='flight'){var f=j.move.flight||{};setV('mvFlNo',f.no);setV('mvFlRoute',f.route);setV('mvFlDep',f.depart);setV('mvFlArr',f.arrive);setV('mvFlDur',f.dur);setV('mvFlTz',f.tz);setV('mvAirKm',f.airKm);setV('mvAirMin',f.airMin);}else{setSup('mvCar',j.move.car);}setV('mvCost',j.move.cost||'');setSeg('mvPaid',j.move.paid?'1':'0');setV('mvNote',j.move.note);}
+ var ct=contractById[j.id];
+ if(j.hasContract&&ct){setSw('swCt');setSeg('ctSource',ct.source||'manual');setV('ctNo',ct.contractNo);setV('ctSign',ct.signDate?dIn(new Date(ct.signDate)):'');setV('ctPartner',ct.partner);setV('ctAddr',ct.address);setV('ctMst',ct.taxCode);setV('ctPhone',ct.phone);setV('ctRep',ct.rep);setV('ctRepTitle',ct.repTitle);setV('ctBankNo',ct.bankNo);setV('ctBankName',ct.bankName);setV('ctBranch',ct.branch);setV('ctEmail',ct.email);var acc=document.getElementById('ctAcct');if(acc)acc.value=ct.bankAccount||'';setV('ctFile',ct.fileUrl);setV('ctValue',ct.valuePreTax||'');setSeg('ctTax',String(ct.taxRate||8));
+  if(ct.installments&&ct.installments.length){setSeg('ctCount',String(ct.installments.length));qc.pcts=ct.installments.map(function(x){return x.pct;});qc.dueDates=ct.installments.map(function(x){return x.dueDate;});_renderInst();
+   ct.installments.forEach(function(ins,i){var nt=document.querySelector('.iNote[data-i="'+i+'"]');if(nt)nt.value=ins.dueNote||'';var iv=document.querySelector('.iInv[data-i="'+i+'"]');if(iv)iv.value=ins.invoiceNo||'';if(ins.paid){var pd=document.querySelector('.iPaid[data-i="'+i+'"]');if(pd){pd.checked=true;if(pd.onchange)pd.onchange();}var pdd=document.querySelector('.iPaidDate[data-i="'+i+'"]');if(pdd)pdd.value=ins.paidDate||'';}});}
+  setSeg('ctInvMode',ct.invoiceMode||'per');setV('ctTotInv',ct.totalInvoiceNo);_recalcTotal();
+ }
 }
 function ctCollectPayload(){
  function V(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
@@ -1237,7 +1277,9 @@ function saveEvent(){
  var ds=V('evDate'),ts=V('evTime')||'19:00';
  var start=new Date(ds+'T'+ts+':00');var end=new Date(start.getTime()+2*3600000);
  var type=V('evType');var status=seg('evStatus');
- var id='j'+Date.now();
+ var editing=!!state.editId;
+ var id=editing?state.editId:('j'+Date.now());
+ if(editing){jobs=jobs.filter(function(x){return x.id!==id;});pays=pays.filter(function(p){return p.job!==id;});exps=exps.filter(function(e){return e.job!==id;});contracts=contracts.filter(function(c){return c.id!==id;});reContracts();}
  var rehearsals=[];
  if(C('swReh'))document.querySelectorAll('#rehRows .reh').forEach(function(r){var dd=r.querySelector('.rDate').value;if(!dd)return;rehearsals.push({date:dd,time:r.querySelector('.rTime').value,location:r.querySelector('.rLoc').value.trim(),mapLink:''});});
  var bandSup=readSupplier('band');
@@ -1288,7 +1330,8 @@ function saveEvent(){
  if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.name,job.dancer.total,job.dancer.paid);
  if(job.stay.on)pushExp('stay','Lưu trú'+(job.stay.hotel?(' - '+job.stay.hotel):''),'Lưu trú',job.stay.hotel,job.stay.cost,job.stay.paid);
  if(job.move.on)pushExp('move','Di chuyển ('+(job.move.mode==='flight'?'máy bay':'xe')+')','Di chuyển',job.move.mode==='flight'?job.move.flight.no:job.move.car.name,job.move.cost,job.move.paid);
- alert('Đã lưu sự kiện: '+name);
+ alert((editing?'Đã cập nhật: ':'Đã lưu sự kiện: ')+name);
+ state.editId=null;
  openJob(id);
 }
 window.screenCreate=screenCreate;window.bindCreateForm=bindCreateForm;
@@ -1307,7 +1350,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
-const SEED_VERSION="2026-06-27-seed-demo"; // tang so nay de lam moi du lieu mau tren app
+const SEED_VERSION="2026-06-27-seed-demo";
 const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts"];
 const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[]};
 function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
