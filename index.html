@@ -739,13 +739,38 @@ function toggleNotif(){var p=document.getElementById('npanel');var o=document.ge
 
 function pad(n){return n<10?'0'+n:''+n;}
 function icsDate(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';}
-function addToCal(id){var j=jById[id];
- var desc=('Khách: '+j.client+'\\nLiên hệ: '+j.contact+' '+j.phone+(j.call?('\\nCall time: '+dt(j.call)):'')+(j.timeline?('\\n\\n'+j.timeline.replace(/\n/g,'\\n')):'')).replace(/\n/g,'\\n');
- var ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//QT Manager//VI\r\nBEGIN:VEVENT\r\nUID:'+id+'@qtmanager\r\nDTSTART:'+icsDate(j.start)+'\r\nDTEND:'+icsDate(j.end)+'\r\nSUMMARY:'+j.name+'\r\nLOCATION:'+j.loc+', '+j.prov+'\r\nDESCRIPTION:'+desc+'\r\nBEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Nhắc lịch\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR';
+function _icsEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');}
+function _mkDT(dateStr,timeStr,base){var d;if(dateStr){d=new Date(dateStr+'T'+(timeStr||'09:00')+':00');}else{d=new Date(base);if(timeStr){var p=String(timeStr).split(':');d.setHours(+p[0]||0,+p[1]||0,0,0);}}return d;}
+function _vev(uid,start,end,summary,location,desc){return 'BEGIN:VEVENT\r\nUID:'+uid+'@qtmanager\r\nSEQUENCE:'+Math.floor(Date.now()/1000)+'\r\nDTSTAMP:'+icsDate(new Date())+'\r\nDTSTART:'+icsDate(start)+'\r\nDTEND:'+icsDate(end)+'\r\nSUMMARY:'+_icsEsc(summary)+'\r\nLOCATION:'+_icsEsc(location)+'\r\nDESCRIPTION:'+_icsEsc(desc)+'\r\nBEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Nhắc lịch\r\nEND:VALARM\r\nEND:VEVENT\r\n';}
+function addToCal(id){var j=jById[id];var evs=[];var loc=[j.loc,j.prov].filter(Boolean).join(', ');
+ // sự kiện chính + chi tiết trong ghi chú
+ var L=[];
+ if(j.call)L.push('Call time: '+dt(j.call));
+ if(j.client||j.contact||j.phone)L.push('Khách/Liên hệ: '+[j.client,j.contact,j.phone].filter(Boolean).join(' · '));
+ if(j.band&&j.band.on&&j.band.name)L.push('Band: '+j.band.name+(j.band.phone?(' - '+j.band.phone):''));
+ if(j.beat&&j.beat.on){if(j.beat.songs)L.push('Setlist: '+j.beat.songs);if(j.beat.link)L.push('Beat: '+j.beat.link);}
+ if(j.dancer&&j.dancer.on&&j.dancer.name)L.push('Dancer: '+j.dancer.name+(j.dancer.count?(' ('+j.dancer.count+' người)'):'')+(j.dancer.phone?(' - '+j.dancer.phone):'')+(j.dancer.time?(' '+j.dancer.time):''));
+ if(j.photo&&j.photo.on&&j.photo.name)L.push('Photo: '+j.photo.name+(j.photo.phone?(' - '+j.photo.phone):'')+(j.photo.time?(' '+j.photo.time):''));
+ if(j.social&&j.social.on&&j.social.name)L.push('Social: '+j.social.name+(j.social.phone?(' - '+j.social.phone):'')+(j.social.time?(' '+j.social.time):''));
+ if(j.move&&j.move.on&&j.move.car&&j.move.car.on){var c=j.move.car;L.push('Xe: '+(c.name||'')+(c.phone?(' - '+c.phone):'')+(c.time?(' đón '+c.time):'')+(c.pickup?(' tại '+c.pickup):'')+(c.note?(' ['+c.note+']'):''));}
+ if(j.stay&&j.stay.on&&j.stay.hotel)L.push('Khách sạn: '+j.stay.hotel+(j.stay.room?(' - phòng '+j.stay.room):'')+((j.stay.checkin||j.stay.checkout)?(' (in '+(j.stay.checkin||'?')+' / out '+(j.stay.checkout||'?')+')'):'')+(j.stay.phone?(' - '+j.stay.phone):''));
+ if(j.note)L.push('Ghi chú: '+j.note);
+ evs.push(_vev(id+':main',j.start,j.end,j.name,loc,L.join('\n')));
+ // tập band (mỗi buổi)
+ if(j.rehearsals&&j.rehearsals.length)j.rehearsals.forEach(function(r,i){if(!r.date)return;var s=_mkDT(r.date,r.time,j.start);evs.push(_vev(id+':reh'+i,s,_plusMin(s,120),'Tập band — '+j.name,r.location||loc,(j.band&&j.band.name?('Band: '+j.band.name+(j.band.phone?(' - '+j.band.phone):'')):'')));});
+ // soundcheck
+ if(j.soundcheck&&j.soundcheck.on&&(j.soundcheck.date||j.soundcheck.time)){var s=_mkDT(j.soundcheck.date,j.soundcheck.time,j.start);evs.push(_vev(id+':sc',s,_plusMin(s,60),'Soundcheck — '+j.name,loc,''));}
+ // makeup
+ if(j.makeup&&j.makeup.on&&j.makeup.time){var s=_mkDT(null,j.makeup.time,j.start);evs.push(_vev(id+':mk',s,_plusMin(s,90),'Makeup — '+j.name,j.makeup.location||loc,(j.makeup.name||'')+(j.makeup.phone?(' - '+j.makeup.phone):'')));}
+ // máy bay
+ if(j.move&&j.move.on&&j.move.flight&&j.move.flight.on&&(j.move.flight.depart||j.move.flight.no)){var f=j.move.flight;var s=_mkDT(null,f.depart||'06:00',j.start);var e=f.arrive?_mkDT(null,f.arrive,j.start):_plusMin(s,120);if(e<=s)e=_plusMin(s,120);var fd=['Chuyến: '+(f.no||''),(f.code?('Code: '+f.code):''),(f.route?('Lộ trình: '+f.route):''),(f.ticketUrl?('Vé: '+f.ticketUrl):'')].filter(Boolean).join('\n');evs.push(_vev(id+':fl',s,e,'✈ Bay'+(f.route?(' '+f.route):'')+' — '+j.name,'',fd));}
+ var ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//QT Manager//VI\r\nCALSCALE:GREGORIAN\r\n'+evs.join('')+'END:VCALENDAR';
  var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});var url=URL.createObjectURL(blob);
- var a=document.createElement('a');a.href=url;a.download=j.name+'.ics';document.body.appendChild(a);a.click();document.body.removeChild(a);
+ var a=document.createElement('a');a.href=url;a.download=j.name.replace(/[^\wÀ-ỹ -]/g,'')+'.ics';document.body.appendChild(a);a.click();document.body.removeChild(a);
  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+ if(window.toast)toast('Đã xuất '+evs.length+' mục lịch');
 }
+function _plusMin(d,m){return new Date(d.getTime()+m*60000);}
 window.addToCal=addToCal;
 var scrollNext=true;
 function go(s){scrollNext=true;state.screen=s;render();}
@@ -867,6 +892,15 @@ function screenJobs(){
  if(state.role!='truc')h+='<button class="fab" onclick="openCreate()"><i class="ti ti-plus"></i> Job mới</button>';
  return h;
 }
+function calKindLabel(k){return {reh:'Tập band',sc:'Soundcheck',mk:'Makeup',fl:'✈ Bay'}[k]||'';}
+function calOcc(pool){var out=[];pool.forEach(function(j){
+  out.push({d:j.start,end:j.end,title:j.name,type:j.type,job:j.id,kind:'main',loc:j.loc||j.prov||''});
+  if(j.rehearsals)j.rehearsals.forEach(function(r){if(r.date){var s=_mkDT(r.date,r.time,j.start);out.push({d:s,end:_plusMin(s,120),title:j.name,type:j.type,job:j.id,kind:'reh',loc:r.location||''});}});
+  if(j.soundcheck&&j.soundcheck.on&&(j.soundcheck.date||j.soundcheck.time)){var s=_mkDT(j.soundcheck.date,j.soundcheck.time,j.start);out.push({d:s,end:_plusMin(s,60),title:j.name,type:j.type,job:j.id,kind:'sc',loc:j.loc||''});}
+  if(j.makeup&&j.makeup.on&&j.makeup.time){var s=_mkDT(null,j.makeup.time,j.start);out.push({d:s,end:_plusMin(s,90),title:j.name,type:j.type,job:j.id,kind:'mk',loc:j.makeup.location||''});}
+  if(j.move&&j.move.on&&j.move.flight&&j.move.flight.on&&(j.move.flight.depart||j.move.flight.no)){var s=_mkDT(null,j.move.flight.depart||'06:00',j.start);out.push({d:s,end:_plusMin(s,120),title:j.name,type:j.type,job:j.id,kind:'fl',loc:(j.move.flight.route||'')});}
+ });return out;}
+function occItem(o){var kl=calKindLabel(o.kind);var t=kl?(kl+' — '+o.title):o.title;return '<button class="item" data-job="'+o.job+'">'+tBadge(o.type)+'<div style="flex:1;min-width:0"><div class="t">'+t+'</div><div class="s">'+tm(o.d)+((o.kind==='main'&&o.end)?(' - '+tm(o.end)):'')+(o.loc?(' · '+o.loc):'')+'</div></div><i class="ti ti-chevron-right chev"></i></button>';}
 function screenCal(){
  var artist=state.role=='artist';
  var pool=artist?jobs.filter(function(j){return j.status=='da_chot'||j.status=='da_ky_hd'||j.status=='hoan_thanh'}):jobs.filter(function(j){return j.status!='da_huy'});
@@ -874,24 +908,25 @@ function screenCal(){
  var first=new Date(y,m,1);var sd=(first.getDay()+6)%7;
  var h='<div class="calcard"><div class="calhead"><div class="mo">'+cm.toLocaleDateString('vi-VN',{month:'long',year:'numeric'})+'</div><div class="navs"><button class="todaybtn" data-today="1">Hôm nay</button><button data-mo="-1"><i class="ti ti-chevron-left"></i></button><button data-mo="1"><i class="ti ti-chevron-right"></i></button></div></div>';
  h+='<div class="dow"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>';
+ var occ=calOcc(pool);
  h+='<div class="calgrid">';
  for(var i=0;i<42;i++){var dnum=i-sd+1;var date=new Date(y,m,dnum);var dim=date.getMonth()!=m;
-  var evs=pool.filter(function(j){return sameDay(j.start,date)});
+  var dn=occ.filter(function(o){return sameDay(o.d,date)});
   var cls='cday'+(dim?' dim':'')+(sameDay(date,now)?' today':'')+(sameDay(date,state.selDate)?' sel':'');
-  var dots='';evs.slice(0,4).forEach(function(j){dots+='<i style="background:'+TC[j.type]+'"></i>'});
+  var dots='';dn.slice(0,4).forEach(function(o){dots+='<i style="background:'+(TC[o.type]||'#64748b')+'"></i>'});
   h+='<button class="'+cls+'" data-day="'+(+date)+'"><span class="n">'+date.getDate()+'</span><span class="cdots">'+dots+'</span></button>';
  }
  h+='</div></div>';
- var dayEvs=pool.filter(function(j){return sameDay(j.start,state.selDate)}).sort(function(a,b){return a.start-b.start});
+ var dayOcc=occ.filter(function(o){return sameDay(o.d,state.selDate)}).sort(function(a,b){return a.d-b.d});
  var dlabel=sameDay(state.selDate,now)?'Hôm nay':state.selDate.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'});
  h+='<div class="dlist"><div class="dhead">'+dlabel+'</div>';
- if(!dayEvs.length)h+=emp('Không có lịch trong ngày này');
- else h+='<div class="group">'+dayEvs.map(function(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+tm(j.start)+' - '+tm(j.end)+' · '+j.loc+'</div></div><i class="ti ti-chevron-right chev"></i></button>'}).join('')+'</div>';
+ if(!dayOcc.length)h+=emp('Không có lịch trong ngày này');
+ else h+='<div class="group">'+dayOcc.map(occItem).join('')+'</div>';
  h+='</div>';
  var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
- var upcoming=pool.filter(function(j){return j.start>=todayStart;}).sort(function(a,b){return a.start-b.start;}).slice(0,1);
+ var up=occ.filter(function(o){return o.d>=todayStart;}).sort(function(a,b){return a.d-b.d;}).slice(0,1);
  h+='<div class="gtitle" style="margin-top:20px">Lịch tiếp theo</div>';
- h+=upcoming.length?('<div class="group">'+upcoming.map(function(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+dt(j.start)+' · '+(j.loc||j.prov||'')+'</div></div><i class="ti ti-chevron-right chev"></i></button>'}).join('')+'</div>'):emp('Không có sự kiện sắp tới');
+ h+=up.length?('<div class="group">'+up.map(occItem).join('')+'</div>'):emp('Không có sự kiện sắp tới');
  return h;
 }
 function screenMoney(){
@@ -1431,7 +1466,7 @@ function saveEvent(){
  var carSup=readSupplier('mvCar');
  var job={id:id,name:name,type:type,status:status,start:start,end:end,
   loc:V('evLoc'),prov:'',client:'',contact:'',phone:'',call:null,timeline:'',setlist:'',
-  note:V('evNote'),follow:false,chips:[],net:0,
+  note:V('evNote'),follow:false,chips:[],net:0,updatedAt:Date.now(),
   hasContract:C('swCt')&&!NOCT[type],
   band:(function(){var self=seg('bandPay')==='self';var bc=parseMoney(V('bandCost')),bt=+seg('bandTax');return {on:C('swBand'),vendorId:bandSup.vendorId,name:bandSup.name,phone:bandSup.phone,selfPay:self,cost:self?bc:0,taxRate:self?bt:0,total:self?Math.round(bc*(1+bt/100)):0,paid:self?paidVal('bandPaid'):false};})(),
   rehearsals:rehearsals,
