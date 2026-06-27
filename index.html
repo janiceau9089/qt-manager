@@ -3,10 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>QT Manager · Quốc Thiên</title>
+<title>Heart Soldier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1f4eb6">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Heart Soldier">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 /* ===== SUNSET (default) ===== */
 :root{
@@ -54,6 +62,8 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 .zig{position:absolute;opacity:.85}
 .llogo{width:72px;height:72px;border-radius:22px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin:0 auto 16px;position:relative;overflow:hidden;box-shadow:0 12px 28px var(--bshadow);z-index:2}
 .llogo::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.45),transparent)}
+img.llogo{background:#fff;object-fit:contain;padding:6px}
+img.llogo::before{display:none}
 #login h1{text-align:center;font-size:27px;font-weight:800;z-index:2}
 #login .s{text-align:center;color:var(--muted);font-size:14px;margin-top:4px;z-index:2}
 .themepick{display:flex;gap:8px;justify-content:center;margin:18px 0 4px;z-index:2;position:relative}
@@ -327,8 +337,8 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
   <div class="sh tri" style="border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:30px solid var(--m4);top:160px;right:-6px;transform:rotate(-15deg)"></div>
   <div class="sh dot" style="width:14px;height:14px;background:var(--m4);bottom:80px;right:50px"></div>
   <svg class="zig" style="top:130px;left:60px;width:70px;height:18px" viewBox="0 0 70 18"><polyline points="0,16 12,2 24,16 36,2 48,16 60,2 70,10" fill="none" stroke="var(--m1)" stroke-width="3"/></svg>
-  <div class="llogo">QT</div>
-  <h1>QT Manager</h1>
+  <img class="llogo" src="icon-180.png" alt="Heart Soldier" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'llogo',textContent:'HS'}))">
+  <h1>Heart Soldier</h1>
   <div class="s">Quản lý nghệ sĩ Quốc Thiên</div>
   <div class="avatars">
     <button class="av" data-r="artist"><span class="circle" style="background:linear-gradient(135deg,#ff5e9c,#ff9a5e)">QT</span><span class="nm">Quốc Thiên</span></button>
