@@ -39,7 +39,7 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 .i{font-size:20px;line-height:1}
 .ti{display:inline-flex;align-items:center;justify-content:center}
 .ti svg{width:1em;height:1em;display:block;flex-shrink:0}
-.phone{max-width:480px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
+.phone{max-width:480px;margin:0 auto;min-height:100vh;position:relative;overflow-x:clip}
 
 /* glossy surfaces */
 .glass{background:linear-gradient(180deg,var(--glosstop),var(--surface));box-shadow:var(--shadow)}
@@ -157,7 +157,8 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 .cday.sel .n{background:var(--grad);color:#fff;font-weight:800;box-shadow:0 4px 12px var(--bshadow)}
 .cdots{display:flex;gap:3px;margin-top:3px;height:6px}
 .cdots i{width:6px;height:6px;border-radius:50%}
-.calcard{background:linear-gradient(180deg,var(--glosstop),var(--surface));border-radius:20px;box-shadow:var(--shadow);padding:14px 14px 10px;margin:0 0 18px}
+.calcard{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:14px 14px 10px;margin:0 0 16px;position:sticky;top:54px;z-index:18}
+.calcard::before{content:"";position:absolute;left:-16px;right:-16px;top:-12px;height:14px;background:var(--bg);z-index:-1}
 .calcard .calhead{margin:0 2px 10px}
 .dlist .dhead{font-size:15px;font-weight:800;margin:0 2px 8px;text-transform:capitalize}
 
@@ -287,6 +288,17 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .chatbar input{flex:1;height:42px;border:1.5px solid var(--border);border-radius:21px;background:var(--surface);color:var(--text);padding:0 16px;font-size:15px;font-family:inherit;outline:none}
 .chatbar input:focus{border-color:var(--brand)}
 .chatbar .iconbtn2{width:42px;height:42px;border-radius:50%;background:var(--brand);color:#fff;border:none}
+.occov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center}
+.occov .sheet{background:var(--bg);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:82vh;overflow:auto;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+.occov .sheet-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.notegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.notecard{background:linear-gradient(180deg,var(--glosstop),var(--surface));border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:var(--shadow);text-align:left;min-height:100px;display:flex;flex-direction:column;gap:6px;position:relative;color:inherit;font-family:inherit}
+.notecard:active{transform:scale(.98)}
+.notecard .nt{font-weight:800;font-size:14.5px;line-height:1.3;padding-right:18px}
+.notecard .nbody{font-size:12.5px;color:var(--muted);line-height:1.45;max-height:60px;overflow:hidden;white-space:pre-wrap;word-break:break-word}
+.notecard .ntags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto}
+.ntag{font-size:10.5px;font-weight:700;background:var(--soft);color:var(--brand);border-radius:10px;padding:2px 7px}
+.notecard .lk{position:absolute;top:9px;right:10px;font-size:13px}
 .subln{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:3px;white-space:pre-wrap;line-height:1.4}
 .tkt{background:linear-gradient(135deg,var(--soft),var(--surface));border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-top:4px;position:relative}
 .tkt .route{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -625,9 +637,13 @@ var accounts=[
  {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
 ];
 var teamNotes=[
- {id:"tn1",author:"Thi",text:"Cả nhà nhớ check lịch tuần này nha 🙌",time:new Date(Date.now()-3600000*6).toISOString()},
- {id:"tn2",author:"Vi",text:"Em gửi timeline show Hòa Bình cho anh QT rồi ạ",time:new Date(Date.now()-3600000*3).toISOString()},
- {id:"tn3",author:"Trúc",text:"Đợt 1 HĐ Cty ABC đã về tài khoản công ty.",time:new Date(Date.now()-3600000).toISOString()}
+ {id:"n1",title:"📸 Gallery hình",body:"Album ảnh các show:\nhttps://photos.app.goo.gl/qt-gallery",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
+ {id:"n2",title:"🖼️ Poster / Key visual",body:"Folder poster & KV chính thức:\nhttps://drive.google.com/folder/posters",tags:["media"],pinned:true,locked:true,by:"Trúc",updatedAt:Date.now()-86400000*2},
+ {id:"n3",title:"🎼 Folder tổng phổ",body:"https://drive.google.com/folder/tongpho",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-86400000},
+ {id:"n4",title:"🎵 Folder beat",body:"https://drive.google.com/folder/beat",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-80000000},
+ {id:"n5",title:"✅ List bài hát có beat",body:"1. Phía sau một cô gái\n2. Yêu 5\n3. Đường tôi chở em về\n4. (đang xin) Chạy ngay đi",tags:["nhạc","todo"],pinned:false,locked:false,by:"Vi",updatedAt:Date.now()-70000000},
+ {id:"n6",title:"📤 Drive upload chung",body:"Up file cần duyệt vào đây:\nhttps://drive.google.com/folder/upload",tags:[],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-60000000},
+ {id:"n7",title:"❓ Kịch bản / câu hỏi cần trả lời",body:"- Thứ tự ra sân khấu?\n- Thêm 1 bài tủ phần giao lưu?\n- Trang phục đổi mấy lần?",tags:["hỏi"],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-50000000}
 ];
 var contracts=[
  {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",docs:[{type:"HĐ",url:"https://drive.google.com/file/d/HD-DEMO-1/view"},{type:"BBNT",url:"https://drive.google.com/file/d/BBNT-DEMO-1/view"}],source:"manual"}
@@ -793,7 +809,7 @@ function renderTabs(){
   b.innerHTML='<i class="ti '+t[2]+' i"></i>'+t[1];b.onclick=function(){scrollNext=true;state.screen=t[0];render();};tb.appendChild(b);});
 }
 function render(){
- var base=state.screen.indexOf('job:')==0?'jobs':state.screen;
+ var base=state.screen.indexOf('job:')==0?'jobs':(state.screen.indexOf('note:')==0?'team':state.screen);
  document.getElementById('hTitle').textContent=TITLES[base]||'QT';
  var sc=document.getElementById('screen');var s=state.screen;
  if(s.indexOf('job:')==0)sc.innerHTML=screenDetail(s.slice(4));
@@ -807,14 +823,16 @@ function render(){
  else if(s=='qtmoney')sc.innerHTML=screenQtMoney();
  else if(s=='create')sc.innerHTML=screenCreate();
  else if(s=='team')sc.innerHTML=screenTeam();
+ else if(s.indexOf('note:')==0)sc.innerHTML=screenNote(s.slice(5));
  renderTabs();bind();applyIcons();
- if(s=='team'){var cw=document.getElementById('chatwrap');if(cw)window.scrollTo(0,document.body.scrollHeight);}
  document.getElementById('tabbar').style.display=(s=='create')?'none':'';
  if(s=='create')bindCreateForm();
  if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
 }
 function bind(){
  document.querySelectorAll('[data-job]').forEach(function(el){el.onclick=function(){openJob(el.dataset.job);};});
+ document.querySelectorAll('[data-occ]').forEach(function(el){el.onclick=function(){openOcc(el.dataset.oj,el.dataset.ok,+el.dataset.oi);};});
+ document.querySelectorAll('[data-note]').forEach(function(el){el.onclick=function(){openNote(el.dataset.note);};});
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
  document.querySelectorAll('[data-day]').forEach(function(el){el.onclick=function(){state.selDate=new Date(+el.dataset.day);render();};});
  document.querySelectorAll('[data-mo]').forEach(function(el){el.onclick=function(){state.calMonth=new Date(state.calMonth.getFullYear(),state.calMonth.getMonth()+ +el.dataset.mo,1);render();};});
@@ -895,12 +913,30 @@ function screenJobs(){
 function calKindLabel(k){return {reh:'Tập band',sc:'Soundcheck',mk:'Makeup',fl:'✈ Bay'}[k]||'';}
 function calOcc(pool){var out=[];pool.forEach(function(j){
   out.push({d:j.start,end:j.end,title:j.name,type:j.type,job:j.id,kind:'main',loc:j.loc||j.prov||''});
-  if(j.rehearsals)j.rehearsals.forEach(function(r){if(r.date){var s=_mkDT(r.date,r.time,j.start);out.push({d:s,end:_plusMin(s,120),title:j.name,type:j.type,job:j.id,kind:'reh',loc:r.location||''});}});
+  if(j.rehearsals)j.rehearsals.forEach(function(r,ri){if(r.date){var s=_mkDT(r.date,r.time,j.start);out.push({d:s,end:_plusMin(s,120),title:j.name,type:j.type,job:j.id,kind:'reh',i:ri,loc:r.location||''});}});
   if(j.soundcheck&&j.soundcheck.on&&(j.soundcheck.date||j.soundcheck.time)){var s=_mkDT(j.soundcheck.date,j.soundcheck.time,j.start);out.push({d:s,end:_plusMin(s,60),title:j.name,type:j.type,job:j.id,kind:'sc',loc:j.loc||''});}
   if(j.makeup&&j.makeup.on&&j.makeup.time){var s=_mkDT(null,j.makeup.time,j.start);out.push({d:s,end:_plusMin(s,90),title:j.name,type:j.type,job:j.id,kind:'mk',loc:j.makeup.location||''});}
   if(j.move&&j.move.on&&j.move.flight&&j.move.flight.on&&(j.move.flight.depart||j.move.flight.no)){var s=_mkDT(null,j.move.flight.depart||'06:00',j.start);out.push({d:s,end:_plusMin(s,120),title:j.name,type:j.type,job:j.id,kind:'fl',loc:(j.move.flight.route||'')});}
  });return out;}
-function occItem(o){var kl=calKindLabel(o.kind);var t=kl?(kl+' — '+o.title):o.title;return '<button class="item" data-job="'+o.job+'">'+tBadge(o.type)+'<div style="flex:1;min-width:0"><div class="t">'+t+'</div><div class="s">'+tm(o.d)+((o.kind==='main'&&o.end)?(' - '+tm(o.end)):'')+(o.loc?(' · '+o.loc):'')+'</div></div><i class="ti ti-chevron-right chev"></i></button>';}
+function occItem(o){var kl=calKindLabel(o.kind);var t=kl?(kl+' — '+o.title):o.title;var attr=o.kind==='main'?('data-job="'+o.job+'"'):('data-occ="1" data-oj="'+o.job+'" data-ok="'+o.kind+'" data-oi="'+(o.i||0)+'"');return '<button class="item" '+attr+'>'+tBadge(o.type)+'<div style="flex:1;min-width:0"><div class="t">'+t+'</div><div class="s">'+tm(o.d)+((o.kind==='main'&&o.end)?(' - '+tm(o.end)):'')+(o.loc?(' · '+o.loc):'')+'</div></div><i class="ti ti-chevron-right chev"></i></button>';}
+function openOcc(jobId,kind,i){
+ var j=jById[jobId];if(!j)return;var loc=j.loc||j.prov||'';var rows='';
+ if(kind==='reh'){var r=(j.rehearsals||[])[i]||{};rows+=drow('ti-calendar','Thời gian',(r.date?dd(new Date(r.date)):'')+(r.time?(' · '+r.time):'—'));rows+=drow('ti-map-pin','Địa điểm',(r.location||'—'),r.location?actBtns(null,null,r.location):'');if(j.band&&j.band.name)rows+=drow('ti-music','Band',j.band.name,actBtns(j.band.phone,vfb(j.band.vendorId),null));}
+ else if(kind==='sc'){var s=j.soundcheck||{};rows+=drow('ti-calendar','Thời gian',(s.date?dd(new Date(s.date)):dd(j.start))+(s.time?(' · '+s.time):''));rows+=drow('ti-map-pin','Địa điểm',loc||'—',loc?actBtns(null,null,loc):'');}
+ else if(kind==='mk'){var m=j.makeup||{};rows+=drow('ti-calendar','Thời gian',dd(j.start)+(m.time?(' · '+m.time):''));rows+=drow('ti-brush','Makeup',(m.name||'—'),actBtns(m.phone,vfb(m.vendorId),m.location||null));if(m.location)rows+=drow('ti-map-pin','Địa điểm',m.location,actBtns(null,null,m.location));}
+ else if(kind==='fl'){var f=(j.move&&j.move.flight)||{};rows+=drow('ti-calendar','Giờ bay',dd(j.start)+' · '+(f.depart||'?')+' → '+(f.arrive||'?')+(f.dur?(' ('+f.dur+')'):''));rows+=drow('ti-plane','Chuyến',(f.no||'—')+(f.code?(' · code '+f.code):'')+(f.route?(' · '+f.route):''),f.ticketUrl?('<div class="rowacts"><button class="iconbtn2" data-openstop="'+f.ticketUrl+'" title="Mở vé"><i class="ti ti-file-text"></i></button></div>'):'');}
+ var html='<div class="sheet"><div class="sheet-h"><div><div class="dtitle" style="font-size:18px">'+calKindLabel(kind)+'</div><div class="s" style="color:var(--muted)">'+j.name+'</div></div><button class="iconbtn2" id="occClose"><i class="ti ti-x"></i></button></div><div class="group">'+rows+'</div><button class="bigbtn" id="occOpen"><i class="ti ti-info-circle i"></i> Xem chi tiết sự kiện</button></div>';
+ var ov=document.getElementById('occOverlay');if(!ov){ov=document.createElement('div');ov.id='occOverlay';ov.className='occov';document.body.appendChild(ov);}
+ ov.innerHTML=html;ov.style.display='flex';applyIcons();
+ ov.onclick=function(e){if(e.target===ov)closeOcc();};
+ document.getElementById('occClose').onclick=closeOcc;
+ document.getElementById('occOpen').onclick=function(){closeOcc();openJob(jobId);};
+ ov.querySelectorAll('[data-openstop]').forEach(function(el){el.onclick=function(){openURL(el.dataset.openstop);};});
+ ov.querySelectorAll('[data-tel]').forEach(function(el){el.onclick=function(){var p=(el.dataset.tel||'').replace(/\s/g,'');if(p)window.open('tel:'+p);};});
+ ov.querySelectorAll('[data-mapq]').forEach(function(el){el.onclick=function(){openMap(el.dataset.mapq);};});
+}
+function closeOcc(){var ov=document.getElementById('occOverlay');if(ov)ov.style.display='none';}
+window.openOcc=openOcc;window.closeOcc=closeOcc;
 function screenCal(){
  var artist=state.role=='artist';
  var pool=artist?jobs.filter(function(j){return j.status=='da_chot'||j.status=='da_ky_hd'||j.status=='hoan_thanh'}):jobs.filter(function(j){return j.status!='da_huy'});
@@ -924,9 +960,10 @@ function screenCal(){
  else h+='<div class="group">'+dayOcc.map(occItem).join('')+'</div>';
  h+='</div>';
  var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
- var up=occ.filter(function(o){return o.d>=todayStart;}).sort(function(a,b){return a.d-b.d;}).slice(0,1);
- h+='<div class="gtitle" style="margin-top:20px">Lịch tiếp theo</div>';
- h+=up.length?('<div class="group">'+up.map(occItem).join('')+'</div>'):emp('Không có sự kiện sắp tới');
+ var up=occ.filter(function(o){return o.d>=todayStart;}).sort(function(a,b){return a.d-b.d;});
+ h+='<div class="gtitle" style="margin-top:18px">Lịch tiếp theo</div>';
+ if(!up.length)h+=emp('Không có sự kiện sắp tới');
+ else{var curKey='',ag='';up.forEach(function(o){var k=dIn(o.d);if(k!==curKey){if(ag)ag+='</div>';curKey=k;ag+='<div class="dhead" style="margin:14px 2px 6px">'+(sameDay(o.d,now)?'Hôm nay · ':'')+o.d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit'})+'</div><div class="group">';}ag+=occItem(o);});if(ag)ag+='</div>';h+=ag;}
  return h;
 }
 function screenMoney(){
@@ -977,7 +1014,7 @@ function screenDetail(id){
  var jp=pays.filter(function(p){return p.job==id});var je=exps.filter(function(e){return e.job==id});var jt=tasks.filter(function(t){return t.job==id});var jd=docs.filter(function(d){return d.job==id})[0];
  var rec=recvOf(id),est=0,act=0;je.forEach(function(e){est+=e.est;act+=e.act});
  var h='<button class="back" data-go="'+(state.role=='artist'?'artist':'jobs')+'"><i class="ti ti-chevron-left"></i> Quay lại</button>';
- h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">'+tBadge(j.type,true)+'<div style="flex:1;min-width:0"><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div><div class="rowacts"><button class="iconbtn2" onclick="addToCal(\''+id+'\')" title="Vào Lịch iPhone"><i class="ti ti-calendar-plus"></i></button>'+(canLinks()?'<button class="iconbtn2" onclick="openEdit(\''+id+'\')" title="Sửa"><i class="ti ti-pencil"></i></button>':'')+'</div></div>';
+ h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">'+tBadge(j.type,true)+'<div style="flex:1;min-width:0"><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div><div class="rowacts">'+(canLinks()?'<button class="iconbtn2" onclick="openEdit(\''+id+'\')" title="Sửa"><i class="ti ti-pencil"></i></button>':'')+'</div></div>';
  var tabsArr=[['overview','Thông tin']];if(fin())tabsArr.push(['expenses','Chi phí']);if(state.role!=='artist')tabsArr.push(['documents','Hợp đồng']);
  h+='<div class="tabs">'+tabsArr.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(tab==t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
  if(tab=='overview'){
@@ -1063,7 +1100,7 @@ function screenArtist(){
  var today=up.filter(function(j){return sameDay(j.start,now)});
  var h='<div class="hsub">'+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
  if(today.length){h+='<div class="gtitle">Hôm nay</div>';today.forEach(function(j){
-   h+='<div class="group" style="padding:16px;border-left:6px solid '+TC[j.type]+'"><div style="font-size:18px;font-weight:800">'+j.name+'</div><div class="s" style="margin-top:6px"><i class="ti ti-clock"></i> '+tm(j.call||j.start)+' call · <i class="ti ti-map-pin"></i> '+j.loc+'</div><div style="display:flex;gap:10px;margin-top:12px"><button class="bigbtn" style="margin:0;height:46px" data-job="'+j.id+'"><i class="ti ti-info-circle i"></i> Chi tiết</button><button class="bigbtn alt" style="margin:0;height:46px" onclick="addToCal(\''+j.id+'\')"><i class="ti ti-calendar-plus i"></i> Vào Lịch</button></div></div>';});}
+   h+='<div class="group" style="padding:16px;border-left:6px solid '+TC[j.type]+'"><div style="font-size:18px;font-weight:800">'+j.name+'</div><div class="s" style="margin-top:6px"><i class="ti ti-clock"></i> '+tm(j.call||j.start)+' call · <i class="ti ti-map-pin"></i> '+j.loc+'</div><div style="display:flex;gap:10px;margin-top:12px"><button class="bigbtn" style="margin:0;height:46px" data-job="'+j.id+'"><i class="ti ti-info-circle i"></i> Chi tiết</button></div></div>';});}
  h+=buildGrouped(vis, artItem);
  return h;
 }
@@ -1115,16 +1152,60 @@ function prepItem(key,label,icon,role,withLoc){
  +paidSeg(key+'Paid')
  +'</div>';
 }
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return escHtml(s).replace(/"/g,'&quot;');}
+function linkify(s){return escHtml(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" style="color:var(--brand);word-break:break-all">$1</a>');}
+function notesById(id){for(var i=0;i<teamNotes.length;i++)if(teamNotes[i].id===id)return teamNotes[i];return null;}
+function noteCard(n){var snip=(n.body||'').split('\n').slice(0,3).join('\n');return '<button class="notecard" data-note="'+n.id+'">'+(n.locked?'<span class="lk">🔒</span>':'')+'<div class="nt">'+escHtml(n.title)+'</div><div class="nbody">'+escHtml(snip)+'</div>'+((n.tags||[]).length?('<div class="ntags">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>'):'')+'</button>';}
 function screenTeam(){
- var me=USERS[state.role].nm;
- var msgs=(typeof teamNotes!=='undefined'?teamNotes:[]).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time);});
- var h='<div class="chatwrap" id="chatwrap">';
- if(!msgs.length)h+=emp('Chưa có ghi chú nào. Bắt đầu trao đổi với team!');
- msgs.forEach(function(m){var mine=m.author===me;h+='<div class="msg'+(mine?' mine':'')+'"><div class="mauth">'+(mine?'Bạn':m.author)+'</div><div class="mbub">'+String(m.text||'').replace(/</g,'&lt;')+'</div><div class="mtime">'+dt(new Date(m.time))+'</div></div>';});
- h+='</div>';
- h+='<div class="chatbar"><input id="chatInput" placeholder="Nhắn cho team…" autocomplete="off"><button class="iconbtn2" id="chatSend"><i class="ti ti-send"></i></button></div>';
+ var notes=(teamNotes||[]).slice();
+ function byUpd(a,b){return (b.updatedAt||0)-(a.updatedAt||0);}
+ var pinned=notes.filter(function(n){return n.pinned;}).sort(byUpd);
+ var others=notes.filter(function(n){return !n.pinned;}).sort(byUpd);
+ var h='<button class="bigbtn" onclick="openNote(\'new\')"><i class="ti ti-plus i"></i> Ghi chú mới</button>';
+ if(pinned.length)h+='<div class="gtitle">📌 Ghim</div><div class="notegrid">'+pinned.map(noteCard).join('')+'</div>';
+ h+='<div class="gtitle">Ghi chú</div>'+(others.length?('<div class="notegrid">'+others.map(noteCard).join('')+'</div>'):emp('Chưa có ghi chú'));
  return h;
 }
+function screenNote(id){
+ var isNew=(id==='new');
+ var n=isNew?{id:'new',title:'',body:'',tags:[],pinned:false,locked:false,by:USERS[state.role].nm}:notesById(id);
+ var h='<button class="back" data-go="team"><i class="ti ti-chevron-left"></i> Ghi chú nhóm</button>';
+ if(!n)return h+emp('Không tìm thấy ghi chú');
+ var canEd=isNew||!n.locked||canLinks();
+ var acts='';
+ if(!isNew)acts+='<button class="chip'+(n.pinned?' on':'')+'" onclick="togglePin(\''+n.id+'\')">📌 '+(n.pinned?'Đang ghim':'Ghim')+'</button>';
+ if(!isNew&&canLinks())acts+='<button class="chip'+(n.locked?' on':'')+'" onclick="toggleLock(\''+n.id+'\')">'+(n.locked?'🔒 Đang khoá':'🔓 Khoá')+'</button>';
+ if(acts)h+='<div class="chiprow" style="margin-bottom:10px">'+acts+'</div>';
+ if(canEd){
+  h+='<div class="group"><div class="fld"><label class="flbl">Tiêu đề</label><input id="noteTitle" class="in" value="'+escAttr(n.title)+'" placeholder="VD: 🎵 Folder beat"></div>';
+  h+='<div class="fld"><label class="flbl">Nội dung (dán link được)</label><textarea id="noteBody" class="in" style="min-height:160px" placeholder="Nội dung, dán link Drive/Photos…">'+escHtml(n.body)+'</textarea></div>';
+  h+='<div class="fld"><label class="flbl">Tag (phẩy ngăn cách)</label><input id="noteTags" class="in" value="'+escAttr((n.tags||[]).join(', '))+'" placeholder="nhạc, media, todo…"></div></div>';
+  h+='<button class="bigbtn" onclick="saveNote(\''+n.id+'\')"><i class="ti ti-check i"></i> Lưu ghi chú</button>';
+ }else{
+  h+='<div class="dtitle" style="font-size:20px;margin-bottom:8px">'+escHtml(n.title)+' 🔒</div>';
+  h+='<div class="group"><div class="pre">'+linkify(n.body)+'</div></div>';
+  if((n.tags||[]).length)h+='<div class="chiprow">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>';
+  h+='<button class="bigbtn alt" data-copy="'+escAttr(n.body)+'"><i class="ti ti-link i"></i> Copy nội dung</button>';
+  h+='<div class="calcd" style="margin-top:8px">🔒 Đã khoá bởi quản lý — chỉ xem & copy.</div>';
+ }
+ h+='<div class="calcd" style="margin-top:10px">Cập nhật bởi '+(n.by||'?')+(n.updatedAt?(' · '+dd(new Date(n.updatedAt))):'')+'</div>';
+ return h;
+}
+function saveNote(id){
+ var t=(document.getElementById('noteTitle').value||'').trim();
+ var b=document.getElementById('noteBody').value||'';
+ var tags=(document.getElementById('noteTags').value||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+ var isNew=(id==='new');var nid=isNew?('n'+Date.now()):id;var ex=isNew?null:notesById(id);
+ var n={id:nid,title:t||'(không tiêu đề)',body:b,tags:tags,pinned:ex?ex.pinned:false,locked:ex?ex.locked:false,by:USERS[state.role].nm,updatedAt:Date.now()};
+ if(ex){for(var i=0;i<teamNotes.length;i++)if(teamNotes[i].id===nid)teamNotes[i]=n;}else teamNotes.push(n);
+ if(window.qtSave)window.qtSave('teamnotes',nid,n);
+ state.screen='team';scrollNext=true;render();
+}
+function togglePin(id){var n=notesById(id);if(!n)return;n.pinned=!n.pinned;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
+function toggleLock(id){if(!canLinks())return;var n=notesById(id);if(!n)return;n.locked=!n.locked;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
+function openNote(id){state.screen='note:'+id;scrollNext=true;render();}
+window.openNote=openNote;window.saveNote=saveNote;window.togglePin=togglePin;window.toggleLock=toggleLock;
 function screenCreate(){
  var d=(state.selDate&&stripT(state.selDate)>=stripT(now))?state.selDate:now;
  var H='';
@@ -1531,7 +1612,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
-const SEED_VERSION="2026-06-28-team";
+const SEED_VERSION="2026-06-29-notes";
 const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts","teamnotes"];
 const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[],teamnotes:[]};
 function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
