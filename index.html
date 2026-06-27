@@ -315,7 +315,20 @@ function tIcon(t){return TI[t]||'ti-calendar';}
 function tBadge(t,big){return '<span class="tbadge'+(big?' big':'')+'" style="background:'+(TC[t]||'#64748b')+';color:#fff"><i class="ti '+tIcon(t)+'"></i></span>';}
 var SL={inquiry:'Inquiry',bao_gia:'Đang báo giá',da_chot:'Đã chốt',da_ky_hd:'Đã ký HĐ',hoan_thanh:'Hoàn thành'};
 function sbadge(st){var m={bao_gia:['var(--amberbg)','var(--amber)'],da_chot:['var(--bluebg)','var(--blue)'],da_ky_hd:['var(--indigobg)','var(--indigo)'],hoan_thanh:['var(--greenbg)','var(--green)']};var c=m[st]||['var(--chip)','var(--muted)'];return '<span class="badge" style="background:'+c[0]+';color:'+c[1]+'">'+SL[st]+'</span>';}
-var jobs=[{id:"g1",name:"Đà Lạt - Show Tuấn Hải",type:"ticket",start:new Date("2026-01-02T17:00:00+07:00"),end:new Date("2026-01-02T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
+var jobs=[{id:"demo1",name:"⭐ DEMO — Liveshow đầy đủ (test)",type:"ticket",start:new Date("2026-07-05T19:00:00+07:00"),end:new Date("2026-07-05T21:00:00+07:00"),loc:"Nhà hát Hòa Bình, Q10, HCM",prov:"TP.HCM",client:"Cty ABC Entertainment",status:"da_ky_hd",net:432000000,call:new Date("2026-07-05T17:00:00+07:00"),timeline:"17:00 có mặt · 16:00 soundcheck · 19:00 diễn",setlist:"3 bài đơn + 1 song ca",contact:"Nguyễn Văn A",phone:"0901234567",note:"Standby 18:00. Mang 2 bộ vest. Link họp: https://meet.google.com/demo",follow:true,chips:[],
+hasContract:true,
+band:{on:true,vendorId:"v7",name:"Mr.K Band",phone:"0905111000"},
+rehearsals:[{date:"2026-07-03",time:"14:00",location:"24Beat Studio, Thủ Đức",mapLink:""},{date:"2026-07-04",time:"15:00",location:"Nhà hát Hòa Bình",mapLink:""}],
+soundcheck:{on:true,date:"2026-07-05",time:"16:00"},
+makeup:{on:true,vendorId:"v1",name:"MUA Tina",phone:"0901234567",cost:8000000,paid:true,time:"15:00",location:"Hậu trường",mapLink:""},
+photo:{on:true,vendorId:"v3",name:"Studio Lá",phone:"0908765432",cost:12000000,paid:false,time:"18:00",location:"",mapLink:""},
+social:{on:true,vendorId:"v5",name:"Social - Linh",phone:"0912345678",cost:5000000,paid:false,time:"18:30",location:"",mapLink:""},
+beat:{on:true,link:"https://drive.google.com/beat-demo",songs:"1. Phía sau một cô gái\n2. Đường tôi chở em về\n3. Yêu 5"},
+dressCode:{on:true,text:"Vest đen / sơ mi trắng",fileLink:"",images:[]},
+dancer:{on:true,vendorId:"v9",name:"ABC Crew",phone:"0907333444",count:"6",songs:"2",time:"17:30",cost:15000000,taxRate:8,total:16200000,paid:false},
+stay:{on:true,hotel:"Khách sạn Rex Saigon",mapLink:"",booking:"BK-789456",fileLink:"",phone:"02838292185",room:"1205",cost:3500000,paid:true,checkin:"14:00",checkout:"12:00",distKm:"4",distMin:"15"},
+move:{on:true,mode:"flight",cost:3200000,paid:true,note:"Bay sáng, đáp trước 4 tiếng",car:{vendorId:"",name:"",phone:""},flight:{no:"VN213",route:"HAN → SGN",depart:"08:00",arrive:"10:10",dur:"2h10",tz:"+0h",airKm:"30",airMin:"45"}}},
+{id:"g1",name:"Đà Lạt - Show Tuấn Hải",type:"ticket",start:new Date("2026-01-02T17:00:00+07:00"),end:new Date("2026-01-02T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
 {id:"g2",name:"Giao hưởng mùa yêu",type:"khac",start:new Date("2026-01-03T17:00:00+07:00"),end:new Date("2026-01-03T19:00:00+07:00"),loc:"Nhà Hát Hồ Gươm, 40 Hàng Bài, P. Hàng Bài, Q. Hoàn Kiếm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:380000000,call:null,timeline:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",setlist:"",contact:"",phone:"",note:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",follow:false},
 {id:"g3",name:"Thu âm Gala nhạc Việt",type:"thu_am",start:new Date("2026-01-04T18:00:00+07:00"),end:new Date("2026-01-04T20:00:00+07:00"),loc:"CC 207 Bùi Viện, Phường Bến Thành (Studio 13)",prov:"TP.HCM",client:"",status:"da_chot",net:18000000,call:null,timeline:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",follow:false},
 {id:"g4",name:"Ghi hình Gala nhạc Việt Tết 2026",type:"quay_social",start:new Date("2026-01-06T23:00:00+07:00"),end:new Date("2026-01-06T23:00:00+07:00"),loc:"Star VN, 14 Đường Số 12, P. An Phú, TP. Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam",prov:"TP.HCM",client:"",status:"da_chot",net:0,call:null,timeline:"[Tên gốc: Ghi hình Gala nhạc Việt Tết 2026 - 23h quay] Phim trường StarVN - Quận 2",setlist:"",contact:"",phone:"",note:"[Tên gốc: Ghi hình Gala nhạc Việt Tết 2026 - 23h quay] Phim trường StarVN - Quận 2",follow:false},
@@ -421,7 +434,9 @@ var jobs=[{id:"g1",name:"Đà Lạt - Show Tuấn Hải",type:"ticket",start:new
 {id:"g104",name:"Ko nhận bán vé HN",type:"canhan",start:new Date("2026-09-19T09:00:00+07:00"),end:new Date("2026-09-19T11:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
 {id:"g105",name:"MSD SG",type:"event_checkin",start:new Date("2026-12-11T08:00:00+07:00"),end:new Date("2026-12-11T10:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
 {id:"g106",name:"MSD HN",type:"event_checkin",start:new Date("2026-12-19T08:00:00+07:00"),end:new Date("2026-12-19T10:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false}];
-var pays=[{job:"g2",label:"Cọc 50%",amt:190000000,pct:50,due:new Date("2025-12-27T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
+var pays=[{job:"demo1",label:"Đợt 1 (50%)",amt:216000000,pct:50,due:new Date("2026-06-20T00:00:00+07:00"),paid:new Date("2026-06-22T00:00:00+07:00"),st:"da_thanh_toan"},
+{job:"demo1",label:"Đợt 2 (50%)",amt:216000000,pct:50,due:new Date("2026-07-05T00:00:00+07:00"),paid:null,st:"chua_den_han"},
+{job:"g2",label:"Cọc 50%",amt:190000000,pct:50,due:new Date("2025-12-27T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
 {job:"g2",label:"Còn lại 50%",amt:190000000,pct:50,due:new Date("2026-01-10T10:00:00.000Z"),paid:new Date("2026-06-24T13:41:55.626Z"),st:"da_thanh_toan"},
 {job:"g3",label:"Cọc 50%",amt:9000000,pct:50,due:new Date("2025-12-28T11:00:00.000Z"),st:"qua_han"},
 {job:"g3",label:"Còn lại 50%",amt:9000000,pct:50,due:new Date("2026-01-11T11:00:00.000Z"),st:"chua_den_han"},
@@ -502,7 +517,13 @@ var pays=[{job:"g2",label:"Cọc 50%",amt:190000000,pct:50,due:new Date("2025-12
 {job:"g103",label:"Cọc đợt 1 (hạn)",amt:250000000,pct:50,due:new Date("2026-09-12T12:00:00.000Z"),st:"chua_den_han"},
 {job:"g103",label:"Còn lại 50%",amt:250000000,pct:50,due:new Date("2026-09-19T12:00:00.000Z"),st:"chua_den_han"}];
 var PSL={da_thanh_toan:['Đã TT','var(--greenbg)','var(--green)'],chua_den_han:['Chưa đến hạn','var(--chip)','var(--muted)'],den_han:['Đến hạn','var(--amberbg)','var(--amber)'],qua_han:['Quá hạn','var(--redbg)','var(--red)']};
-var exps=[{job:"g91",name:"Makeup & tóc",type:"Makeup",vendor:"MUA Tina",est:8000000,act:9000000,st:"cho_duyet"},
+var exps=[{job:"demo1",name:"Makeup",type:"Makeup",vendor:"MUA Tina",est:8000000,act:8000000,st:"da_thanh_toan"},
+{job:"demo1",name:"Photo",type:"Photo",vendor:"Studio Lá",est:12000000,act:0,st:"du_kien"},
+{job:"demo1",name:"Social",type:"Social",vendor:"Social - Linh",est:5000000,act:0,st:"du_kien"},
+{job:"demo1",name:"Dancer - ABC Crew",type:"Dancer",vendor:"ABC Crew",est:16200000,act:0,st:"du_kien"},
+{job:"demo1",name:"Lưu trú - Rex Saigon",type:"Lưu trú",vendor:"Rex Saigon",est:3500000,act:3500000,st:"da_thanh_toan"},
+{job:"demo1",name:"Di chuyển (máy bay)",type:"Di chuyển",vendor:"VN213",est:3200000,act:3200000,st:"da_thanh_toan"},
+{job:"g91",name:"Makeup & tóc",type:"Makeup",vendor:"MUA Tina",est:8000000,act:9000000,st:"cho_duyet"},
 {job:"g91",name:"Band/nhạc công",type:"Production",vendor:"Band Anh Em",est:35000000,act:0,st:"da_duyet"},
 {job:"g103",name:"Makeup & tóc",type:"Makeup",vendor:"MUA Tina",est:8000000,act:0,st:"du_kien"},
 {job:"g103",name:"Band/nhạc công",type:"Production",vendor:"Band Anh Em",est:35000000,act:0,st:"da_duyet"}];
@@ -560,19 +581,29 @@ var vendors=[
  {id:"v9",name:"ABC Crew",role:"dancer",phone:"0907333444",fb:"https://facebook.com/abccrew",cccd:"",bankNo:"0555666",bankName:"MB Bank",branch:"HCM",payCompany:"ABC Entertainment"},
  {id:"v10",name:"Dancer Hiphop 24",role:"dancer",phone:"0908444555",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
  {id:"v11",name:"Tài xế Hùng (7 chỗ)",role:"driver",phone:"0909555666",fb:"",cccd:"079086665555",bankNo:"0666777",bankName:"Sacombank",branch:"HCM",payCompany:""},
- {id:"v12",name:"Hãng xe Mai Linh",role:"driver",phone:"1055",fb:"https://facebook.com/mailinh",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:"Mai Linh Corp"}
+ {id:"v12",name:"Hãng xe Mai Linh",role:"driver",phone:"1055",fb:"https://facebook.com/mailinh",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:"Mai Linh Corp"},
+ {id:"v13",name:"Makeup Ngọc Anh",role:"makeup",phone:"0902555888",fb:"https://facebook.com/ngocanh.mua",cccd:"079095556667",bankNo:"0711222333",bankName:"BIDV",branch:"HCM",payCompany:""},
+ {id:"v14",name:"Photo Hải Studio",role:"photo",phone:"0903666999",fb:"https://facebook.com/haistudio",cccd:"079093334445",bankNo:"0822333444",bankName:"VPBank",branch:"HCM",payCompany:"Hải Studio"},
+ {id:"v15",name:"Social Team Mây",role:"social",phone:"0913777222",fb:"https://facebook.com/socialmay",cccd:"079091112226",bankNo:"0933444555",bankName:"Techcombank",branch:"HN",payCompany:""},
+ {id:"v16",name:"Band Hoàng Anh",role:"band",phone:"0905888111",fb:"https://facebook.com/bandhoanganh",cccd:"079088882221",bankNo:"0444777888",bankName:"ACB",branch:"HCM",payCompany:""},
+ {id:"v17",name:"Crew The Beat",role:"dancer",phone:"0907999333",fb:"https://facebook.com/thebeatcrew",cccd:"079077778882",bankNo:"0555888999",bankName:"MB Bank",branch:"HCM",payCompany:"The Beat Ent."},
+ {id:"v18",name:"Tài xế Nam (16 chỗ)",role:"driver",phone:"0909222777",fb:"",cccd:"079082223336",bankNo:"0666999000",bankName:"Sacombank",branch:"HCM",payCompany:""}
 ];
 var accounts=[
  {id:"a1",label:"Công ty - Vietcombank",bank:"Vietcombank",number:"0123456789"},
  {id:"a2",label:"Công ty - Techcombank",bank:"Techcombank",number:"19001234567"},
  {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
 ];
-var contracts=[]; var contractById={};
+var contracts=[
+ {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",source:"manual"}
+];
+var contractById={};
 /* Dán URL Apps Script Web App (deploy contract-gen.gs) vào đây để bật "Tạo mẫu" → Drive */
 var CONTRACT_GEN_URL="";
 function reContracts(){contractById={};contracts.forEach(function(c){contractById[c.id]=c;});}
 function vById(id){for(var i=0;i<vendors.length;i++)if(vendors[i].id===id)return vendors[i];return null;}
 function aById(id){for(var i=0;i<accounts.length;i++)if(accounts[i].id===id)return accounts[i];return null;}
+reContracts();
 var CTL={chua_co:'Chưa có',dang_soan:'Đang soạn',da_gui:'Đã gửi',da_ky:'Đã ký',final:'Đã lưu final'};
 var IVL={chua_xuat:'Chưa xuất',da_xuat:'Đã xuất',da_gui:'Đã gửi',da_thanh_toan:'Đã thanh toán'};
 var ACL={chua_co:'Chưa có',da_gui:'Đã gửi',da_ky:'Đã ký'};
@@ -1276,7 +1307,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
-const SEED_VERSION="2026-06-26-create-form"; // tang so nay de lam moi du lieu mau tren app
+const SEED_VERSION="2026-06-27-seed-demo"; // tang so nay de lam moi du lieu mau tren app
 const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts"];
 const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[]};
 function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
