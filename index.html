@@ -1043,6 +1043,7 @@ function screenDetail(id){
   if(j.soundcheck&&j.soundcheck.on)prep+=drow('ti-device-speaker','Soundcheck',(j.soundcheck.date?dd(new Date(j.soundcheck.date)):'—')+(j.soundcheck.time?(' · '+j.soundcheck.time):'')+subAddr(evLoc),evLoc?actBtns(null,null,evLoc):'');
   ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];var loc=(k==='makeup')?m.location:'';prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+subAddr(loc),actBtns(m.phone,vfb(m.vendorId),loc||null));}});
   if(j.dancer&&j.dancer.on){var dcq=[(j.dancer.count?j.dancer.count+' người':''),(j.dancer.songs?j.dancer.songs+' bài':'')].filter(Boolean).join(' · ');prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.time?(' · '+j.dancer.time):'')+(dcq?('<span class="subln">'+dcq+'</span>'):''),actBtns(j.dancer.phone,vfb(j.dancer.vendorId),null));}
+  if(j.commission&&j.commission.on)prep+=drow('ti-coin','Hoa hồng book show',j.commission.name||'—');
   if(j.beat&&j.beat.on&&(j.beat.link||j.beat.songs)){var bacts=j.beat.link?('<div class="rowacts"><button class="iconbtn2" data-openstop="'+j.beat.link+'" title="Mở link nhạc"><i class="ti ti-external-link"></i></button><button class="iconbtn2" data-copy="'+j.beat.link+'" title="Copy link"><i class="ti ti-link"></i></button></div>'):'';prep+=drow('ti-list-numbers','Setlist',(j.beat.songs||'(có link nhạc)'),bacts);}
   if(j.dressCode&&j.dressCode.on&&j.dressCode.text)prep+=drow('ti-shirt','Dress code',j.dressCode.text);
   if(j.stay&&j.stay.on){var s=j.stay;
@@ -1269,6 +1270,12 @@ function screenCreate(){
  H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="dcTotal">0₫</span></div>';
  H+=paidSeg('dcPaid');
  H+='</div>';/* dancerBox */
+ /* hoa hồng book show */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-coin"></i> Hoa hồng (book show)</span><label class="switch"><input type="checkbox" id="swComm"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="commBox">';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Người book show</label><input id="commName" class="in" placeholder="Tên"></div><div class="fld"><label class="flbl">Chi phí hoa hồng</label><input id="commCost" class="in" inputmode="numeric" placeholder="0"></div></div>';
+ H+=paidSeg('commPaid');
+ H+='</div>';/* commBox */
  /* lưu trú */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-bed"></i> Lưu trú</span><label class="switch"><input type="checkbox" id="swStay"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="stayBox">';
@@ -1422,7 +1429,7 @@ function bindCreateForm(){
  seg('ctTax',_recalcTotal);
  seg('ctCount',function(v){_rebuildInst(+v,true);});
  seg('ctInvMode',function(v){document.getElementById('ctTotInvWrap').style.display=v==='total'?'block':'none';document.querySelectorAll('.iInvWrap').forEach(function(e){e.style.display=v==='per'?'block':'none';});});
- tog('swPrep','prepBox');tog('swBand','bandBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swFlight','mvFlightBox');tog('swCar','mvCarBox');tog('swCt','ctBox');
+ tog('swPrep','prepBox');tog('swBand','bandBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swComm','commBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swFlight','mvFlightBox');tog('swCar','mvCarBox');tog('swCt','ctBox');
  seg('bandPay',function(v){document.getElementById('bandPayBox').style.display=v==='self'?'block':'none';});
  function bandRecalc(){var v=parseMoney((document.getElementById('bandCost')||{}).value);var tax=+(document.querySelector('#bandTax .on')||{dataset:{val:0}}).dataset.val;var t=document.getElementById('bandTotal');if(t)t.textContent=money(Math.round(v*(1+tax/100)));}
  seg('bandTax',bandRecalc);var bc=document.getElementById('bandCost');if(bc)bc.oninput=bandRecalc;
@@ -1464,6 +1471,7 @@ function prefillForm(j){
  if(j.beat&&j.beat.on){setSw('swBeat');setV('beatLink',j.beat.link);setV('beatSongs',j.beat.songs);}
  if(j.dressCode&&j.dressCode.on){setSw('swDress');setV('dressText',j.dressCode.text);}
  if(j.dancer&&j.dancer.on){setSw('swDancer');setSup('dancer',j.dancer);setV('dcCount',j.dancer.count);setV('dcSongs',j.dancer.songs);setV('dcTime',j.dancer.time);setV('dcCost',j.dancer.cost||'');setSeg('dcTax',String(j.dancer.taxRate||0));setSeg('dcPaid',j.dancer.paid?'1':'0');}
+ if(j.commission&&j.commission.on){setSw('swComm');setV('commName',j.commission.name);setV('commCost',j.commission.cost||'');setSeg('commPaid',j.commission.paid?'1':'0');}
  if(j.stay&&j.stay.on){setSw('swStay');setV('stHotel',j.stay.hotel);setV('stBooking',j.stay.booking);setV('stPhone',j.stay.phone);setV('stRoom',j.stay.room);setV('stCost',j.stay.cost||'');setSeg('stPaid',j.stay.paid?'1':'0');setV('stCin',j.stay.checkin);setV('stCout',j.stay.checkout);setV('stDistKm',j.stay.distKm);setV('stDistMin',j.stay.distMin);}
  if(j.move&&j.move.on){setSw('swMove');var f=j.move.flight||{},cr=j.move.car||{};
   if(f.on){setSw('swFlight');setV('mvFlNo',f.no);setV('mvFlCode',f.code);setV('mvFlRoute',f.route);setV('mvFlDep',f.depart);setV('mvFlArr',f.arrive);setV('mvFlDur',f.dur);setV('mvFlTz',f.tz);setV('mvAirKm',f.airKm);setV('mvAirMin',f.airMin);setV('mvFlTicket',f.ticketUrl);setV('mvFlCost',f.cost||'');setSeg('mvFlPaid',f.paid?'1':'0');}
@@ -1570,6 +1578,7 @@ function saveEvent(){
   beat:{on:C('swBeat'),link:V('beatLink'),songs:V('beatSongs')},
   dressCode:{on:C('swDress'),text:V('dressText'),fileLink:'',images:[]},
   dancer:{on:C('swDancer'),vendorId:dcSup.vendorId,name:dcSup.name,phone:dcSup.phone,count:V('dcCount'),songs:V('dcSongs'),time:V('dcTime'),cost:dcCost,taxRate:dcTax,total:Math.round(dcCost*(1+dcTax/100)),paid:paidVal('dcPaid')},
+  commission:{on:C('swComm'),name:V('commName'),cost:parseMoney(V('commCost')),paid:paidVal('commPaid')},
   stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),cost:parseMoney(V('stCost')),paid:paidVal('stPaid'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin')},
   move:{on:C('swMove'),note:V('mvNote'),
    flight:{on:C('swFlight'),no:V('mvFlNo'),code:V('mvFlCode'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin'),ticketUrl:V('mvFlTicket'),cost:parseMoney(V('mvFlCost')),paid:paidVal('mvFlPaid')},
@@ -1603,6 +1612,7 @@ function saveEvent(){
  if(job.photo.on)pushExp('photo','Photo','Photo',job.photo.name,job.photo.cost,job.photo.paid);
  if(job.social.on)pushExp('social','Social','Social',job.social.name,job.social.cost,job.social.paid);
  if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.name,job.dancer.total,job.dancer.paid);
+ if(job.commission.on)pushExp('comm','Hoa hồng book show'+(job.commission.name?(' - '+job.commission.name):''),'Hoa hồng',job.commission.name,job.commission.cost,job.commission.paid);
  if(job.stay.on)pushExp('stay','Lưu trú'+(job.stay.hotel?(' - '+job.stay.hotel):''),'Lưu trú',job.stay.hotel,job.stay.cost,job.stay.paid);
  if(job.move.on&&job.move.flight.on)pushExp('move_fl','Di chuyển (máy bay)','Di chuyển',job.move.flight.no,job.move.flight.cost,job.move.flight.paid);
  if(job.move.on&&job.move.car.on)pushExp('move_car','Di chuyển (xe)','Di chuyển',job.move.car.name,job.move.car.cost,job.move.car.paid);
