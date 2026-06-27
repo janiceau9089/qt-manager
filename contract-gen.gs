@@ -34,7 +34,8 @@ var FOLDER_ID       = "";   // ID folder Drive chứa HĐ (để trống = My Dr
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
-    var title = "HĐ - " + (d.name || "Su kien") + (d.partner ? (" - " + d.partner) : "");
+    var dtype = d.docType || "HĐ";   // HĐ | BBNT | ĐNTT | Phụ lục
+    var title = dtype + " - " + (d.name || "Su kien") + (d.partner ? (" - " + d.partner) : "");
     var folder = FOLDER_ID ? DriveApp.getFolderById(FOLDER_ID) : DriveApp.getRootFolder();
     var docFile, doc;
 
@@ -91,12 +92,16 @@ function placeholderMap(d) {
     "GIA_TRI": money(d.valuePreTax),
     "THUE": (d.taxRate || 0) + "%",
     "TONG": money(d.totalValue),
-    "DOT_TT": instText(d.installments)
+    "DOT_TT": instText(d.installments),
+    "LOAI": d.docType || "Hợp đồng",
+    "THAY_DOI": d.changeText || ""
   };
 }
 
 function buildDefaultDoc(body, d) {
-  body.appendParagraph("HỢP ĐỒNG DỊCH VỤ BIỂU DIỄN").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  var heads={"BBNT":"BIÊN BẢN NGHIỆM THU & THANH LÝ HỢP ĐỒNG","ĐNTT":"ĐỀ NGHỊ THANH TOÁN","Phụ lục":"PHỤ LỤC HỢP ĐỒNG"};
+  body.appendParagraph(heads[d.docType] || "HỢP ĐỒNG DỊCH VỤ BIỂU DIỄN").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (d.changeText) { body.appendParagraph("Nội dung thay đổi: " + d.changeText); body.appendParagraph(""); }
   body.appendParagraph("Số HĐ: " + (d.contractNo || "..........") + "      Ngày ký: " + (d.signDate || ".........."));
   body.appendParagraph("");
   body.appendParagraph("BÊN A (Đối tác):").setHeading(DocumentApp.ParagraphHeading.HEADING2);

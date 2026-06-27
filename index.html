@@ -330,7 +330,7 @@ beat:{on:true,link:"https://drive.google.com/beat-demo",songs:"1. Phía sau mộ
 dressCode:{on:true,text:"Vest đen / sơ mi trắng",fileLink:"",images:[]},
 dancer:{on:true,vendorId:"v9",name:"ABC Crew",phone:"0907333444",count:"6",songs:"2",time:"17:30",cost:15000000,taxRate:8,total:16200000,paid:false},
 stay:{on:true,hotel:"Khách sạn Rex Saigon",mapLink:"",booking:"BK-789456",fileLink:"",phone:"02838292185",room:"1205",cost:3500000,paid:true,checkin:"14:00",checkout:"12:00",distKm:"4",distMin:"15"},
-move:{on:true,mode:"flight",cost:3200000,paid:true,note:"Bay sáng, đáp trước 4 tiếng",car:{vendorId:"",name:"",phone:""},flight:{no:"VN213",route:"HAN → SGN",depart:"08:00",arrive:"10:10",dur:"2h10",tz:"+0h",airKm:"30",airMin:"45"}}},
+move:{on:true,note:"Bay sáng, đáp trước 4 tiếng; có xe đón sân bay",flight:{on:true,no:"VN213",route:"HAN → SGN",depart:"08:00",arrive:"10:10",dur:"2h10",tz:"+0h",airKm:"30",airMin:"45",cost:3200000,paid:true},car:{on:true,vendorId:"v11",name:"Tài xế Hùng (7 chỗ)",phone:"0909555666",cost:1500000,paid:false}}},
 {id:"g1",name:"Đà Lạt - Show Tuấn Hải",type:"ticket",start:new Date("2026-01-02T17:00:00+07:00"),end:new Date("2026-01-02T19:00:00+07:00"),loc:"",prov:"",client:"",status:"da_chot",net:0,call:null,timeline:"",setlist:"",contact:"",phone:"",note:"",follow:false},
 {id:"g2",name:"Giao hưởng mùa yêu",type:"khac",start:new Date("2026-01-03T17:00:00+07:00"),end:new Date("2026-01-03T19:00:00+07:00"),loc:"Nhà Hát Hồ Gươm, 40 Hàng Bài, P. Hàng Bài, Q. Hoàn Kiếm, Thành Phố Hà Nội, Việt Nam",prov:"Hà Nội",client:"",status:"da_chot",net:380000000,call:null,timeline:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",setlist:"",contact:"",phone:"",note:"[Tên gốc: giao hưởng mùa yêu 380] 380H\n\nct có bán vé -> 380tr net / Quân Nguyễn (GĐAN của Trẻ Concert) ,\n- RHS : 2/1/2026 \n- Diễn : 3/1/2026 \n- Địa điểm : nhà hát Hồ Gươm Hà Nội \n- Ca sỹ tham gia (dự kiến) : Quốc Thiên , Uyên Linh , Bùi Lan Hương , Tuấn Hưng\n- Mỗi ca sỹ hát đơn 3 bài , song ca 1 bài . Dự kiến sẽ có 1 bài tứ ca .",follow:false},
 {id:"g3",name:"Thu âm Gala nhạc Việt",type:"thu_am",start:new Date("2026-01-04T18:00:00+07:00"),end:new Date("2026-01-04T20:00:00+07:00"),loc:"CC 207 Bùi Viện, Phường Bến Thành (Studio 13)",prov:"TP.HCM",client:"",status:"da_chot",net:18000000,call:null,timeline:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",setlist:"",contact:"",phone:"",note:"[Tên gốc: Thu âm Gala nhạc Việt - 18h] - Thu vào lúc 18h ngày 04/01/2026 \n- Địa chỉ: CC 207 Bùi Viện, Phường Bến Thành (Studio 13)\n\nKhi đến liên hệ: 090 6367258 Nhàn ạ",follow:false},
@@ -598,7 +598,7 @@ var accounts=[
  {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
 ];
 var contracts=[
- {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",source:"manual"}
+ {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",docs:[{type:"HĐ",url:"https://drive.google.com/file/d/HD-DEMO-1/view"},{type:"BBNT",url:"https://drive.google.com/file/d/BBNT-DEMO-1/view"}],source:"manual"}
 ];
 var contractById={};
 /* Dán URL Apps Script Web App (deploy contract-gen.gs) vào đây để bật "Tạo mẫu" → Drive */
@@ -749,6 +749,7 @@ function render(){
  else if(s=='qtmoney')sc.innerHTML=screenQtMoney();
  else if(s=='create')sc.innerHTML=screenCreate();
  renderTabs();bind();applyIcons();
+ document.getElementById('tabbar').style.display=(s=='create')?'none':'';
  if(s=='create')bindCreateForm();
  if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
 }
@@ -922,8 +923,9 @@ function screenDetail(id){
    prep+=drow('ti-bed','Lưu trú',sv);
   }
   if(j.move&&j.move.on){var mv=j.move;
-   if(mv.mode==='flight'&&mv.flight&&(mv.flight.no||mv.flight.route))prep+=drow('ti-plane','Di chuyển — máy bay',(mv.flight.no||'')+(mv.flight.route?(' · '+mv.flight.route):'')+((mv.flight.depart||mv.flight.arrive)?('\n'+(mv.flight.depart||'?')+' → '+(mv.flight.arrive||'?')+(mv.flight.dur?(' ('+mv.flight.dur+')'):'')):'')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):''));
-   else prep+=drow('ti-car','Di chuyển — xe',((mv.car&&mv.car.name)||'—')+payTag(mv.cost,mv.paid)+(mv.note?('\n'+mv.note):'')+actBtns(mv.car&&mv.car.phone,vfb(mv.car&&mv.car.vendorId),null));
+   if(mv.flight&&mv.flight.on)prep+=drow('ti-plane','Di chuyển — máy bay',(mv.flight.no||'')+(mv.flight.route?(' · '+mv.flight.route):'')+((mv.flight.depart||mv.flight.arrive)?('\n'+(mv.flight.depart||'?')+' → '+(mv.flight.arrive||'?')+(mv.flight.dur?(' ('+mv.flight.dur+')'):'')):'')+payTag(mv.flight.cost,mv.flight.paid));
+   if(mv.car&&mv.car.on)prep+=drow('ti-car','Di chuyển — xe',((mv.car.name)||'—')+payTag(mv.car.cost,mv.car.paid)+actBtns(mv.car.phone,vfb(mv.car.vendorId),null));
+   if(mv.note)prep+=drow('ti-info-circle','Ghi chú di chuyển',mv.note);
   }
   if(prep)h+='<div class="gtitle">Chuẩn bị</div><div class="group">'+prep+'</div>';
   var canL=canLinks();
@@ -942,7 +944,8 @@ function screenDetail(id){
    var partnerInfo=(ct.partner||'—')+(ct.taxCode?('\nMST: '+ct.taxCode):'')+(ct.address?('\n'+ct.address):'')+(ct.rep?('\nĐại diện: '+ct.rep+(ct.repTitle?(' ('+ct.repTitle+')'):'')):'')+(ct.phone?('\n📞 '+ct.phone):'')+(ct.email?('\n✉️ '+ct.email):'')+((ct.bankNo||ct.bankName)?('\nTK: '+(ct.bankNo||'')+(ct.bankName?(' · '+ct.bankName):'')+(ct.branch?(' · '+ct.branch):'')):'');
    h+='<div class="group">'+drow('ti-file-text','Số HĐ',ct.contractNo||'—')+drow('ti-building','Đối tác',partnerInfo)+drow('ti-calendar','Ngày ký',ct.signDate?dd(ct.signDate):'—')+drow('ti-wallet','Giá trị',money(ct.valuePreTax)+' + '+ct.taxRate+'% → '+money(ct.totalValue))+drow('ti-credit-card','TK nhận',acc?(acc.label+' · '+acc.number):'—')+'</div>';
    h+='<div class="gtitle">Các đợt thanh toán</div><div class="group">'+ct.installments.map(function(ins){var over=!ins.paid&&new Date(ins.dueDate)<stripT(now);var chip=ins.paid?'<span class="cstat" style="background:var(--greenbg);color:var(--green)">🟢 Hoàn tất</span>':over?'<span class="cstat" style="background:var(--redbg);color:var(--red)">🔴 Quá hạn</span>':'<span class="cstat" style="background:var(--amberbg);color:var(--amber)">Chờ TT</span>';return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">Đợt '+ins.pct+'% · '+money(ins.amount)+'</div><div class="s">'+(ins.dueNote||'')+' · dự kiến '+dd(new Date(ins.dueDate))+'</div></div>'+chip+'</div>';}).join('')+'</div>';
-   if(ct.fileUrl)h+='<div class="chiprow"><button class="chip on" data-openstop="'+ct.fileUrl+'"><i class="ti ti-folder"></i>Mở file HĐ</button><button class="chip copybtn" data-copy="'+ct.fileUrl+'"><i class="ti ti-link"></i>Copy link</button></div>';
+   var docsArr=(ct.docs&&ct.docs.length)?ct.docs:(ct.fileUrl?[{type:'HĐ',url:ct.fileUrl}]:[]);
+   if(docsArr.length)h+='<div class="gtitle">Tài liệu hợp đồng</div><div class="chiprow">'+docsArr.map(function(dd){return '<button class="chip on" data-openstop="'+dd.url+'"><i class="ti ti-file-text"></i>'+dd.type+'</button><button class="chip copybtn" data-copy="'+dd.url+'"><i class="ti ti-link"></i></button>';}).join('')+'</div>';
   } else h+='<div class="group">'+(jd?(drow('ti-file-text','Hợp đồng',L(CTL,jd.ct))+drow('ti-receipt','Hóa đơn',L(IVL,jd.inv))+drow('ti-list-check','Nghiệm thu',L(ACL,jd.acc))+drow('ti-clock','Deadline',dd(jd.dl))):emp('Chưa có hồ sơ'))+'</div>';
  }
  if(tab=='tasks')h+='<div class="group">'+(jt.length?jt.map(function(t){var sm=STMETA[t.s];return '<div class="item" style="cursor:default"><div style="flex:1"><div class="t">'+t.n+'</div><div class="s">'+t.note+' · '+t.o+'</div></div><span class="badge" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</span></div>'}).join(''):emp('Chưa có'))+'</div>';
@@ -1094,28 +1097,31 @@ function screenCreate(){
  /* di chuyển (riêng) */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-car"></i> Di chuyển</span><label class="switch"><input type="checkbox" id="swMove"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="moveBox">';
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Hình thức</label><div class="segbtn" id="mvMode"><button type="button" data-val="car" class="on"><i class="ti ti-car"></i> Xe</button><button type="button" data-val="flight"><i class="ti ti-plane"></i> Máy bay</button></div></div>';
- H+='<div id="mvCarBox" style="margin-top:8px">'+supplierPicker('mvCar','driver','Tài xế / hãng xe')+'</div>';
- H+='<div id="mvFlightBox" style="margin-top:8px;display:none">';
- H+='<div class="calcd">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, mã chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
+ H+='<div class="calcd" style="padding:6px 0 0">Có thể bật cả Máy bay và Xe (vd đi tỉnh: bay rồi đi xe).</div>';
+ /* máy bay */
+ H+='<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-plane"></i> Máy bay</span><label class="switch"><input type="checkbox" id="swFlight"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="mvFlightBox">';
+ H+='<div class="calcd" style="padding:8px 0 0">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Mã chuyến bay</label><input id="mvFlNo" class="in" placeholder="VD: VN213"></div><div class="fld"><label class="flbl">Lộ trình</label><input id="mvFlRoute" class="in" placeholder="SGN → HAN"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giờ bay</label><input id="mvFlDep" type="time" class="in"></div><div class="fld"><label class="flbl">Giờ đáp</label><input id="mvFlArr" type="time" class="in"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Thời gian bay</label><input id="mvFlDur" class="in" placeholder="VD: 2h10"></div><div class="fld"><label class="flbl">Chênh giờ điểm đến</label><input id="mvFlTz" class="in" placeholder="VD: +0h"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → sân bay (km)</label><input id="mvAirKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="mvAirMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
- H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính KS → sân bay bằng Maps API — Phase 2.</div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí vé</label><input id="mvFlCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"></div></div>';
+ H+=paidSeg('mvFlPaid');
  H+='</div>';/* mvFlightBox */
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Chi phí di chuyển</label><input id="mvCost" class="in" inputmode="numeric" placeholder="0"></div>';
- H+=paidSeg('mvPaid');
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ghi chú</label><textarea id="mvNote" class="in" placeholder="Ghi chú di chuyển…"></textarea></div>';
+ /* xe */
+ H+='<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-car"></i> Xe</span><label class="switch"><input type="checkbox" id="swCar"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="mvCarBox">'+supplierPicker('mvCar','driver','Tài xế / hãng xe');
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí xe</label><input id="mvCarCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"></div></div>';
+ H+=paidSeg('mvCarPaid');
+ H+='</div>';/* mvCarBox */
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ghi chú di chuyển</label><textarea id="mvNote" class="in" placeholder="Ghi chú di chuyển…"></textarea></div>';
  H+='</div>';/* moveBox */
  H+='</div>';/* prepBox group */
  /* 3. HỢP ĐỒNG */
  H+='<div id="ctWrap">';
  H+='<div class="gtitle gtr"><span>Hợp đồng</span><label class="switch"><input type="checkbox" id="swCt"><span class="slider"></span></label></div>';
  H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
- H+='<div class="segbtn" id="ctSource" style="margin:10px 0 8px"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải HĐ</button><button type="button" data-val="manual" class="on">Nhập tay</button><button type="button" data-val="template"><i class="ti ti-robot"></i> Tạo mẫu</button></div>';
- H+='<div id="ctSrcNote" class="calcd" style="margin-bottom:8px">Nhập thông tin hợp đồng bên dưới.</div>';
- H+='<div id="ctGenWrap" style="display:none;margin-bottom:6px"><button type="button" class="bigbtn" id="ctGenBtn" style="height:46px;margin:2px 0"><i class="ti ti-robot i"></i> Tạo hợp đồng từ mẫu</button><div id="ctGenResult" class="calcd" style="padding-top:6px"></div></div>';
+ H+='<div class="calcd" style="margin:8px 0">Nhập thông tin hợp đồng. Cuối phần có nút <b>tạo file</b> hoặc dán link file đã có.</div>';
  H+='<div class="frow" style="padding:0"><div class="fld"><label class="flbl">Số HĐ</label><input id="ctNo" class="in"></div><div class="fld"><label class="flbl">Ngày ký</label><input id="ctSign" type="date" class="in"></div></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Công ty đối tác</label><input id="ctPartner" class="in"></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa chỉ công ty</label><input id="ctAddr" class="in"></div>';
@@ -1125,23 +1131,35 @@ function screenCreate(){
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Ngân hàng</label><input id="ctBankName" class="in"></div><div class="fld"><label class="flbl">Chi nhánh</label><input id="ctBranch" class="in"></div></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Email nhận hóa đơn</label><input id="ctEmail" class="in" inputmode="email"></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Tài khoản nhận (của mình)</label><select id="ctAcct" class="in">'+acctOpts()+'</select></div>';
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link file HĐ (Drive) — tự điền khi tạo mẫu</label><input id="ctFile" class="in" placeholder="Dán link…"></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giá trị trước thuế</label><input id="ctValue" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Thuế</label><div class="segbtn" id="ctTax"><button type="button" data-val="8" class="on">8%</button><button type="button" data-val="10">10%</button></div></div></div>';
  H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="ctTotal">0₫</span></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số đợt thanh toán</label><div class="segbtn" id="ctCount"><button type="button" data-val="1" class="on">1</button><button type="button" data-val="2">2</button><button type="button" data-val="3">3</button></div></div><div class="fld"><label class="flbl">Hóa đơn</label><div class="segbtn" id="ctInvMode"><button type="button" data-val="per" class="on">Từng đợt</button><button type="button" data-val="total">Tổng</button></div></div></div>';
  H+='<div id="instRows"></div>';
  H+='<div class="fld" id="ctTotInvWrap" style="padding:8px 0 0;display:none"><label class="flbl">Số hóa đơn (tổng)</label><input id="ctTotInv" class="in"></div>';
+ /* tài liệu hợp đồng (file đã có) + thao tác tạo file */
+ H+='<div class="gtitle" style="margin:14px 0 6px;font-size:12px">Tài liệu hợp đồng</div>';
+ H+='<div id="ctDocs" class="chiprow"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">📎 Dán link file đã có (tuỳ chọn)</label><div style="display:flex;gap:8px"><input id="ctFile" class="in" placeholder="Link HĐ trên Drive…"><button class="iconbtn" type="button" id="ctFileAdd" title="Thêm vào tài liệu"><i class="ti ti-plus"></i></button></div></div>';
+ H+='<div class="actwrap" style="margin-top:10px;gap:6px">';
+ H+='<button type="button" class="minibtn" id="ctGenBtn"><i class="ti ti-robot"></i> Tạo HĐ</button>';
+ H+='<button type="button" class="minibtn" id="ctGenBBNT"><i class="ti ti-plus"></i> BBNT</button>';
+ H+='<button type="button" class="minibtn" id="ctGenDNTT"><i class="ti ti-plus"></i> ĐNTT</button>';
+ H+='<button type="button" class="minibtn" id="ctGenAppendix"><i class="ti ti-plus"></i> Phụ lục</button>';
+ H+='</div>';
+ H+='<div class="fld" id="ctAppendixWrap" style="padding:8px 0 0;display:none"><label class="flbl">Nội dung thay đổi (phụ lục)</label><textarea id="ctAppendixText" class="in" placeholder="Mô tả thay đổi so với HĐ gốc…"></textarea><button type="button" class="addrow" id="ctAppendixGo"><i class="ti ti-robot"></i> Tạo phụ lục</button></div>';
+ H+='<div id="ctGenResult" class="calcd" style="padding-top:8px"></div>';
  H+='</div></div>';/* padding wrap + ctBox group */
  H+='</div>';/* ctWrap */
- H+='<button class="bigbtn" id="evSave"><i class="ti ti-check i"></i> '+(editing?'Cập nhật sự kiện':'Lưu sự kiện')+'</button>';
  H+='</div>';/* frm */
+ H+='<div class="savebar"><button class="bigbtn" id="evSave"><i class="ti ti-check i"></i> '+(editing?'Cập nhật sự kiện':'Lưu sự kiện')+'</button></div>';
  return H;
 }
 var qc={total:0,pcts:[100],n:1,dueDates:[]};
 function _defPcts(n){return n===1?[100]:n===2?[50,50]:[40,30,30];}
 function _amts(){var a=[],s=0;for(var i=0;i<qc.n;i++){if(i<qc.n-1){var v=Math.round(qc.total*qc.pcts[i]/100);a.push(v);s+=v;}else{a.push(qc.total-s);}}return a;}
+function _instPaid(i){var e=document.querySelector('.iPaidSeg[data-i="'+i+'"] .on');return e?e.dataset.val==='1':false;}
 function _instChip(i){
- var pe=document.querySelector('.iPaid[data-i="'+i+'"]');var paid=pe&&pe.checked;
+ var paid=_instPaid(i);
  var dd=qc.dueDates[i];var over=!paid&&dd&&new Date(dd)<stripT(now);
  var html='';
  if(paid)html='<span class="cstat" style="background:var(--greenbg);color:var(--green)">🟢 Hoàn tất</span>';
@@ -1159,7 +1177,7 @@ function _renderInst(){
   html+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ngày dự kiến TT</label><input type="date" class="in iDue" data-i="'+i+'" value="'+(qc.dueDates[i]||'')+'"></div>';
   html+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Mốc thanh toán (điều khoản)</label><input class="in iNote" data-i="'+i+'" placeholder="VD: sau khi ký / sau khi diễn"></div>';
   html+='<div class="fld iInvWrap" data-i="'+i+'" style="padding:8px 0 0;display:'+(invMode==='per'?'block':'none')+'"><label class="flbl">Số hóa đơn đợt</label><input class="in iInv" data-i="'+i+'"></div>';
-  html+='<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" class="iPaid" data-i="'+i+'"><span class="slider"></span></label></div>';
+  html+='<div class="fld" style="padding:10px 0 0"><label class="flbl">Trạng thái thanh toán</label><div class="segbtn paidseg iPaidSeg" data-i="'+i+'"><button type="button" data-val="0" class="on">⏳ Chưa TT</button><button type="button" data-val="1">✅ Đã TT</button></div></div>';
   html+='<div class="fld iPaidDateWrap" data-i="'+i+'" style="padding:8px 0 0;display:none"><label class="flbl">Ngày TT thực</label><input type="date" class="in iPaidDate" data-i="'+i+'"></div>';
   html+='<div class="chiprow" style="margin-top:8px" id="iChip'+i+'"></div>';
   html+='</div>';
@@ -1167,7 +1185,7 @@ function _renderInst(){
  box.innerHTML=html;applyIcons();
  box.querySelectorAll('.iPct[data-i="0"]').forEach(function(el){el.oninput=function(){var p=Math.max(0,Math.min(100,parseFloat(el.value)||0));qc.pcts[0]=p;var rem=100-p;for(var i=1;i<qc.n;i++){qc.pcts[i]=(i<qc.n-1)?Math.round(rem/(qc.n-1)):(rem-Math.round(rem/(qc.n-1))*(qc.n-2));}_syncInst();};});
  box.querySelectorAll('.iDue').forEach(function(el){el.onchange=function(){qc.dueDates[+el.dataset.i]=el.value;_instChip(+el.dataset.i);};});
- box.querySelectorAll('.iPaid').forEach(function(el){el.onchange=function(){var i=+el.dataset.i;document.querySelector('.iPaidDateWrap[data-i="'+i+'"]').style.display=el.checked?'block':'none';_instChip(i);};});
+ box.querySelectorAll('.iPaidSeg').forEach(function(c){var i=+c.dataset.i;c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');document.querySelector('.iPaidDateWrap[data-i="'+i+'"]').style.display=(b.dataset.val==='1')?'block':'none';_instChip(i);};});});
  for(var k=0;k<qc.n;k++)_instChip(k);
 }
 function _syncInst(){var amts=_amts();for(var i=0;i<qc.n;i++){var pe=document.querySelector('.iPct[data-i="'+i+'"]');if(pe&&i>0)pe.value=qc.pcts[i];var ae=document.querySelector('.iAmt[data-i="'+i+'"]');if(ae)ae.value=money(amts[i]);_instChip(i);}}
@@ -1192,13 +1210,19 @@ function bindCreateForm(){
  qc={total:0,pcts:[100],n:1,dueDates:[]};
  function seg(id,cb){var c=document.getElementById(id);if(!c)return;c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');if(cb)cb(b.dataset.val);};});}
  function tog(sw,box){var s=document.getElementById(sw),b=document.getElementById(box);if(s&&b)s.onchange=function(){b.classList.toggle('on',s.checked);};}
- seg('evStatus');seg('ctSource',function(v){var n=document.getElementById('ctSrcNote');n.textContent=v==='upload'?'Phase 2: tự tải file lên Drive. Tạm thời dán link file HĐ bên dưới.':v==='template'?'Điền thông tin bên dưới rồi bấm "Tạo hợp đồng từ mẫu" — file sẽ tạo trên Drive (ai có link đều comment được).':'Nhập thông tin hợp đồng bên dưới.';document.getElementById('ctGenWrap').style.display=v==='template'?'block':'none';});
- var gb=document.getElementById('ctGenBtn');if(gb)gb.onclick=generateContract;
+ seg('evStatus');
+ ctDocsList=[];renderCtDocs();
+ var gb=document.getElementById('ctGenBtn');if(gb)gb.onclick=function(){generateDoc('HĐ');};
+ var gb2=document.getElementById('ctGenBBNT');if(gb2)gb2.onclick=function(){generateDoc('BBNT');};
+ var gb3=document.getElementById('ctGenDNTT');if(gb3)gb3.onclick=function(){generateDoc('ĐNTT');};
+ var gb4=document.getElementById('ctGenAppendix');if(gb4)gb4.onclick=function(){var w=document.getElementById('ctAppendixWrap');w.style.display=w.style.display==='none'?'block':'none';};
+ var gb5=document.getElementById('ctAppendixGo');if(gb5)gb5.onclick=function(){generateDoc('Phụ lục',(document.getElementById('ctAppendixText').value||'').trim());};
+ var fa=document.getElementById('ctFileAdd');if(fa)fa.onclick=function(){var u=(document.getElementById('ctFile').value||'').trim();if(!u){toast('Dán link trước');return;}ctDocsList.push({type:'HĐ',url:u});document.getElementById('ctFile').value='';renderCtDocs();};
  seg('ctTax',_recalcTotal);
  seg('ctCount',function(v){_rebuildInst(+v,true);});
  seg('ctInvMode',function(v){document.getElementById('ctTotInvWrap').style.display=v==='total'?'block':'none';document.querySelectorAll('.iInvWrap').forEach(function(e){e.style.display=v==='per'?'block':'none';});});
- tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swCt','ctBox');
- seg('mvMode',function(v){document.getElementById('mvCarBox').style.display=v==='car'?'':'none';document.getElementById('mvFlightBox').style.display=v==='flight'?'block':'none';});
+ tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swFlight','mvFlightBox');tog('swCar','mvCarBox');tog('swCt','ctBox');
+ document.querySelectorAll('.paidseg').forEach(function(c){c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});});
  document.querySelectorAll('.paidseg').forEach(function(c){c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});});
  var et=document.getElementById('evType');et.onchange=function(){document.getElementById('ctWrap').style.display=NOCT[et.value]?'none':'';};
  document.getElementById('evMap').onclick=function(){openMap(document.getElementById('evLoc').value);};
@@ -1236,11 +1260,14 @@ function prefillForm(j){
  if(j.dressCode&&j.dressCode.on){setSw('swDress');setV('dressText',j.dressCode.text);}
  if(j.dancer&&j.dancer.on){setSw('swDancer');setSup('dancer',j.dancer);setV('dcCount',j.dancer.count);setV('dcSongs',j.dancer.songs);setV('dcTime',j.dancer.time);setV('dcCost',j.dancer.cost||'');setSeg('dcTax',String(j.dancer.taxRate||0));setSeg('dcPaid',j.dancer.paid?'1':'0');}
  if(j.stay&&j.stay.on){setSw('swStay');setV('stHotel',j.stay.hotel);setV('stBooking',j.stay.booking);setV('stPhone',j.stay.phone);setV('stRoom',j.stay.room);setV('stCost',j.stay.cost||'');setSeg('stPaid',j.stay.paid?'1':'0');setV('stCin',j.stay.checkin);setV('stCout',j.stay.checkout);setV('stDistKm',j.stay.distKm);setV('stDistMin',j.stay.distMin);}
- if(j.move&&j.move.on){setSw('swMove');setSeg('mvMode',j.move.mode||'car');if(j.move.mode==='flight'){var f=j.move.flight||{};setV('mvFlNo',f.no);setV('mvFlRoute',f.route);setV('mvFlDep',f.depart);setV('mvFlArr',f.arrive);setV('mvFlDur',f.dur);setV('mvFlTz',f.tz);setV('mvAirKm',f.airKm);setV('mvAirMin',f.airMin);}else{setSup('mvCar',j.move.car);}setV('mvCost',j.move.cost||'');setSeg('mvPaid',j.move.paid?'1':'0');setV('mvNote',j.move.note);}
+ if(j.move&&j.move.on){setSw('swMove');var f=j.move.flight||{},cr=j.move.car||{};
+  if(f.on){setSw('swFlight');setV('mvFlNo',f.no);setV('mvFlRoute',f.route);setV('mvFlDep',f.depart);setV('mvFlArr',f.arrive);setV('mvFlDur',f.dur);setV('mvFlTz',f.tz);setV('mvAirKm',f.airKm);setV('mvAirMin',f.airMin);setV('mvFlCost',f.cost||'');setSeg('mvFlPaid',f.paid?'1':'0');}
+  if(cr.on){setSw('swCar');setSup('mvCar',cr);setV('mvCarCost',cr.cost||'');setSeg('mvCarPaid',cr.paid?'1':'0');}
+  setV('mvNote',j.move.note);}
  var ct=contractById[j.id];
- if(j.hasContract&&ct){setSw('swCt');setSeg('ctSource',ct.source||'manual');setV('ctNo',ct.contractNo);setV('ctSign',ct.signDate?dIn(new Date(ct.signDate)):'');setV('ctPartner',ct.partner);setV('ctAddr',ct.address);setV('ctMst',ct.taxCode);setV('ctPhone',ct.phone);setV('ctRep',ct.rep);setV('ctRepTitle',ct.repTitle);setV('ctBankNo',ct.bankNo);setV('ctBankName',ct.bankName);setV('ctBranch',ct.branch);setV('ctEmail',ct.email);var acc=document.getElementById('ctAcct');if(acc)acc.value=ct.bankAccount||'';setV('ctFile',ct.fileUrl);setV('ctValue',ct.valuePreTax||'');setSeg('ctTax',String(ct.taxRate||8));
+ if(j.hasContract&&ct){setSw('swCt');ctDocsList=(ct.docs&&ct.docs.length)?ct.docs.slice():(ct.fileUrl?[{type:'HĐ',url:ct.fileUrl}]:[]);renderCtDocs();setV('ctNo',ct.contractNo);setV('ctSign',ct.signDate?dIn(new Date(ct.signDate)):'');setV('ctPartner',ct.partner);setV('ctAddr',ct.address);setV('ctMst',ct.taxCode);setV('ctPhone',ct.phone);setV('ctRep',ct.rep);setV('ctRepTitle',ct.repTitle);setV('ctBankNo',ct.bankNo);setV('ctBankName',ct.bankName);setV('ctBranch',ct.branch);setV('ctEmail',ct.email);var acc=document.getElementById('ctAcct');if(acc)acc.value=ct.bankAccount||'';setV('ctFile','');setV('ctValue',ct.valuePreTax||'');setSeg('ctTax',String(ct.taxRate||8));
   if(ct.installments&&ct.installments.length){setSeg('ctCount',String(ct.installments.length));qc.pcts=ct.installments.map(function(x){return x.pct;});qc.dueDates=ct.installments.map(function(x){return x.dueDate;});_renderInst();
-   ct.installments.forEach(function(ins,i){var nt=document.querySelector('.iNote[data-i="'+i+'"]');if(nt)nt.value=ins.dueNote||'';var iv=document.querySelector('.iInv[data-i="'+i+'"]');if(iv)iv.value=ins.invoiceNo||'';if(ins.paid){var pd=document.querySelector('.iPaid[data-i="'+i+'"]');if(pd){pd.checked=true;if(pd.onchange)pd.onchange();}var pdd=document.querySelector('.iPaidDate[data-i="'+i+'"]');if(pdd)pdd.value=ins.paidDate||'';}});}
+   ct.installments.forEach(function(ins,i){var nt=document.querySelector('.iNote[data-i="'+i+'"]');if(nt)nt.value=ins.dueNote||'';var iv=document.querySelector('.iInv[data-i="'+i+'"]');if(iv)iv.value=ins.invoiceNo||'';if(ins.paid){var pb=document.querySelector('.iPaidSeg[data-i="'+i+'"] button[data-val="1"]');if(pb)pb.onclick();var pdd=document.querySelector('.iPaidDate[data-i="'+i+'"]');if(pdd)pdd.value=ins.paidDate||'';}});}
   setSeg('ctInvMode',ct.invoiceMode||'per');setV('ctTotInv',ct.totalInvoiceNo);_recalcTotal();
  }
 }
@@ -1252,21 +1279,26 @@ function ctCollectPayload(){
   ourAccount:acc?(acc.label+' · '+acc.number+' · '+acc.bank):'',valuePreTax:v,taxRate:tax,totalValue:total,
   name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i]};})};
 }
-function generateContract(){
- var btn=document.getElementById('ctGenBtn');var res=document.getElementById('ctGenResult');
- var payload=ctCollectPayload();
+var ctDocsList=[];
+function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return;
+ if(!ctDocsList.length){box.innerHTML='<span class="calcd">Chưa có file. Tạo file hoặc dán link bên dưới.</span>';return;}
+ box.innerHTML=ctDocsList.map(function(dd,idx){return '<button class="chip on" type="button" data-openstop="'+dd.url+'"><i class="ti ti-file-text"></i>'+dd.type+'</button><button class="chip copybtn" type="button" data-copy="'+dd.url+'"><i class="ti ti-link"></i></button><button class="chip" type="button" data-rmdoc="'+idx+'" style="color:var(--muted)"><i class="ti ti-x"></i></button>';}).join('');
+ applyIcons();
+ box.querySelectorAll('[data-openstop]').forEach(function(el){el.onclick=function(){openURL(el.dataset.openstop);};});
+ box.querySelectorAll('[data-copy]').forEach(function(el){el.onclick=function(){copyLink(el.dataset.copy);};});
+ box.querySelectorAll('[data-rmdoc]').forEach(function(el){el.onclick=function(){ctDocsList.splice(+el.dataset.rmdoc,1);renderCtDocs();};});
+}
+function generateDoc(type,changeText){
+ var res=document.getElementById('ctGenResult');
+ var payload=ctCollectPayload();payload.docType=type;if(changeText)payload.changeText=changeText;
  if(!payload.partner){res.textContent='⚠️ Nhập tên công ty đối tác trước khi tạo.';return;}
  var url=window.CONTRACT_GEN_URL||'';
- if(!url){res.innerHTML='⚠️ Chưa cấu hình endpoint. Deploy file <b>contract-gen.gs</b> (Apps Script Web App) rồi dán URL vào biến CONTRACT_GEN_URL — xem hướng dẫn trong file.';return;}
- btn.disabled=true;res.textContent='⏳ Đang tạo hợp đồng trên Drive…';
+ if(!url){res.innerHTML='⚠️ Chưa cấu hình endpoint tạo file ('+type+'). Deploy <b>contract-gen.gs</b> (Apps Script Web App) rồi dán URL vào CONTRACT_GEN_URL — xem hướng dẫn trong file. (Phần API gộp làm sau.)';return;}
+ res.textContent='⏳ Đang tạo '+type+' trên Drive…';
  fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
   .then(function(r){return r.json();})
-  .then(function(d){btn.disabled=false;
-   if(d&&d.url){var fe=document.getElementById('ctFile');if(fe)fe.value=d.url;
-    res.innerHTML='✅ Đã tạo HĐ (ai có link đều comment được). <a href="'+d.url+'" target="_blank" style="color:var(--brand);font-weight:700">Mở file</a> &nbsp;<button type="button" class="chip on" id="ctCopy"><i class="ti ti-link"></i> Copy link</button>';
-    var cb=document.getElementById('ctCopy');if(cb)cb.onclick=function(){try{navigator.clipboard.writeText(d.url);}catch(e){}cb.innerHTML='<i class="ti ti-check"></i> Đã copy';applyIcons();};applyIcons();
-   } else {res.textContent='❌ Lỗi tạo HĐ: '+((d&&d.error)||'không rõ');}})
-  .catch(function(e){btn.disabled=false;res.textContent='❌ Lỗi kết nối Apps Script: '+e.message;});
+  .then(function(d){if(d&&d.url){ctDocsList.push({type:type,url:d.url});renderCtDocs();res.innerHTML='✅ Đã tạo '+type+' (ai có link đều comment được).';}else{res.textContent='❌ Lỗi tạo '+type+': '+((d&&d.error)||'không rõ');}})
+  .catch(function(e){res.textContent='❌ Lỗi kết nối Apps Script: '+e.message;});
 }
 function saveEvent(){
  var name=(document.getElementById('evName').value||'').trim();
@@ -1298,16 +1330,16 @@ function saveEvent(){
   dressCode:{on:C('swDress'),text:V('dressText'),fileLink:'',images:[]},
   dancer:{on:C('swDancer'),vendorId:dcSup.vendorId,name:dcSup.name,phone:dcSup.phone,count:V('dcCount'),songs:V('dcSongs'),time:V('dcTime'),cost:dcCost,taxRate:dcTax,total:Math.round(dcCost*(1+dcTax/100)),paid:paidVal('dcPaid')},
   stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),cost:parseMoney(V('stCost')),paid:paidVal('stPaid'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin')},
-  move:{on:C('swMove'),mode:seg('mvMode')||'car',cost:parseMoney(V('mvCost')),paid:paidVal('mvPaid'),note:V('mvNote'),
-   car:{vendorId:carSup.vendorId,name:carSup.name,phone:carSup.phone},
-   flight:{no:V('mvFlNo'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin')}}};
+  move:{on:C('swMove'),note:V('mvNote'),
+   flight:{on:C('swFlight'),no:V('mvFlNo'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin'),cost:parseMoney(V('mvFlCost')),paid:paidVal('mvFlPaid')},
+   car:{on:C('swCar'),vendorId:carSup.vendorId,name:carSup.name,phone:carSup.phone,cost:parseMoney(V('mvCarCost')),paid:paidVal('mvCarPaid')}}};
  var contract=null,newPays=[];
  if(job.hasContract){
   var v=parseMoney(V('ctValue'));var tax=+seg('ctTax');var total=Math.round(v*(1+tax/100));
   var invMode=seg('ctInvMode');var amts=_amts();
   var insts=[];
   for(var i=0;i<qc.n;i++){
-   var paid=document.querySelector('.iPaid[data-i="'+i+'"]').checked;
+   var paid=_instPaid(i);
    var pd=document.querySelector('.iPaidDate[data-i="'+i+'"]').value;
    var ino=document.querySelector('.iNote[data-i="'+i+'"]').value.trim();
    var inv=(document.querySelector('.iInv[data-i="'+i+'"]')||{value:''}).value.trim();
@@ -1315,7 +1347,8 @@ function saveEvent(){
    var st=paid?'da_thanh_toan':(new Date(qc.dueDates[i])<stripT(now)?'qua_han':((new Date(qc.dueDates[i])-stripT(now))/86400000<=7?'den_han':'chua_den_han'));
    newPays.push({id:'p_'+id+'_'+i,job:id,label:'Đợt '+(i+1)+(qc.n>1?(' ('+qc.pcts[i]+'%)'):''),amt:amts[i],pct:qc.pcts[i],due:new Date(qc.dueDates[i]),paid:paid?(pd?new Date(pd):new Date(now)):null,st:st});
   }
-  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:V('ctFile'),source:seg('ctSource')};
+  var hdDoc=ctDocsList.filter(function(dd){return dd.type==='HĐ';})[0];
+  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:(hdDoc?hdDoc.url:V('ctFile')),docs:ctDocsList.slice(),source:'manual'};
   job.net=total;
  }
  jobs.push(job);jById[job.id]=job;
@@ -1329,7 +1362,8 @@ function saveEvent(){
  if(job.social.on)pushExp('social','Social','Social',job.social.name,job.social.cost,job.social.paid);
  if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.name,job.dancer.total,job.dancer.paid);
  if(job.stay.on)pushExp('stay','Lưu trú'+(job.stay.hotel?(' - '+job.stay.hotel):''),'Lưu trú',job.stay.hotel,job.stay.cost,job.stay.paid);
- if(job.move.on)pushExp('move','Di chuyển ('+(job.move.mode==='flight'?'máy bay':'xe')+')','Di chuyển',job.move.mode==='flight'?job.move.flight.no:job.move.car.name,job.move.cost,job.move.paid);
+ if(job.move.on&&job.move.flight.on)pushExp('move_fl','Di chuyển (máy bay)','Di chuyển',job.move.flight.no,job.move.flight.cost,job.move.flight.paid);
+ if(job.move.on&&job.move.car.on)pushExp('move_car','Di chuyển (xe)','Di chuyển',job.move.car.name,job.move.car.cost,job.move.car.paid);
  alert((editing?'Đã cập nhật: ':'Đã lưu sự kiện: ')+name);
  state.editId=null;
  openJob(id);
@@ -1350,7 +1384,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
-const SEED_VERSION="2026-06-27-seed-demo";
+const SEED_VERSION="2026-06-27-seed-demo2";
 const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts"];
 const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[]};
 function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
