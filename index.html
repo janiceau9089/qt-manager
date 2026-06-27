@@ -665,7 +665,7 @@ var contracts=[
 ];
 var contractById={};
 /* Dán URL Apps Script Web App (deploy contract-gen.gs) vào đây để bật "Tạo mẫu" → Drive */
-var CONTRACT_GEN_URL="";
+var CONTRACT_GEN_URL="https://script.google.com/macros/s/AKfycbzbFXoUlUvrYNNUvifDSzsxOerAyGANlOFaVLccSjhBlIZrqkf15491cMHjbLOaOhEf/exec";
 function reContracts(){contractById={};contracts.forEach(function(c){contractById[c.id]=c;});}
 function vById(id){for(var i=0;i<vendors.length;i++)if(vendors[i].id===id)return vendors[i];return null;}
 function aById(id){for(var i=0;i<accounts.length;i++)if(accounts[i].id===id)return accounts[i];return null;}
@@ -752,8 +752,24 @@ var ICON={
 };
 function applyIcons(){document.querySelectorAll('i.ti').forEach(function(el){if(el.dataset.ic)return;var name='';el.classList.forEach(function(c){if(c.indexOf('ti-')==0)name=c;});var p=ICON[name];if(p){el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';el.dataset.ic='1';}});}
 
-var notifs=[{id:1,sev:"red",text:"8 khoản thu đang quá hạn (3660 tr)",read:false},{id:2,sev:"amber",text:"1 khoản thu đến hạn trong tuần",read:false},{id:3,sev:"amber",text:"Có job chưa ký hợp đồng — kiểm tra mục Giấy tờ",read:false}];
+var notifs=[];var notifRead={};
+function computeNotifs(){
+ var out=[];
+ try{
+  var P=(typeof pays!=='undefined'?pays:[]);
+  var od=P.filter(function(p){return p.st=='qua_han';});
+  if(od.length)out.push({id:'overdue',sev:'red',text:od.length+' khoản thu quá hạn ('+money(od.reduce(function(s,p){return s+p.amt;},0))+')'});
+  var soon=P.filter(function(p){return p.st=='den_han';});
+  if(soon.length)out.push({id:'duesoon',sev:'amber',text:soon.length+' khoản thu đến hạn trong tuần'});
+  var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var soonJobs=(typeof jobs!=='undefined'?jobs:[]).filter(function(j){return j.start>=todayStart&&(j.start-todayStart)<=2*86400000;});
+  if(soonJobs.length)out.push({id:'soonshow',sev:'amber',text:soonJobs.length+' sự kiện diễn ra trong 48h tới'});
+ }catch(e){}
+ out.forEach(function(n){n.read=!!notifRead[n.id];});
+ return out;
+}
 function renderNotif(){
+ notifs=computeNotifs();
  var unread=notifs.filter(function(n){return !n.read;}).length;
  var bdg=document.getElementById('bellBdg');
  if(unread>0){bdg.style.display='flex';bdg.textContent=unread;}else{bdg.style.display='none';}
@@ -761,9 +777,9 @@ function renderNotif(){
  var rows=notifs.length?notifs.map(function(n){var col=n.sev=='red'?'var(--red)':'var(--amber)';return '<button class="nrow'+(n.read?' read':'')+'" data-nread="'+n.id+'"><span class="ndot" style="background:'+col+'"></span><span class="ntext">'+n.text+'</span></button>';}).join(''):'<div class="nempty">Không có thông báo nào 🎉</div>';
  p.innerHTML='<div class="nhead"><span class="t">Thông báo</span><button id="nmark" title="Đánh dấu tất cả đã đọc"><i class="ti ti-checks"></i></button><button id="nclear" title="Xóa hết"><i class="ti ti-trash"></i></button></div>'+rows;
  applyIcons();
- var m=document.getElementById('nmark');if(m)m.onclick=function(e){e.stopPropagation();notifs.forEach(function(n){n.read=true;});renderNotif();};
- var c=document.getElementById('nclear');if(c)c.onclick=function(e){e.stopPropagation();notifs=[];renderNotif();};
- p.querySelectorAll('[data-nread]').forEach(function(el){el.onclick=function(){var n=notifs.filter(function(x){return x.id==+el.dataset.nread;})[0];if(n)n.read=true;renderNotif();};});
+ var m=document.getElementById('nmark');if(m)m.onclick=function(e){e.stopPropagation();notifs.forEach(function(n){notifRead[n.id]=true;});renderNotif();};
+ var c=document.getElementById('nclear');if(c)c.onclick=function(e){e.stopPropagation();notifs.forEach(function(n){notifRead[n.id]=true;});renderNotif();};
+ p.querySelectorAll('[data-nread]').forEach(function(el){el.onclick=function(){notifRead[el.dataset.nread]=true;renderNotif();};});
 }
 function closeNotif(){document.getElementById('npanel').classList.remove('open');document.getElementById('noverlay').style.display='none';}
 function toggleNotif(){var p=document.getElementById('npanel');var o=document.getElementById('noverlay');var open=p.classList.toggle('open');o.style.display=open?'block':'none';}
@@ -987,7 +1003,8 @@ function screenCal(){
 function screenMoney(){
  var h='<div class="seg"><button data-mt="pay" class="'+(state.moneyTab=='pay'?'on':'')+'">Tài chính thu</button><button data-mt="exp" class="'+(state.moneyTab=='exp'?'on':'')+'">Chi phí</button></div>';
  if(state.moneyTab=='pay'){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt});
-  h+='<div class="kpis">'+kpi('ti-wallet','Dự kiến',money(inc))+kpi('ti-cash','Đã nhận',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-cash','Tháng này',money(160000000))+'</div>';
+  var thisM=pays.reduce(function(s,p){return s+((p.due&&p.due.getMonth()==now.getMonth()&&p.due.getFullYear()==now.getFullYear())?p.amt:0);},0);
+  h+='<div class="kpis">'+kpi('ti-wallet','Dự kiến',money(inc))+kpi('ti-cash','Đã nhận',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-cash','Thu tháng này',money(thisM))+'</div>';
   h+='<div class="group">'+pays.slice().sort(function(a,b){return a.due-b.due}).map(function(p){var j=jById[p.job];var c=PSL[p.st];return '<button class="item" data-job="'+p.job+'"><div style="flex:1"><div class="t">'+j.name+'</div><div class="s">'+p.label+' · dự kiến '+dd(p.due)+'</div></div><div style="text-align:right"><div class="money">'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></button>'}).join('')+'</div>';
  } else {
   var filt=state.expFilter||'all';var grp=state.expGroup||'type';
