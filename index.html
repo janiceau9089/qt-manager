@@ -299,6 +299,12 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .notecard .ntags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto}
 .ntag{font-size:10.5px;font-weight:700;background:var(--soft);color:var(--brand);border-radius:10px;padding:2px 7px}
 .notecard .lk{position:absolute;top:9px;right:10px;font-size:13px}
+.herocard{display:block;width:100%;text-align:left;background:linear-gradient(180deg,var(--glosstop),var(--surface));border:1px solid var(--border);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);margin:2px 0 16px;color:inherit;font-family:inherit}
+.herocard:active{transform:scale(.99)}
+.herocard .hl{font-size:12px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.3px}
+.herocard .ht{font-size:19px;font-weight:800;margin:4px 0 6px;line-height:1.25}
+.herocard .hsub2{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.dashalert{display:flex;width:100%;text-align:left;align-items:center;gap:10px;background:var(--redbg);color:var(--red);border:none;border-radius:14px;padding:12px 14px;font-weight:700;font-size:13.5px;margin-bottom:16px;font-family:inherit}
 .subln{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:3px;white-space:pre-wrap;line-height:1.4}
 .tkt{background:linear-gradient(135deg,var(--soft),var(--surface));border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-top:4px;position:relative}
 .tkt .route{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -632,9 +638,8 @@ var vendors=[
  {id:"v18",name:"Tài xế Nam (16 chỗ)",role:"driver",phone:"0909222777",fb:"",cccd:"079082223336",bankNo:"0666999000",bankName:"Sacombank",branch:"HCM",payCompany:""}
 ];
 var accounts=[
- {id:"a1",label:"Công ty - Vietcombank",bank:"Vietcombank",number:"0123456789"},
- {id:"a2",label:"Công ty - Techcombank",bank:"Techcombank",number:"19001234567"},
- {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
+ {id:"a1",label:"Heart Soldier - ACB",bank:"Ngân hàng TMCP Á Châu (ACB) - CN Thảo Điền",number:"19 88 88 16"},
+ {id:"a2",label:"Heart Soldier - Vietinbank",bank:"Vietinbank - CN Chương Dương",number:"117600881988"}
 ];
 var teamNotes=[
  {id:"n1",title:"📸 Gallery hình",body:"Album ảnh các show:\nhttps://photos.app.goo.gl/qt-gallery",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
@@ -860,17 +865,20 @@ function jobItem(j,sub){return '<button class="item" data-job="'+j.id+'"><span c
 function emp(t){return '<div class="empty">'+t+'</div>';}
 
 function screenDash(){
- var up=jobs.filter(function(j){return j.start>=now}).sort(function(a,b){return a.start-b.start}).slice(0,4);
- var fu=jobs.filter(function(j){return j.follow});
- var od=pays.filter(function(p){return p.st=='qua_han'});
- var h='<div class="hsub">Chào '+USERS[state.role].nm+' 👋 — '+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
- var al=(typeof notifs!=='undefined'?notifs:[]).slice(0,4);
- if(al.length)h+='<div class="alert"><i class="ti ti-alert-triangle i"></i><div><b>'+notifs.length+' cảnh báo</b><ul>'+al.map(function(n){return '<li>'+n.text+'</li>';}).join('')+'</ul></div></div>';
- if(fin()){var inc=0,rec=0;jobs.forEach(function(j){inc+=j.net;rec+=recvOf(j.id)});
-  h+='<div class="kpis">'+kpi('ti-wallet','Incoming dự kiến',money(inc))+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-trending-down','Quá hạn',money(80000000))+'</div>';}
- h+='<div class="gtitle">Sắp diễn ra</div><div class="group">'+up.map(function(j){return jobItem(j)}).join('')+'</div>';
- h+='<div class="gtitle">Cần follow-up</div><div class="group">'+(fu.length?fu.map(function(j){return jobItem(j,SL[j.status])}).join(''):emp('Không có'))+'</div>';
- if(fin())h+='<div class="gtitle">Thanh toán quá hạn</div><div class="group">'+(od.length?od.map(function(p){var j=jById[p.job];return '<button class="item" data-job="'+p.job+'"><span class="bar" style="background:var(--red)"></span><div style="flex:1"><div class="t">'+j.name+'</div><div class="s" style="color:var(--red)">'+p.label+' · quá hạn</div></div><span class="money" style="color:var(--red)">'+money(p.amt)+'</span></button>'}).join(''):emp('Không có'))+'</div>';
+ var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ var upAll=jobs.filter(function(j){return j.start>=todayStart;}).sort(function(a,b){return a.start-b.start;});
+ var next=upAll[0];
+ var h='<div class="hsub">Chào '+USERS[state.role].nm+' 👋 · '+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
+ if(next){var dl=Math.round((stripT(next.start)-todayStart)/86400000);var when=dl<=0?'Hôm nay':dl===1?'Ngày mai':('Còn '+dl+' ngày');
+  h+='<button class="herocard" data-job="'+next.id+'" style="border-left:5px solid '+TC[next.type]+'"><div class="hl">'+when+' · '+tm(next.start)+'</div><div class="ht">'+next.name+'</div><div class="hsub2"><i class="ti ti-map-pin"></i> '+(next.loc||next.prov||'—')+' · '+sbadge(next.status)+'</div></button>';}
+ if(fin()){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt;});
+  var od=pays.filter(function(p){return p.st=='qua_han';});var odSum=od.reduce(function(s,p){return s+p.amt;},0);
+  h+='<div class="kpis">'+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Còn phải thu',money(inc-rec))+kpi('ti-trending-down','Quá hạn',money(odSum))+'</div>';
+  if(odSum>0)h+='<button class="dashalert" data-go="money"><i class="ti ti-alert-triangle i"></i><span>'+od.length+' khoản quá hạn thu · '+money(odSum)+' — bấm để xem</span></button>';}
+ var up=upAll.slice(0,5);
+ h+='<div class="gtitle">Sắp diễn ra</div><div class="group">'+(up.length?up.map(function(j){return jobItem(j)}).join(''):emp('Chưa có lịch sắp tới'))+'</div>';
+ var fu=jobs.filter(function(j){return j.follow;});
+ if(fu.length)h+='<div class="gtitle">Cần follow-up</div><div class="group">'+fu.map(function(j){return jobItem(j,SL[j.status])}).join('')+'</div>';
  return h;
 }
 // Gom theo tháng: sắp tới ở trên (tăng dần), đã qua dồn xuống dưới + làm mờ
@@ -1320,6 +1328,7 @@ function screenCreate(){
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Số tài khoản (đối tác)</label><input id="ctBankNo" class="in" inputmode="numeric"></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Ngân hàng</label><input id="ctBankName" class="in"></div><div class="fld"><label class="flbl">Chi nhánh</label><input id="ctBranch" class="in"></div></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Email nhận hóa đơn</label><input id="ctEmail" class="in" inputmode="email"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Số bài biểu diễn (trong HĐ)</label><input id="ctSongs" class="in" placeholder="VD: 01–04 hoặc 3"></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Tài khoản nhận (của mình)</label><select id="ctAcct" class="in">'+acctOpts()+'</select></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giá trị trước thuế</label><input id="ctValue" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Thuế</label><div class="segbtn" id="ctTax"><button type="button" data-val="8" class="on">8%</button><button type="button" data-val="10">10%</button></div></div></div>';
  H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="ctTotal">0₫</span></div>';
@@ -1406,6 +1415,7 @@ function bindCreateForm(){
  var rb=document.getElementById('ctReadBtn');if(rb)rb.onclick=readContractFile;
  var pb=document.getElementById('ctParseBtn');if(pb)pb.onclick=parsePartnerInfo;
  ['ctNo','ctPartner','ctValue'].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener('input',updateVital);});
+ var cp=document.getElementById('ctPartner');if(cp)cp.addEventListener('blur',function(){var no=document.getElementById('ctNo');if(no&&!no.value.trim()&&cp.value.trim()){no.value=genContractNo(cp.value,document.getElementById('evDate').value);updateVital();}});
  updateVital();
  var gt=document.getElementById('ctGenType');if(gt)gt.onchange=function(){document.getElementById('ctAppendixWrap').style.display=(gt.value==='Phụ lục')?'block':'none';};
  var gg=document.getElementById('ctGenGo');if(gg)gg.onclick=function(){var t=document.getElementById('ctGenType').value;generateDoc(t,t==='Phụ lục'?(document.getElementById('ctAppendixText').value||'').trim():'');};
@@ -1460,7 +1470,7 @@ function prefillForm(j){
   if(cr.on){setSw('swCar');setSup('mvCar',cr);setV('mvCarTime',cr.time);setV('mvCarPickup',cr.pickup);setV('mvCarNote',cr.note);setV('mvCarCost',cr.cost||'');setSeg('mvCarPaid',cr.paid?'1':'0');}
   setV('mvNote',j.move.note);}
  var ct=contractById[j.id];
- if(j.hasContract&&ct){setSw('swCt');ctDocsList=(ct.docs&&ct.docs.length)?ct.docs.slice():(ct.fileUrl?[{type:'HĐ',url:ct.fileUrl}]:[]);renderCtDocs();setV('ctNo',ct.contractNo);setV('ctSign',ct.signDate?dIn(new Date(ct.signDate)):'');setV('ctPartner',ct.partner);setV('ctAddr',ct.address);setV('ctMst',ct.taxCode);setV('ctPhone',ct.phone);setV('ctRep',ct.rep);setV('ctRepTitle',ct.repTitle);setV('ctBankNo',ct.bankNo);setV('ctBankName',ct.bankName);setV('ctBranch',ct.branch);setV('ctEmail',ct.email);var acc=document.getElementById('ctAcct');if(acc)acc.value=ct.bankAccount||'';setV('ctNote',ct.note);setV('ctValue',ct.valuePreTax||'');setSeg('ctTax',String(ct.taxRate||8));
+ if(j.hasContract&&ct){setSw('swCt');ctDocsList=(ct.docs&&ct.docs.length)?ct.docs.slice():(ct.fileUrl?[{type:'HĐ',url:ct.fileUrl}]:[]);renderCtDocs();setV('ctNo',ct.contractNo);setV('ctSign',ct.signDate?dIn(new Date(ct.signDate)):'');setV('ctPartner',ct.partner);setV('ctAddr',ct.address);setV('ctMst',ct.taxCode);setV('ctPhone',ct.phone);setV('ctRep',ct.rep);setV('ctRepTitle',ct.repTitle);setV('ctBankNo',ct.bankNo);setV('ctBankName',ct.bankName);setV('ctBranch',ct.branch);setV('ctEmail',ct.email);setV('ctSongs',ct.songsCount);var acc=document.getElementById('ctAcct');if(acc)acc.value=ct.bankAccount||'';setV('ctNote',ct.note);setV('ctValue',ct.valuePreTax||'');setSeg('ctTax',String(ct.taxRate||8));
   if(ct.installments&&ct.installments.length){setSeg('ctCount',String(ct.installments.length));qc.pcts=ct.installments.map(function(x){return x.pct;});qc.dueDates=ct.installments.map(function(x){return x.dueDate;});_renderInst();
    ct.installments.forEach(function(ins,i){var nt=document.querySelector('.iNote[data-i="'+i+'"]');if(nt)nt.value=ins.dueNote||'';var iv=document.querySelector('.iInv[data-i="'+i+'"]');if(iv)iv.value=ins.invoiceNo||'';if(ins.paid){var pb=document.querySelector('.iPaidSeg[data-i="'+i+'"] button[data-val="1"]');if(pb)pb.onclick();var pdd=document.querySelector('.iPaidDate[data-i="'+i+'"]');if(pdd)pdd.value=ins.paidDate||'';}});}
   setSeg('ctInvMode',ct.invoiceMode||'per');setV('ctTotInv',ct.totalInvoiceNo);_recalcTotal();
@@ -1472,7 +1482,7 @@ function ctCollectPayload(){
  var acc=aById(V('ctAcct'));
  return {contractNo:V('ctNo'),signDate:V('ctSign'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),
   ourAccount:acc?(acc.label+' · '+acc.number+' · '+acc.bank):'',valuePreTax:v,taxRate:tax,totalValue:total,
-  name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i]};})};
+  songsCount:V('ctSongs'),name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i]};})};
 }
 var ctDocsList=[];
 function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return;
@@ -1495,6 +1505,10 @@ function readContractFile(){
   .then(function(d){if(d&&d.fields){var f=d.fields;function S(id,v){var e=document.getElementById(id);if(e&&v!=null)e.value=v;}S('ctNo',f.contractNo);S('ctPartner',f.partner);S('ctMst',f.taxCode);S('ctValue',f.valuePreTax);_recalcTotal();res.textContent='✅ Đã đọc & điền thông tin từ file.';}else{res.textContent='Đã thêm file. Không đọc được nội dung tự động.';}})
   .catch(function(e){res.textContent='Đã thêm file. Lỗi đọc tự động: '+e.message;});
 }
+function _noDia(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');}
+function _abbr(name){var stop='CONG TY CO PHAN TNHH MTV DU LICH VA DAU TU THUONG MAI DICH VU TAP DOAN COMPANY LTD JSC GROUP CORP'.split(' ');var ws=_noDia(name).toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).filter(function(w){return w&&stop.indexOf(w)<0;});if(!ws.length)return 'KH';return ws.map(function(w){return w[0];}).join('').slice(0,4);}
+function genContractNo(partner,evDateStr){var d=evDateStr?new Date(evDateStr+'T00:00:00'):new Date();var s=pad(d.getDate())+pad(d.getMonth()+1)+String(d.getFullYear()).slice(2);return s+'/HDDV/'+_abbr(partner)+'-HSD';}
+window.genContractNo=genContractNo;
 function updateVital(){var el=document.getElementById('ctVital');if(!el)return;var miss=[];
  if(!((document.getElementById('ctNo')||{}).value||'').trim())miss.push('Số HĐ');
  if(!((document.getElementById('ctPartner')||{}).value||'').trim())miss.push('Đối tác');
@@ -1575,7 +1589,7 @@ function saveEvent(){
    newPays.push({id:'p_'+id+'_'+i,job:id,label:'Đợt '+(i+1)+(qc.n>1?(' ('+qc.pcts[i]+'%)'):''),amt:amts[i],pct:qc.pcts[i],due:new Date(qc.dueDates[i]),paid:paid?(pd?new Date(pd):new Date(now)):null,st:st});
   }
   var hdDoc=ctDocsList.filter(function(dd){return dd.type==='HĐ';})[0];
-  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),note:V('ctNote'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:(hdDoc?hdDoc.url:''),docs:ctDocsList.slice(),source:'manual'};
+  contract={id:id,eventId:id,contractNo:V('ctNo'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),songsCount:V('ctSongs'),note:V('ctNote'),signDate:V('ctSign')?new Date(V('ctSign')):null,bankAccount:V('ctAcct'),valuePreTax:v,taxRate:tax,totalValue:total,installments:insts,invoiceMode:invMode,totalInvoiceNo:V('ctTotInv'),fileUrl:(hdDoc?hdDoc.url:''),docs:ctDocsList.slice(),source:'manual'};
   job.net=total;
  }
  jobs.push(job);jById[job.id]=job;
