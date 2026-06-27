@@ -682,7 +682,7 @@ function tm(d){return d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-dig
 function sameDay(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate();}
 function recvOf(id){var s=0;pays.forEach(function(p){if(p.job==id&&p.st=='da_thanh_toan')s+=p.amt});return s;}
 function fin(){return state.role=='thi'||state.role=='truc';}
-var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',expFilter:'all',expGroup:'type',collapsed:{}};
+var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',expFilter:'all',expGroup:'type',jobQ:'',collapsed:{}};
 function isColl(k,def){return (k in state.collapsed)?state.collapsed[k]:def;}
 function monthLabel(y,m){return 'Tháng '+(m+1)+'/'+y;}
 
@@ -858,12 +858,14 @@ function render(){
  renderTabs();bind();applyIcons();
  document.getElementById('tabbar').style.display=(s=='create')?'none':'';
  if(s=='create')bindCreateForm();
+ if(window.__refocusJob){var je=document.getElementById('jobSearch');if(je){je.focus();var v=je.value;je.value='';je.value=v;}window.__refocusJob=false;}
  if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
 }
 function bind(){
  document.querySelectorAll('[data-job]').forEach(function(el){el.onclick=function(){openJob(el.dataset.job);};});
  document.querySelectorAll('[data-occ]').forEach(function(el){el.onclick=function(){openOcc(el.dataset.oj,el.dataset.ok,+el.dataset.oi);};});
  document.querySelectorAll('[data-note]').forEach(function(el){el.onclick=function(){openNote(el.dataset.note);};});
+ var js=document.getElementById('jobSearch');if(js)js.oninput=function(){state.jobQ=js.value;window.__refocusJob=true;render();};
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
  document.querySelectorAll('[data-day]').forEach(function(el){el.onclick=function(){state.selDate=new Date(+el.dataset.day);render();};});
  document.querySelectorAll('[data-mo]').forEach(function(el){el.onclick=function(){state.calMonth=new Date(state.calMonth.getFullYear(),state.calMonth.getMonth()+ +el.dataset.mo,1);render();};});
@@ -939,8 +941,11 @@ function buildGrouped(list, itemFn){
 function jobItemFull(j){var ctf=(contractById[j.id]||{}).fileUrl;return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"><i class="ti ti-map-pin"></i>'+(j.loc||j.prov||'—')+' · '+dt(j.start)+'</div></div>'+(ctf?'<span class="minichip" data-openstop="'+ctf+'"><i class="ti ti-folder"></i>HĐ</span>':'')+(fin()&&j.net?'<span class="money">'+money(j.net)+'</span>':'')+'<i class="ti ti-chevron-right chev"></i></button>';}
 function artItem(j){return '<button class="item" data-job="'+j.id+'">'+tBadge(j.type)+'<div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+dt(j.start)+' · '+(j.loc||j.prov||'')+'</div></div><span class="pill">'+TL[j.type]+'</span></button>';}
 function screenJobs(){
- var h='<div class="searchbar"><i class="ti ti-search i"></i><input placeholder="Tìm job, khách hàng…"></div>';
- h+=buildGrouped(jobs, jobItemFull);
+ var q=(state.jobQ||'').trim();
+ var h='<div class="searchbar"><i class="ti ti-search i"></i><input id="jobSearch" placeholder="Tìm sự kiện, khách hàng, địa điểm…" value="'+q.replace(/"/g,'&quot;')+'"></div>';
+ var list=jobs;
+ if(q){var nq=_noDia(q).toLowerCase();list=jobs.filter(function(j){return _noDia([j.name,j.loc,j.prov,j.client,j.contact].filter(Boolean).join(' ')).toLowerCase().indexOf(nq)>=0;});}
+ h+=(q?('<div class="gtitle">Kết quả ('+list.length+')</div><div class="group">'+(list.length?list.slice().sort(function(a,b){return a.start-b.start;}).map(jobItemFull).join(''):emp('Không tìm thấy'))+'</div>'):buildGrouped(jobs, jobItemFull));
  if(state.role!='truc')h+='<button class="fab" onclick="openCreate()"><i class="ti ti-plus"></i> Job mới</button>';
  return h;
 }
@@ -1517,7 +1522,7 @@ function ctCollectPayload(){
  var acc=aById(V('ctAcct'));
  return {contractNo:V('ctNo'),signDate:V('ctSign'),partner:V('ctPartner'),address:V('ctAddr'),taxCode:V('ctMst'),phone:V('ctPhone'),rep:V('ctRep'),repTitle:V('ctRepTitle'),bankNo:V('ctBankNo'),bankName:V('ctBankName'),branch:V('ctBranch'),email:V('ctEmail'),
   ourAccount:acc?(acc.label+' · '+acc.number+' · '+acc.bank):'',valuePreTax:v,taxRate:tax,totalValue:total,
-  songsCount:V('ctSongs'),name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i]};})};
+  songsCount:V('ctSongs'),name:V('evName'),date:V('evDate'),location:V('evLoc'),installments:qc.pcts.map(function(p,i){var nt=document.querySelector('.iNote[data-i="'+i+'"]');return {pct:p,amount:_amts()[i],dueDate:qc.dueDates[i],dueNote:nt?nt.value.trim():'',paid:_instPaid(i)};})};
 }
 var ctDocsList=[];
 function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return;

@@ -8,10 +8,11 @@
  *
  * ===== CÀI ĐẶT 1 LẦN =====
  * 1. Dán file này vào Apps Script của project QT (cùng nơi firestore-sync.gs).
- * 2. appsscript.json cần các scope sau (thêm nếu thiếu):
+ * 2. appsscript.json cần ĐỦ các scope sau (dán đè cho chắc):
  *      "https://www.googleapis.com/auth/datastore",
  *      "https://www.googleapis.com/auth/spreadsheets",
- *      "https://www.googleapis.com/auth/script.scriptapp"   <-- cần để cài trigger tự động
+ *      "https://www.googleapis.com/auth/script.external_request",  <-- gọi Firestore (UrlFetch)
+ *      "https://www.googleapis.com/auth/script.scriptapp"          <-- cài trigger tự động
  * 3. Chạy hàm  installVendorTriggers  1 lần (cấp quyền khi được hỏi).
  * 4. Chạy  setupVendorSheet  để tạo tab "Nhà cung cấp" (nếu chưa có).
  * 5. Xong: sửa trên Sheet là tự lên app; app thêm là tự về Sheet (≤5 phút / bấm "⟳ Sync danh bạ").

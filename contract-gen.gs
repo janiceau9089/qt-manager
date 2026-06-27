@@ -161,17 +161,85 @@ function buildContract(b, d){
   tb.setBorderWidth(0);
 }
 
-// ===== BBNT / ĐNTT / Phụ lục (bản gọn) =====
+// ===== BBNT / ĐNTT / Phụ lục (theo mẫu, Bên A=đối tác, Bên B=Heart Soldier) =====
+var CEN=function(){return DocumentApp.HorizontalAlignment.CENTER;};
+var RGT=function(){return DocumentApp.HorizontalAlignment.RIGHT;};
+function qhead(b){ b.appendParagraph("CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM").setAlignment(CEN()).editAsText().setBold(true);
+  b.appendParagraph("Độc lập - Tự do - Hạnh phúc").setAlignment(CEN()).editAsText().setBold(true);
+  b.appendParagraph("_________").setAlignment(CEN()); }
+function mtable(b, rows){ var t=b.appendTable(rows.map(function(r){return [r[0], r[1]];})); t.setBorderWidth(0.5);
+  for(var i=0;i<rows.length;i++){ var row=t.getRow(i); row.getCell(1).getChild(0).asParagraph().setAlignment(RGT()); if(rows[i][2]){row.getCell(0).editAsText().setBold(true);row.getCell(1).editAsText().setBold(true);} }
+  try{t.setColumnWidth(1,120);}catch(e){} return t; }
+function partyA(b,d){ b.appendParagraph("BÊN A (Bên sử dụng dịch vụ): "+(d.partner||"")).editAsText().setBold(true);
+  b.appendParagraph("Địa chỉ: "+(d.address||"")); b.appendParagraph("Đại diện: "+(d.rep||"")+"     Chức vụ: "+(d.repTitle||"")); b.appendParagraph("Mã số thuế: "+(d.taxCode||"")); }
+function partyB(b,d){ b.appendParagraph("BÊN B (Bên cung cấp dịch vụ): "+BEN_B.ten).editAsText().setBold(true);
+  b.appendParagraph("Địa chỉ: "+BEN_B.truso); b.appendParagraph("Đại diện: "+BEN_B.daidien+"     Chức vụ: "+BEN_B.chucvu); b.appendParagraph("Mã số thuế: "+BEN_B.mst);
+  b.appendParagraph("Tài khoản: "+(d.ourAccount||(BEN_B.stk+" tại "+BEN_B.nganhang))); }
+function bareName(s){ return String(s||"").replace(/^Bà |^Ông |^ông |^bà /,""); }
+function signBlock(b,d){ var t=b.appendTable([["ĐẠI DIỆN BÊN A","ĐẠI DIỆN BÊN B"],["(Ký, ghi rõ họ tên, đóng dấu)","(Ký, ghi rõ họ tên, đóng dấu)"],["\n\n\n"+bareName(d.rep||""),"\n\n\n"+bareName(BEN_B.daidien)]]);
+  t.setBorderWidth(0); for(var i=0;i<3;i++){var r=t.getRow(i);r.getCell(0).getChild(0).asParagraph().setAlignment(CEN());r.getCell(1).getChild(0).asParagraph().setAlignment(CEN());}
+  t.getRow(0).getCell(0).editAsText().setBold(true);t.getRow(0).getCell(1).editAsText().setBold(true);
+  t.getRow(1).getCell(0).editAsText().setItalic(true);t.getRow(1).getCell(1).editAsText().setItalic(true); }
+function payRows(d){ var ins=d.installments||[]; var paidSum=0,remain=0; ins.forEach(function(x){ if(x.paid)paidSum+=Number(x.amount)||0; else remain+=Number(x.amount)||0; }); return {ins:ins,paidSum:paidSum,remain:remain}; }
 function buildOther(b, d, type){
-  var heads={"BBNT":"BIÊN BẢN NGHIỆM THU & THANH LÝ HỢP ĐỒNG","ĐNTT":"ĐỀ NGHỊ THANH TOÁN","Phụ lục":"PHỤ LỤC HỢP ĐỒNG"};
-  var t=b.appendParagraph(heads[type]||type);t.setHeading(DocumentApp.ParagraphHeading.HEADING1).setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  b.appendParagraph("Hợp đồng số: "+(d.contractNo||"")+"   Ngày ký: "+dmy(d.signDate));
-  b.appendParagraph("Bên A: "+(d.partner||""));
-  b.appendParagraph("Bên B: "+BEN_B.ten);
-  b.appendParagraph("Sự kiện: "+(d.name||"")+"   Ngày diễn: "+(dmy(d.date)||""));
-  b.appendParagraph("Tổng giá trị: "+money(d.totalValue)+" VND (Bằng chữ: "+readVN(d.totalValue)+"./.)");
-  if(d.changeText){b.appendParagraph("");b.appendParagraph("Nội dung thay đổi / đề nghị:");b.appendParagraph(d.changeText);}
-  b.appendParagraph("");b.appendParagraph("(Văn bản tạo tự động từ QT Manager — vui lòng rà soát & bổ sung.)").editAsText().setItalic(true);
+  if(type==="Phụ lục"){
+    qhead(b);
+    b.appendParagraph("PHỤ LỤC HỢP ĐỒNG").setHeading(DocumentApp.ParagraphHeading.HEADING1).setAlignment(CEN());
+    b.appendParagraph("Của Hợp đồng dịch vụ số "+(d.contractNo||"")+" ký ngày "+dmy(d.signDate)).setAlignment(CEN()).editAsText().setItalic(true);
+    b.appendParagraph(""); partyA(b,d); b.appendParagraph(""); partyB(b,d); b.appendParagraph("");
+    b.appendParagraph("Hai Bên thống nhất điều chỉnh/bổ sung Hợp đồng nêu trên với nội dung sau:").editAsText().setBold(true);
+    b.appendParagraph(d.changeText||"(nội dung thay đổi)");
+    b.appendParagraph("Các điều khoản khác của Hợp đồng không thay đổi vẫn giữ nguyên giá trị. Phụ lục này là một phần không tách rời của Hợp đồng.");
+    b.appendParagraph(""); signBlock(b,d); return;
+  }
+  var P=payRows(d); var yy=(d.contractNo||"").split("/")[0]||"";
+  if(type==="ĐNTT"){
+    var idx=-1; for(var i=0;i<P.ins.length;i++){ if(!P.ins[i].paid){idx=i;break;} } if(idx<0)idx=Math.max(0,P.ins.length-1);
+    var cur=P.ins[idx]||{pct:100,amount:d.totalValue};
+    qhead(b);
+    b.appendParagraph("ĐỀ NGHỊ THANH TOÁN ĐỢT "+(idx+1)).setHeading(DocumentApp.ParagraphHeading.HEADING1).setAlignment(CEN());
+    b.appendParagraph("Cho Hợp đồng dịch vụ số "+(d.contractNo||"")).setAlignment(CEN()).editAsText().setItalic(true);
+    b.appendParagraph("Thành phố Hồ Chí Minh, "+dateVN(idx===0?d.signDate:d.date)).setAlignment(RGT()).editAsText().setItalic(true);
+    b.appendParagraph("Kính gửi: "+(d.partner||"")+" (Bên A)").editAsText().setBold(true);
+    b.appendParagraph("Đơn vị đề nghị: "+BEN_B.ten+" (Bên B)").editAsText().setBold(true);
+    b.appendParagraph("Căn cứ Hợp đồng dịch vụ số "+(d.contractNo||"")+" ký ngày "+dmy(d.signDate)+" và Điều 3 về phương thức thanh toán, Bên B trân trọng đề nghị Bên A thanh toán Đợt "+(idx+1)+" ("+(cur.pct||0)+"% giá trị hợp đồng) như sau:");
+    var r1=[["Tổng giá trị hợp đồng (sau thuế)",money(d.totalValue)+" VND",false]];
+    if(P.paidSum>0)r1.push(["Đã thanh toán các đợt trước",money(P.paidSum)+" VND",false]);
+    r1.push(["Số tiền đề nghị thanh toán Đợt "+(idx+1)+" ("+(cur.pct||0)+"%)",money(cur.amount)+" VND",true]);
+    mtable(b,r1);
+    b.appendParagraph("Số tiền bằng chữ: "+readVN(cur.amount)+"./.").editAsText().setBold(true);
+    b.appendParagraph("Hình thức thanh toán: Chuyển khoản.");
+    b.appendParagraph("Thông tin tài khoản nhận tiền:").editAsText().setBold(true);
+    b.appendParagraph("- Đơn vị thụ hưởng: "+BEN_B.ten);
+    b.appendParagraph("- Tài khoản: "+(d.ourAccount||(BEN_B.stk+" tại "+BEN_B.nganhang)));
+    b.appendParagraph("- Nội dung CK: Thanh toan dot "+(idx+1)+" HD "+(d.contractNo||""));
+    b.appendParagraph(cur.dueNote? ("Mốc thanh toán: "+cur.dueNote+"."):(idx===0?"Kính đề nghị Bên A thanh toán trong vòng 03 (ba) ngày làm việc kể từ ngày ký Hợp đồng.":"Kính đề nghị Bên A thanh toán trong vòng 15 ngày kể từ ngày nhận hóa đơn GTGT hợp lệ."));
+    b.appendParagraph("Trân trọng cảm ơn sự hợp tác của Quý Công ty.");
+    b.appendParagraph(""); signBlock(b,d); return;
+  }
+  // BBNT
+  qhead(b);
+  b.appendParagraph("BIÊN BẢN NGHIỆM THU VÀ THANH LÝ HỢP ĐỒNG").setHeading(DocumentApp.ParagraphHeading.HEADING1).setAlignment(CEN());
+  b.appendParagraph("Số: 01/"+yy+"/BBNT-TL").setAlignment(CEN());
+  b.appendParagraph("- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;");
+  b.appendParagraph("- Căn cứ Hợp đồng dịch vụ số "+(d.contractNo||"")+" ký ngày "+dmy(d.signDate)+" giữa hai Bên;");
+  b.appendParagraph("- Căn cứ kết quả thực hiện công việc thực tế của hai Bên.");
+  b.appendParagraph("Hôm nay, "+dateVN(d.date)+", tại Thành phố Hồ Chí Minh, chúng tôi gồm có:");
+  partyA(b,d); b.appendParagraph(""); partyB(b,d); b.appendParagraph("");
+  b.appendParagraph("ĐIỀU 1. NỘI DUNG NGHIỆM THU").editAsText().setBold(true);
+  b.appendParagraph("Bên B đã hoàn thành việc tổ chức biểu diễn của Nghệ sĩ "+BEN_B.nghesi+" tại chương trình “"+(d.name||"")+"”"+(d.location?(", tổ chức tại "+d.location):"")+" vào ngày "+(dmy(d.date)||"")+" theo đúng nội dung Hợp đồng.");
+  b.appendParagraph("Bên A xác nhận Bên B đã thực hiện đầy đủ, đúng tiến độ và đảm bảo chất lượng. Hai Bên đồng ý nghiệm thu công việc đạt yêu cầu.");
+  b.appendParagraph("ĐIỀU 2. GIÁ TRỊ THANH LÝ HỢP ĐỒNG").editAsText().setBold(true);
+  var r2=[["Giá trị hợp đồng (trước thuế)",money(d.valuePreTax)+" VND",false],["Thuế GTGT "+(d.taxRate||0)+"%",money((d.totalValue||0)-(d.valuePreTax||0))+" VND",false],["Tổng giá trị hợp đồng (sau thuế)",money(d.totalValue)+" VND",true]];
+  if(P.paidSum>0)r2.push(["Bên A đã thanh toán",money(P.paidSum)+" VND",false]);
+  r2.push(["Bên A còn phải thanh toán",money(P.remain)+" VND",true]);
+  mtable(b,r2);
+  b.appendParagraph("Tổng giá trị thanh lý: "+money(d.totalValue)+" VND (Bằng chữ: "+readVN(d.totalValue)+").").editAsText().setBold(true);
+  if(P.remain>0)b.appendParagraph("Bên A thanh toán số tiền còn lại "+money(P.remain)+" VND (Bằng chữ: "+readVN(P.remain)+") cho Bên B trong vòng 15 ngày kể từ ngày ký Biên bản này và sau khi nhận hóa đơn GTGT hợp lệ.");
+  b.appendParagraph("ĐIỀU 3. ĐIỀU KHOẢN THANH LÝ").editAsText().setBold(true);
+  b.appendParagraph("Hai Bên xác nhận đã hoàn thành đầy đủ quyền và nghĩa vụ theo Hợp đồng dịch vụ số "+(d.contractNo||"")+". Sau khi Bên A hoàn tất thanh toán, Hợp đồng được thanh lý và chấm dứt hiệu lực. Hai Bên cam kết không có khiếu nại nào sau khi hoàn tất nghĩa vụ thanh toán.");
+  b.appendParagraph("Biên bản được lập thành 03 (ba) bản có giá trị pháp lý như nhau, Bên A giữ 02 (hai) bản, Bên B giữ 01 (một) bản.");
+  b.appendParagraph(""); signBlock(b,d);
 }
 
 // ===== Helpers =====
