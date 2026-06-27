@@ -276,6 +276,17 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .okdot{background:var(--greenbg);color:var(--green)}
 .warndot{background:#fff1de;color:#d9730d}
 .supinfo{flex-shrink:0;display:inline-flex;align-items:center}
+.chatwrap{display:flex;flex-direction:column;gap:10px;padding-bottom:78px}
+.msg{max-width:82%;align-self:flex-start}
+.msg.mine{align-self:flex-end;text-align:right}
+.msg .mauth{font-size:11.5px;color:var(--muted);font-weight:700;margin:0 4px 2px}
+.msg .mbub{display:inline-block;background:linear-gradient(180deg,var(--glosstop),var(--surface));border:1px solid var(--border);padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;text-align:left;box-shadow:var(--shadow);white-space:pre-wrap;word-break:break-word}
+.msg.mine .mbub{background:var(--brand);color:#fff;border-color:var(--brand)}
+.msg .mtime{font-size:11px;color:var(--faint);margin:2px 5px 0}
+.chatbar{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;bottom:calc(58px + env(safe-area-inset-bottom));z-index:30;display:flex;gap:8px;padding:9px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border)}
+.chatbar input{flex:1;height:42px;border:1.5px solid var(--border);border-radius:21px;background:var(--surface);color:var(--text);padding:0 16px;font-size:15px;font-family:inherit;outline:none}
+.chatbar input:focus{border-color:var(--brand)}
+.chatbar .iconbtn2{width:42px;height:42px;border-radius:50%;background:var(--brand);color:#fff;border:none}
 .subln{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:3px;white-space:pre-wrap;line-height:1.4}
 .tkt{background:linear-gradient(135deg,var(--soft),var(--surface));border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-top:4px;position:relative}
 .tkt .route{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -578,12 +589,12 @@ var STSEQ=['todo','doing','waiting','done'];
 var STMETA={todo:['Cần làm','var(--chip)','var(--muted)'],doing:['Đang làm','var(--bluebg)','var(--blue)'],waiting:['Chờ','var(--amberbg)','var(--amber)'],done:['Xong','var(--greenbg)','var(--green)']};
 var USERS={thi:{nm:'Thi',rl:'Quản lý'},truc:{nm:'Trúc',rl:'Admin'},vi:{nm:'Vi',rl:'Trợ lý'},artist:{nm:'Quốc Thiên',rl:'Nghệ sĩ'}};
 var TABS={
- thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['tasks','Việc','ti-list-check'],['money','Tiền','ti-wallet']],
- truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
- vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['tasks','Việc','ti-list-check']],
- artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['qtmoney','Thu chi','ti-cash']]
+ thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages'],['money','Tiền','ti-wallet']],
+ truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['team','Nhóm','ti-messages'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
+ vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages']],
+ artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages'],['qtmoney','Thu chi','ti-cash']]
 };
-var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện'};
+var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện',team:'Ghi chú nhóm'};
 var jById={};jobs.forEach(function(j){jById[j.id]=j});
 var now=new Date();
 /* ===== CẤU HÌNH DÙNG CHUNG (vendor + 3 tài khoản) ===== */
@@ -613,6 +624,11 @@ var accounts=[
  {id:"a2",label:"Công ty - Techcombank",bank:"Techcombank",number:"19001234567"},
  {id:"a3",label:"Cá nhân QT - ACB",bank:"ACB",number:"99887766"}
 ];
+var teamNotes=[
+ {id:"tn1",author:"Thi",text:"Cả nhà nhớ check lịch tuần này nha 🙌",time:new Date(Date.now()-3600000*6).toISOString()},
+ {id:"tn2",author:"Vi",text:"Em gửi timeline show Hòa Bình cho anh QT rồi ạ",time:new Date(Date.now()-3600000*3).toISOString()},
+ {id:"tn3",author:"Trúc",text:"Đợt 1 HĐ Cty ABC đã về tài khoản công ty.",time:new Date(Date.now()-3600000).toISOString()}
+];
 var contracts=[
  {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",docs:[{type:"HĐ",url:"https://drive.google.com/file/d/HD-DEMO-1/view"},{type:"BBNT",url:"https://drive.google.com/file/d/BBNT-DEMO-1/view"}],source:"manual"}
 ];
@@ -635,7 +651,7 @@ function tm(d){return d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-dig
 function sameDay(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate();}
 function recvOf(id){var s=0;pays.forEach(function(p){if(p.job==id&&p.st=='da_thanh_toan')s+=p.amt});return s;}
 function fin(){return state.role=='thi'||state.role=='truc';}
-var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',collapsed:{}};
+var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',expFilter:'all',expGroup:'type',collapsed:{}};
 function isColl(k,def){return (k in state.collapsed)?state.collapsed[k]:def;}
 function monthLabel(y,m){return 'Tháng '+(m+1)+'/'+y;}
 
@@ -652,6 +668,7 @@ var ICON={
 'ti-brush':'<path d="M9.5 14.5L3 21"/><path d="M14 4l6 6-7.5 4.5a3 3 0 0 1-4-4z"/><path d="M13 5l6 6"/>',
 'ti-users':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 14.6A5.5 5.5 0 0 1 20.5 20"/>',
 'ti-brand-facebook':'<path d="M14 8h2.5V4.5H14c-2.2 0-3.5 1.4-3.5 3.6V10H8v3.5h2.5V21H14v-7.5h2.6L17 10h-3V8.4c0-.3.2-.4.5-.4z"/>',
+'ti-send':'<path d="M10 14l11-11"/><path d="M21 3l-6.5 18-3.5-7-7-3.5z"/>',
 'ti-list-numbers':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M4 4.5h1.2V8"/><path d="M4 12h2v.01L4 14.5h2"/><path d="M4 17.5h1.5a1 1 0 0 1 0 2H4"/>',
 'ti-device-speaker':'<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01"/>',
 'ti-checklist':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3.5 6l1.2 1.2L7 5"/><path d="M3.5 12l1.2 1.2L7 11"/><path d="M3.5 18l1.2 1.2L7 17"/>',
@@ -764,7 +781,9 @@ function render(){
  else if(s=='artist')sc.innerHTML=screenArtist();
  else if(s=='qtmoney')sc.innerHTML=screenQtMoney();
  else if(s=='create')sc.innerHTML=screenCreate();
+ else if(s=='team')sc.innerHTML=screenTeam();
  renderTabs();bind();applyIcons();
+ if(s=='team'){var cw=document.getElementById('chatwrap');if(cw)window.scrollTo(0,document.body.scrollHeight);}
  document.getElementById('tabbar').style.display=(s=='create')?'none':'';
  if(s=='create')bindCreateForm();
  if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
@@ -785,10 +804,13 @@ function bind(){
  document.querySelectorAll('[data-tel]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();var p=(el.dataset.tel||'').replace(/\s/g,'');if(p)window.open('tel:'+p);};});
  document.querySelectorAll('[data-mapq]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();openMap(el.dataset.mapq);};});
  document.querySelectorAll('[data-mt]').forEach(function(el){el.onclick=function(){state.moneyTab=el.dataset.mt;render();};});
+ document.querySelectorAll('[data-ef]').forEach(function(el){el.onclick=function(){state.expFilter=el.dataset.ef;render();};});
+ document.querySelectorAll('[data-eg]').forEach(function(el){el.onclick=function(){state.expGroup=el.dataset.eg;render();};});
  document.querySelectorAll('[data-tab]').forEach(function(el){el.onclick=function(){state.tab=el.dataset.tab;render();};});
  document.querySelectorAll('[data-tf]').forEach(function(el){el.onclick=function(){state.taskFilter=el.dataset.tf;render();};});
  document.querySelectorAll('[data-tog]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();var t=tasks.filter(function(x){return x.id==+el.dataset.tog})[0];t.s=STSEQ[(STSEQ.indexOf(t.s)+1)%4];if(window.qtSave)window.qtSave('tasks',String(t.id),t);render();};});
  document.querySelectorAll('[data-coll]').forEach(function(el){el.onclick=function(){var k=el.dataset.coll;var def=el.dataset.def==='1';var cur=(k in state.collapsed)?state.collapsed[k]:def;state.collapsed[k]=!cur;render();};});
+ var cs=document.getElementById('chatSend');if(cs){var sendMsg=function(){var inp=document.getElementById('chatInput');var t=(inp.value||'').trim();if(!t)return;var m={id:'tn'+Date.now(),author:USERS[state.role].nm,text:t,time:new Date().toISOString()};teamNotes.push(m);if(window.qtSave)window.qtSave('teamnotes',m.id,m);inp.value='';render();};cs.onclick=sendMsg;var ci=document.getElementById('chatInput');if(ci)ci.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();sendMsg();}};}
 }
 function kpi(ic,l,v){return '<div class="kpi"><div class="ico"><i class="ti '+ic+'"></i></div><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';}
 function jobItem(j,sub){return '<button class="item" data-job="'+j.id+'"><span class="bar" style="background:'+TC[j.type]+'"></span><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+(sub||dt(j.start))+'</div></div>'+sbadge(j.status)+'<i class="ti ti-chevron-right chev"></i></button>';}
@@ -877,9 +899,23 @@ function screenMoney(){
  if(state.moneyTab=='pay'){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt});
   h+='<div class="kpis">'+kpi('ti-wallet','Dự kiến',money(inc))+kpi('ti-cash','Đã nhận',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-cash','Tháng này',money(160000000))+'</div>';
   h+='<div class="group">'+pays.slice().sort(function(a,b){return a.due-b.due}).map(function(p){var j=jById[p.job];var c=PSL[p.st];return '<button class="item" data-job="'+p.job+'"><div style="flex:1"><div class="t">'+j.name+'</div><div class="s">'+p.label+' · dự kiến '+dd(p.due)+'</div></div><div style="text-align:right"><div class="money">'+money(p.amt)+'</div><span class="badge" style="background:'+c[1]+';color:'+c[2]+';margin-top:3px;display:inline-block">'+c[0]+'</span></div></button>'}).join('')+'</div>';
- } else {var est=0,act=0;exps.forEach(function(e){est+=e.est;act+=e.act});
-  h+='<div class="kpis">'+kpi('ti-receipt','Chi dự kiến',money(est))+kpi('ti-coin','Chi thực tế',money(act))+'</div>';
-  h+='<div class="group">'+exps.map(function(e){var j=jById[e.job];var over=e.act>e.est&&e.act>0;return '<button class="item" data-job="'+e.job+'"><div style="flex:1"><div class="t">'+e.name+(over?' <i class="ti ti-alert-triangle" style="color:var(--red)"></i>':'')+'</div><div class="s">'+j.name+' · '+e.vendor+'</div></div><div style="text-align:right"><div class="money" style="'+(over?'color:var(--red)':'')+'">'+money(e.act||e.est)+'</div><span class="pill" style="margin-top:3px;display:inline-block">'+L(ESL,e.st)+'</span></div></button>'}).join('')+'</div>';
+ } else {
+  var filt=state.expFilter||'all';var grp=state.expGroup||'type';
+  var live=exps.filter(function(e){return e.st!=='huy';});
+  function amtOf(e){return (e.st==='da_thanh_toan')?(e.act||e.est||0):(e.est||0);}
+  var totAll=0,paidSum=0,unpaidSum=0;live.forEach(function(e){totAll+=amtOf(e);if(e.st==='da_thanh_toan')paidSum+=amtOf(e);else unpaidSum+=amtOf(e);});
+  h+='<div class="kpis">'+kpi('ti-receipt','Tổng chi',money(totAll))+kpi('ti-coin','Đã chi',money(paidSum))+kpi('ti-clock','Chưa TT',money(unpaidSum))+'</div>';
+  function fchip(v,l){return '<button class="chip'+(filt===v?' on':'')+'" data-ef="'+v+'">'+l+'</button>';}
+  function gchip(v,l){return '<button class="chip'+(grp===v?' on':'')+'" data-eg="'+v+'">'+l+'</button>';}
+  h+='<div class="chiprow" style="margin-bottom:8px">'+fchip('all','Tất cả')+fchip('unpaid','⏳ Chưa TT')+fchip('paid','✅ Đã TT')+'</div>';
+  h+='<div class="chiprow" style="margin-bottom:12px"><span style="font-size:12px;color:var(--muted);align-self:center;margin-right:2px">Nhóm theo:</span>'+gchip('type','Loại')+gchip('event','Sự kiện')+'</div>';
+  var fl=live.filter(function(e){return filt==='paid'?e.st==='da_thanh_toan':filt==='unpaid'?e.st!=='da_thanh_toan':true;});
+  var groups={},order=[];fl.forEach(function(e){var key=grp==='type'?(e.type||'Khác'):((jById[e.job]||{}).name||e.job);if(!groups[key]){groups[key]=[];order.push(key);}groups[key].push(e);});
+  if(!fl.length)h+=emp('Không có khoản chi');
+  order.forEach(function(k){var g=groups[k];var sub=g.reduce(function(s,e){return s+amtOf(e);},0);
+   h+='<div class="gtitle" style="display:flex;justify-content:space-between;align-items:baseline"><span>'+k+'</span><span style="color:var(--brand)">'+money(sub)+'</span></div>';
+   h+='<div class="group">'+g.map(function(e){var j=jById[e.job];var paid=e.st==='da_thanh_toan';return '<button class="item" data-job="'+e.job+'"><div style="flex:1;min-width:0"><div class="t">'+e.name+'</div><div class="s">'+(grp==='type'?((j&&j.name)||''):(e.type||''))+(e.vendor?(' · '+e.vendor):'')+'</div></div><div style="text-align:right"><div class="money">'+money(amtOf(e))+'</div><span class="cstat" style="background:'+(paid?'var(--greenbg)':'#fff1de')+';color:'+(paid?'var(--green)':'#d9730d')+';margin-top:3px;display:inline-flex">'+(paid?'✅ Đã TT':'⏳ Chưa TT')+'</span></div></button>';}).join('')+'</div>';
+  });
  }
  return h;
 }
@@ -1031,7 +1067,7 @@ function bindSupplier(key,role){
  sel.onchange=refresh;refresh();
  document.getElementById(key+'Fb').onclick=function(){var v=vById(sel.value);if(v&&v.fb)openURL(v.fb);else toast('Chưa có link Facebook');};
  document.getElementById(key+'Tel').onclick=function(){var v=vById(sel.value);var p=v?v.phone:((document.getElementById(key+'OPhone')||{}).value);if(p)window.open('tel:'+p);else toast('Chưa có SĐT');};
- var sv=document.getElementById(key+'Save');if(sv)sv.onclick=function(){var nm=(document.getElementById(key+'OName').value||'').trim();if(!nm){toast('Nhập tên trước');return;}var nv={id:'v'+Date.now(),name:nm,role:role,phone:(document.getElementById(key+'OPhone').value||'').trim(),fb:'',cccd:'',bankNo:'',bankName:'',branch:'',payCompany:''};vendors.push(nv);if(window.qtSave)window.qtSave('vendors',nv.id,nv);sel.innerHTML=vendorOptsRole(role);sel.value=nv.id;refresh();toast('Đã lưu vào danh bạ (nhớ bổ sung STK/CCCD trên Sheet)');};
+ var sv=document.getElementById(key+'Save');if(sv)sv.onclick=function(){var nm=(document.getElementById(key+'OName').value||'').trim();if(!nm){toast('Nhập tên trước');return;}var nv={id:'v'+Date.now(),name:nm,role:role,phone:(document.getElementById(key+'OPhone').value||'').trim(),fb:'',cccd:'',bankNo:'',bankName:'',branch:'',payCompany:'',updatedAt:Date.now()};vendors.push(nv);if(window.qtSave)window.qtSave('vendors',nv.id,nv);sel.innerHTML=vendorOptsRole(role);sel.value=nv.id;refresh();toast('Đã lưu vào danh bạ (nhớ bổ sung STK/CCCD trên Sheet)');};
 }
 function readSupplier(key){var sel=document.getElementById(key+'Vendor');if(!sel)return {vendorId:'',name:'',phone:''};if(sel.value==='__other__'){return {vendorId:'',name:(document.getElementById(key+'OName').value||'').trim(),phone:(document.getElementById(key+'OPhone').value||'').trim()};}var v=vById(sel.value);return v?{vendorId:v.id,name:v.name,phone:v.phone}:{vendorId:'',name:'',phone:''};}
 function prepItem(key,label,icon,role,withLoc){
@@ -1043,6 +1079,16 @@ function prepItem(key,label,icon,role,withLoc){
  +locHtml
  +paidSeg(key+'Paid')
  +'</div>';
+}
+function screenTeam(){
+ var me=USERS[state.role].nm;
+ var msgs=(typeof teamNotes!=='undefined'?teamNotes:[]).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time);});
+ var h='<div class="chatwrap" id="chatwrap">';
+ if(!msgs.length)h+=emp('Chưa có ghi chú nào. Bắt đầu trao đổi với team!');
+ msgs.forEach(function(m){var mine=m.author===me;h+='<div class="msg'+(mine?' mine':'')+'"><div class="mauth">'+(mine?'Bạn':m.author)+'</div><div class="mbub">'+String(m.text||'').replace(/</g,'&lt;')+'</div><div class="mtime">'+dt(new Date(m.time))+'</div></div>';});
+ h+='</div>';
+ h+='<div class="chatbar"><input id="chatInput" placeholder="Nhắn cho team…" autocomplete="off"><button class="iconbtn2" id="chatSend"><i class="ti ti-send"></i></button></div>';
+ return h;
 }
 function screenCreate(){
  var d=(state.selDate&&stripT(state.selDate)>=stripT(now))?state.selDate:now;
@@ -1448,17 +1494,17 @@ applyIcons();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
-const SEED_VERSION="2026-06-27-seed-demo4";
-const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts"];
-const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[]};
+const SEED_VERSION="2026-06-28-team";
+const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts","teamnotes"];
+const DF={jobs:["start","end","call"],pays:["due","paid"],exps:[],docs:["dl"],tasks:["d"],contracts:["signDate"],vendors:[],accounts:[],teamnotes:[]};
 function ser(c,o){var x=Object.assign({},o);(DF[c]||[]).forEach(function(f){if(x[f] instanceof Date)x[f]=x[f].toISOString();});return x;}
 function hyd(c,o){(DF[c]||[]).forEach(function(f){if(typeof o[f]==="string")o[f]=new Date(o[f]);});return o;}
 function reindex(){window.jById={};(window.jobs||[]).forEach(function(j){window.jById[j.id]=j;});if(window.reContracts)window.reContracts();}
 try{ const app=initializeApp(cfg); const auth=getAuth(app); const db=getFirestore(app);
  async function wipeAll(){ for(const name of COLLS){ const snap=await getDocs(collection(db,name)); for(let i=0;i<snap.docs.length;i+=400){ const batch=writeBatch(db); snap.docs.slice(i,i+400).forEach(function(d){batch.delete(d.ref);}); await batch.commit(); } } }
- async function seedAll(){ const colls={jobs:window.jobs,pays:window.pays,exps:window.exps,docs:window.docs,tasks:window.tasks,contracts:window.contracts,vendors:window.vendors,accounts:window.accounts};
+ async function seedAll(){ const colls={jobs:window.jobs,pays:window.pays,exps:window.exps,docs:window.docs,tasks:window.tasks,contracts:window.contracts,vendors:window.vendors,accounts:window.accounts,teamnotes:window.teamNotes};
    for(const name in colls){ const arr=colls[name]||[]; for(let i=0;i<arr.length;i+=400){ const batch=writeBatch(db); arr.slice(i,i+400).forEach(function(it,k){var id=(it.id!=null)?String(it.id):(name+"_"+(i+k));it.id=id;batch.set(doc(db,name,id),ser(name,it));}); await batch.commit(); } } }
  async function loadAll(){
    const metaRef=doc(db,"app_meta","seed"); let need=true;
@@ -1470,10 +1516,15 @@ try{ const app=initializeApp(cfg); const auth=getAuth(app); const db=getFirestor
      if(out.contracts&&out.contracts.length)window.contracts=out.contracts;
      if(out.vendors&&out.vendors.length)window.vendors=out.vendors;
      if(out.accounts&&out.accounts.length)window.accounts=out.accounts;
+     if(out.teamnotes)window.teamNotes=out.teamnotes;
      reindex(); }
    if(window.render)window.render(); console.log("QT: Firebase synced ("+(window.jobs||[]).length+" jobs, seed "+SEED_VERSION+")"); }
+ function setupLive(){ try{
+   onSnapshot(collection(db,"teamnotes"),function(snap){ window.teamNotes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}); if(window.state&&window.state.screen==="team"&&window.render)window.render(); });
+   onSnapshot(collection(db,"vendors"),function(snap){ if(!snap.empty)window.vendors=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}); });
+ }catch(e){console.warn(e);} }
  window.qtSave=function(coll,id,obj){try{setDoc(doc(db,coll,id),ser(coll,obj),{merge:true});}catch(e){console.warn(e);}};
- signInAnonymously(auth).then(loadAll).catch(function(e){console.warn("QT: Firebase auth loi, dung du lieu cuc bo.",e);});
+ signInAnonymously(auth).then(loadAll).then(setupLive).catch(function(e){console.warn("QT: Firebase auth loi, dung du lieu cuc bo.",e);});
 }catch(e){console.warn("QT: Firebase init loi.",e);}
 </script>
 </body>
