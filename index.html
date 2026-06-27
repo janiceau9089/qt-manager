@@ -262,6 +262,8 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .gtr .switch{flex-shrink:0}
 .collapsable{display:none}
 .collapsable.on{display:block}
+.paidseg button[data-val="1"].on{background:var(--green);border-color:var(--green)}
+.paidseg button[data-val="0"].on{background:var(--amber);border-color:var(--amber)}
 .chip.copybtn{padding:7px 10px}
 .minichip{display:inline-flex;align-items:center;gap:3px;background:var(--soft);color:var(--brand);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:12px;font-weight:700;margin-right:6px;flex-shrink:0}
 #qtToast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;max-width:80%;text-align:center;pointer-events:none}
@@ -545,13 +547,20 @@ var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',mon
 var jById={};jobs.forEach(function(j){jById[j.id]=j});
 var now=new Date();
 /* ===== CẤU HÌNH DÙNG CHUNG (vendor + 3 tài khoản) ===== */
+/* Danh bạ nhà cung cấp — nguồn từ tab "Nhà cung cấp" trên Google Sheet (sync xuống). Đây là seed mẫu. */
 var vendors=[
- {id:"v1",name:"MUA Tina",role:"makeup",phone:"0901234567"},
- {id:"v2",name:"Makeup Hồng Anh",role:"makeup",phone:"0903222111"},
- {id:"v3",name:"Studio Lá",role:"photo",phone:"0908765432"},
- {id:"v4",name:"Photo Khoa",role:"photo",phone:"0907111222"},
- {id:"v5",name:"Social - Linh",role:"social",phone:"0912345678"},
- {id:"v6",name:"Team Content QT",role:"social",phone:"0911999888"}
+ {id:"v1",name:"MUA Tina",role:"makeup",phone:"0901234567",fb:"https://facebook.com/mua.tina",cccd:"079090001234",bankNo:"0111000222",bankName:"Vietcombank",branch:"HCM",payCompany:"Tina Makeup"},
+ {id:"v2",name:"Makeup Hồng Anh",role:"makeup",phone:"0903222111",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
+ {id:"v3",name:"Studio Lá",role:"photo",phone:"0908765432",fb:"https://facebook.com/studiola",cccd:"",bankNo:"19001234",bankName:"Techcombank",branch:"Q1",payCompany:"Studio Lá Co."},
+ {id:"v4",name:"Photo Khoa",role:"photo",phone:"0907111222",fb:"https://facebook.com/khoaphoto",cccd:"079091112223",bankNo:"",bankName:"",branch:"",payCompany:""},
+ {id:"v5",name:"Social - Linh",role:"social",phone:"0912345678",fb:"https://facebook.com/linh.social",cccd:"",bankNo:"0331222",bankName:"ACB",branch:"HCM",payCompany:""},
+ {id:"v6",name:"Team Content QT",role:"social",phone:"0911999888",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
+ {id:"v7",name:"Mr.K Band",role:"band",phone:"0905111000",fb:"https://facebook.com/mrkband",cccd:"079088887777",bankNo:"0444555",bankName:"Vietcombank",branch:"HCM",payCompany:"Mây Saigon"},
+ {id:"v8",name:"Band Acoustic Vũ",role:"band",phone:"0906222333",fb:"https://facebook.com/banvu",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
+ {id:"v9",name:"ABC Crew",role:"dancer",phone:"0907333444",fb:"https://facebook.com/abccrew",cccd:"",bankNo:"0555666",bankName:"MB Bank",branch:"HCM",payCompany:"ABC Entertainment"},
+ {id:"v10",name:"Dancer Hiphop 24",role:"dancer",phone:"0908444555",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
+ {id:"v11",name:"Tài xế Hùng (7 chỗ)",role:"driver",phone:"0909555666",fb:"",cccd:"079086665555",bankNo:"0666777",bankName:"Sacombank",branch:"HCM",payCompany:""},
+ {id:"v12",name:"Hãng xe Mai Linh",role:"driver",phone:"1055",fb:"https://facebook.com/mailinh",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:"Mai Linh Corp"}
 ];
 var accounts=[
  {id:"a1",label:"Công ty - Vietcombank",bank:"Vietcombank",number:"0123456789"},
@@ -592,6 +601,8 @@ var ICON={
 'ti-shirt':'<path d="M16 3l4 3-2.5 3L16 7.5V21H8V7.5L6.5 9 4 6l4-3 2 2a2.8 2.8 0 0 0 4 0z"/>',
 'ti-brush':'<path d="M9.5 14.5L3 21"/><path d="M14 4l6 6-7.5 4.5a3 3 0 0 1-4-4z"/><path d="M13 5l6 6"/>',
 'ti-users':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 14.6A5.5 5.5 0 0 1 20.5 20"/>',
+'ti-brand-facebook':'<path d="M14 8h2.5V4.5H14c-2.2 0-3.5 1.4-3.5 3.6V10H8v3.5h2.5V21H14v-7.5h2.6L17 10h-3V8.4c0-.3.2-.4.5-.4z"/>',
+'ti-list-numbers':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M4 4.5h1.2V8"/><path d="M4 12h2v.01L4 14.5h2"/><path d="M4 17.5h1.5a1 1 0 0 1 0 2H4"/>',
 'ti-device-speaker':'<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01"/>',
 'ti-checklist':'<path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3.5 6l1.2 1.2L7 5"/><path d="M3.5 12l1.2 1.2L7 11"/><path d="M3.5 18l1.2 1.2L7 17"/>',
 'ti-bed':'<path d="M3 7v11"/><path d="M3 13h18v5"/><path d="M21 18v-6a2 2 0 0 0-2-2H8v3"/><circle cx="6" cy="11.5" r="1.5"/>',
@@ -856,12 +867,13 @@ function screenDetail(id){
   if(j.setlist){h+='<div class="gtitle">Setlist / cần chuẩn bị</div><div class="group"><div class="pre">'+j.setlist+'</div></div>';}
   if(j.note){h+='<div class="gtitle">Ghi chú</div><div class="group"><div class="pre">'+j.note+'</div></div>';}
   var prep='';
+  if(j.band&&j.band.on&&j.band.name)prep+=drow('ti-music','Band',j.band.name+(j.band.phone?('\n📞 '+j.band.phone):''));
   if(j.rehearsals&&j.rehearsals.length)j.rehearsals.forEach(function(r,i){prep+=drow('ti-music','Tập band '+(i+1),(r.date?dd(new Date(r.date)):'')+(r.time?(' · '+r.time):'')+(r.location?(' · '+r.location):''));});
   if(j.soundcheck&&j.soundcheck.on)prep+=drow('ti-device-speaker','Soundcheck',(j.soundcheck.date?dd(new Date(j.soundcheck.date)):'—')+(j.soundcheck.time?(' · '+j.soundcheck.time):''));
   function payTag(cost,paid){return cost?(' · '+money(cost)+(paid?' · ✅ đã TT':' · ⏳ chưa TT')):'';}
   ['makeup','photo','social'].forEach(function(k){var m=j[k];if(m&&m.on){var lbl={makeup:'Makeup',photo:'Photo',social:'Social'}[k];prep+=drow(k==='makeup'?'ti-brush':k==='photo'?'ti-camera':'ti-video',lbl,(m.name||'—')+(m.time?(' · '+m.time):'')+payTag(m.cost,m.paid));}});
-  if(j.dancer&&j.dancer.on)prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.count?(' · '+j.dancer.count+' người'):'')+(j.dancer.time?(' · '+j.dancer.time):'')+(j.dancer.phone?('\n📞 '+(j.dancer.contact?j.dancer.contact+' · ':'')+j.dancer.phone):'')+payTag(j.dancer.cost,j.dancer.paid));
-  if(j.beat&&j.beat.on&&j.beat.link)prep+='<div class="drow"><div class="di"><i class="ti ti-music"></i></div><div><div class="dk">Beat</div><div class="dv"><a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link beat</a> <button class="chip copybtn" data-copy="'+j.beat.link+'" style="padding:3px 8px"><i class="ti ti-link"></i></button></div></div></div>';
+  if(j.dancer&&j.dancer.on)prep+=drow('ti-users','Dancer',(j.dancer.name||'—')+(j.dancer.count?(' · '+j.dancer.count+' người'):'')+(j.dancer.songs?(' · '+j.dancer.songs+' bài'):'')+(j.dancer.time?(' · '+j.dancer.time):'')+(j.dancer.phone?('\n📞 '+j.dancer.phone):'')+payTag(j.dancer.total,j.dancer.paid));
+  if(j.beat&&j.beat.on&&(j.beat.link||j.beat.songs)){var bl=j.beat.link?('<a href="'+j.beat.link+'" target="_blank" style="color:var(--brand)">Mở link nhạc</a> <button class="chip copybtn" data-copy="'+j.beat.link+'" style="padding:3px 8px"><i class="ti ti-link"></i></button>'):'';prep+='<div class="drow"><div class="di"><i class="ti ti-list-numbers"></i></div><div style="min-width:0"><div class="dk">Setlist</div><div class="dv" style="white-space:pre-wrap">'+(j.beat.songs||'')+((j.beat.songs&&bl)?'<br>':'')+bl+'</div></div></div>';}
   if(j.dressCode&&j.dressCode.on&&j.dressCode.text)prep+=drow('ti-shirt','Dress code',j.dressCode.text);
   if(j.stay&&j.stay.on){var s=j.stay;
    var sv=(s.hotel||'—')+(s.room?(' · phòng '+s.room):'')+((s.checkin||s.checkout)?('\nCheck-in '+(s.checkin||'?')+' · Check-out '+(s.checkout||'?')):'')+(s.distKm?('\n→ nơi diễn '+s.distKm+' km'+(s.distMin?(' · '+s.distMin+' phút'):'')):'')+(s.phone?('\n📞 '+s.phone):'')+payTag(s.cost,s.paid);
@@ -938,15 +950,45 @@ function addBizDays(d,n){var x=new Date(d);var c=0;while(c<n){x.setDate(x.getDat
 function parseMoney(s){return Math.round(parseFloat(String(s||'').replace(/[^\d]/g,''))||0);}
 function vendorOpts(role){return '<option value="">— chọn —</option>'+vendors.filter(function(v){return v.role===role;}).map(function(v){return '<option value="'+v.id+'" data-phone="'+v.phone+'" data-name="'+v.name.replace(/"/g,'')+'">'+v.name+'</option>';}).join('');}
 function acctOpts(){return accounts.map(function(a){return '<option value="'+a.id+'">'+a.label+' · '+a.number+'</option>';}).join('');}
-function paidSw(id){return '<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" id="'+id+'"><span class="slider"></span></label></div>';}
+/* nút trạng thái thanh toán: segment 2 trạng thái rõ ràng */
+function paidSeg(id){return '<div class="fld" style="padding:10px 0 0"><label class="flbl">Trạng thái thanh toán</label><div class="segbtn paidseg" id="'+id+'"><button type="button" data-val="0" class="on">⏳ Chưa TT</button><button type="button" data-val="1">✅ Đã TT</button></div></div>';}
+function paidVal(id){var e=document.querySelector('#'+id+' .on');return e?e.dataset.val==='1':false;}
+/* danh bạ theo vai trò + tuỳ chọn Khác */
+function vendorOptsRole(role){return '<option value="">— chọn từ danh bạ —</option>'+vendors.filter(function(v){return v.role===role;}).map(function(v){return '<option value="'+v.id+'">'+v.name+'</option>';}).join('')+'<option value="__other__">+ Khác (nhập tay)</option>';}
+function warnHtml(level,msg){var c=level==='do'?['var(--redbg)','var(--red)']:level==='cam'?['#fff1de','#d9730d']:['#fff8e1','#9a7b00'];return '<span class="cstat" style="background:'+c[0]+';color:'+c[1]+'">⚠️ '+msg+'</span>';}
+function supplierPicker(key,role,label){
+ return '<div class="fld" style="padding:8px 0 0"><label class="flbl">'+label+'</label><div style="display:flex;gap:8px"><select class="in" id="'+key+'Vendor">'+vendorOptsRole(role)+'</select><button class="iconbtn" type="button" id="'+key+'Fb" title="Mở Facebook"><i class="ti ti-brand-facebook"></i></button><button class="iconbtn" type="button" id="'+key+'Tel" title="Gọi"><i class="ti ti-phone"></i></button></div></div>'
+ +'<div id="'+key+'Info" class="chiprow" style="margin-top:6px"></div>'
+ +'<div id="'+key+'OtherBox" style="display:none"><div class="frow" style="padding:6px 0 0"><div class="fld"><label class="flbl">Tên</label><input class="in" id="'+key+'OName"></div><div class="fld"><label class="flbl">SĐT</label><input class="in" id="'+key+'OPhone" inputmode="tel"></div></div><button type="button" class="addrow" id="'+key+'Save"><i class="ti ti-plus"></i> Lưu vào danh bạ</button></div>';
+}
+function bindSupplier(key,role){
+ var sel=document.getElementById(key+'Vendor');if(!sel)return;
+ function refresh(){
+  var info=document.getElementById(key+'Info');var other=document.getElementById(key+'OtherBox');
+  if(sel.value==='__other__'){other.style.display='block';info.innerHTML=warnHtml('do','Chưa có thông tin thanh toán — nên lưu vào danh bạ');}
+  else{var v=vById(sel.value);other.style.display='none';
+   if(!v){info.innerHTML='';}
+   else{var miss=[];if(!v.cccd)miss.push('CCCD');if(!v.fb)miss.push('FB');
+    if(!v.bankNo)info.innerHTML=warnHtml('do','Thiếu STK thanh toán');
+    else if(miss.length)info.innerHTML=warnHtml('cam','Thiếu: '+miss.join(', '));
+    else info.innerHTML='<span class="cstat" style="background:var(--greenbg);color:var(--green)">✓ Đủ thông tin TT</span>';
+   }}
+  applyIcons();
+ }
+ sel.onchange=refresh;refresh();
+ document.getElementById(key+'Fb').onclick=function(){var v=vById(sel.value);if(v&&v.fb)openURL(v.fb);else toast('Chưa có link Facebook');};
+ document.getElementById(key+'Tel').onclick=function(){var v=vById(sel.value);var p=v?v.phone:((document.getElementById(key+'OPhone')||{}).value);if(p)window.open('tel:'+p);else toast('Chưa có SĐT');};
+ var sv=document.getElementById(key+'Save');if(sv)sv.onclick=function(){var nm=(document.getElementById(key+'OName').value||'').trim();if(!nm){toast('Nhập tên trước');return;}var nv={id:'v'+Date.now(),name:nm,role:role,phone:(document.getElementById(key+'OPhone').value||'').trim(),fb:'',cccd:'',bankNo:'',bankName:'',branch:'',payCompany:''};vendors.push(nv);if(window.qtSave)window.qtSave('vendors',nv.id,nv);sel.innerHTML=vendorOptsRole(role);sel.value=nv.id;refresh();toast('Đã lưu vào danh bạ (nhớ bổ sung STK/CCCD trên Sheet)');};
+}
+function readSupplier(key){var sel=document.getElementById(key+'Vendor');if(!sel)return {vendorId:'',name:'',phone:''};if(sel.value==='__other__'){return {vendorId:'',name:(document.getElementById(key+'OName').value||'').trim(),phone:(document.getElementById(key+'OPhone').value||'').trim()};}var v=vById(sel.value);return v?{vendorId:v.id,name:v.name,phone:v.phone}:{vendorId:'',name:'',phone:''};}
 function prepItem(key,label,icon,role,withLoc){
  var locHtml=withLoc?('<div class="fld" style="padding:8px 0 0"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input class="in" id="'+key+'Loc" placeholder="Địa chỉ"><button class="iconbtn" type="button" id="'+key+'Map"><i class="ti ti-map-pin"></i></button></div></div>'):'';
  return '<div class="swrow"><span class="swt"><i class="ti '+icon+'"></i> '+label+'</span><label class="switch"><input type="checkbox" id="sw'+key+'"><span class="slider"></span></label></div>'
  +'<div class="sub" id="'+key+'Box">'
- +'<div class="fld" style="padding:8px 0 0"><label class="flbl">Người / vendor</label><div style="display:flex;gap:8px"><select class="in" id="'+key+'Vendor">'+vendorOpts(role)+'</select><button class="iconbtn" type="button" id="'+key+'Tel"><i class="ti ti-phone"></i></button></div></div>'
+ +supplierPicker(key,role,'Người / vendor')
  +'<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí</label><input class="in" id="'+key+'Cost" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Giờ hẹn</label><input class="in" id="'+key+'Time" type="time"></div></div>'
  +locHtml
- +'<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-cash"></i> Đã thanh toán</span><label class="switch"><input type="checkbox" id="'+key+'Paid"><span class="slider"></span></label></div>'
+ +paidSeg(key+'Paid')
  +'</div>';
 }
 function screenCreate(){
@@ -969,7 +1011,7 @@ function screenCreate(){
  H+='<div class="group collapsable" id="prepBox">';
  /* tập band */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-music"></i> Tập band</span><label class="switch"><input type="checkbox" id="swReh"><span class="slider"></span></label></div>';
- H+='<div class="sub" id="rehBox"><div id="rehRows"></div><button type="button" class="addrow" id="rehAdd"><i class="ti ti-plus"></i> Thêm buổi tập</button></div>';
+ H+='<div class="sub" id="rehBox">'+supplierPicker('band','band','Band')+'<div style="margin-top:6px;font-weight:700;font-size:13px;color:var(--muted)">Buổi tập</div><div id="rehRows"></div><button type="button" class="addrow" id="rehAdd"><i class="ti ti-plus"></i> Thêm buổi tập</button></div>';
  /* soundcheck */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-device-speaker"></i> Soundcheck</span><label class="switch"><input type="checkbox" id="swSc"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="scBox"><div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Ngày</label><input id="scDate" type="date" class="in"></div><div class="fld"><label class="flbl">Giờ</label><input id="scTime" type="time" class="in"></div></div></div>';
@@ -977,20 +1019,21 @@ function screenCreate(){
  H+=prepItem('makeup','Makeup','ti-brush','makeup',true);
  H+=prepItem('photo','Photo','ti-camera','photo',false);
  H+=prepItem('social','Social','ti-video','social',false);
- /* beat */
- H+='<div class="swrow"><span class="swt"><i class="ti ti-music"></i> Beat</span><label class="switch"><input type="checkbox" id="swBeat"><span class="slider"></span></label></div>';
- H+='<div class="sub" id="beatBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Link beat</label><div style="display:flex;gap:8px"><input id="beatLink" class="in" placeholder="Dán link Drive/Dropbox…"><button class="iconbtn" type="button" id="beatOpen"><i class="ti ti-external-link"></i></button></div></div></div>';
+ /* setlist */
+ H+='<div class="swrow"><span class="swt"><i class="ti ti-list-numbers"></i> Setlist</span><label class="switch"><input type="checkbox" id="swBeat"><span class="slider"></span></label></div>';
+ H+='<div class="sub" id="beatBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Link beat / nhạc</label><div style="display:flex;gap:8px"><input id="beatLink" class="in" placeholder="Dán link Drive/Dropbox…"><button class="iconbtn" type="button" id="beatOpen"><i class="ti ti-external-link"></i></button></div></div><div class="fld" style="padding:8px 0 0"><label class="flbl">Tên bài / thứ tự bài (khách chọn)</label><textarea id="beatSongs" class="in" placeholder="1. Bài A&#10;2. Bài B&#10;3. Bài C"></textarea></div></div>';
  /* dress code */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-shirt"></i> Dress code</span><label class="switch"><input type="checkbox" id="swDress"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="dressBox"><div class="fld" style="padding:8px 0 0"><label class="flbl">Mô tả / link</label><input id="dressText" class="in" placeholder="VD: Vest đen / link Pinterest"></div><div class="calcd" style="padding:6px 0 0">📷 Tải ảnh (≤10) lên Firebase Storage — Phase 2.</div></div>';
  /* dancer */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-users"></i> Dancer</span><label class="switch"><input type="checkbox" id="swDancer"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="dancerBox">';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Tên group</label><input id="dcName" class="in" placeholder="VD: ABC Crew"></div><div class="fld"><label class="flbl">Số lượng</label><input id="dcCount" class="in" inputmode="numeric" placeholder="0"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Người liên hệ</label><input id="dcContact" class="in"></div><div class="fld"><label class="flbl">Giờ hẹn</label><input id="dcTime" type="time" class="in"></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT liên hệ</label><div style="display:flex;gap:8px"><input id="dcPhone" class="in" inputmode="tel"><button class="iconbtn" type="button" id="dcTel"><i class="ti ti-phone"></i></button></div></div></div>';
- H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí</label><input id="dcCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"></div></div>';
- H+=paidSw('dcPaid');
+ H+=supplierPicker('dancer','dancer','Group dancer');
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số người</label><input id="dcCount" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Số bài</label><input id="dcSongs" class="in" inputmode="numeric" placeholder="0"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giờ hẹn</label><input id="dcTime" type="time" class="in"></div><div class="fld"></div></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí trước thuế</label><input id="dcCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"><label class="flbl">Thuế</label><div class="segbtn" id="dcTax"><button type="button" data-val="0" class="on">Ko</button><button type="button" data-val="8">8%</button><button type="button" data-val="10">10%</button></div></div></div>';
+ H+='<div class="totbox" style="margin:8px 0"><span>Tổng (gồm thuế)</span><span id="dcTotal">0₫</span></div>';
+ H+=paidSeg('dcPaid');
  H+='</div>';/* dancerBox */
  /* lưu trú */
  H+='<div class="swrow"><span class="swt"><i class="ti ti-bed"></i> Lưu trú</span><label class="switch"><input type="checkbox" id="swStay"><span class="slider"></span></label></div>';
@@ -1000,7 +1043,7 @@ function screenCreate(){
  H+='<div class="calcd" style="padding:5px 0 0">📎 Tải file booking (ảnh/PDF) lên Drive — Phase 2.</div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT liên hệ</label><div style="display:flex;gap:8px"><input id="stPhone" class="in" inputmode="tel" placeholder="SĐT lễ tân/liên hệ"><button class="iconbtn" type="button" id="stTel"><i class="ti ti-phone"></i></button></div></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Số phòng</label><input id="stRoom" class="in"></div><div class="fld"><label class="flbl">Chi phí</label><input id="stCost" class="in" inputmode="numeric" placeholder="0"></div></div>';
- H+=paidSw('stPaid');
+ H+=paidSeg('stPaid');
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Check-in</label><input id="stCin" type="time" class="in"></div><div class="fld"><label class="flbl">Check-out</label><input id="stCout" type="time" class="in"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → nơi diễn (km)</label><input id="stDistKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="stDistMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
  H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính khoảng cách & thời gian bằng Maps API — Phase 2.</div>';
@@ -1009,7 +1052,7 @@ function screenCreate(){
  H+='<div class="swrow"><span class="swt"><i class="ti ti-car"></i> Di chuyển</span><label class="switch"><input type="checkbox" id="swMove"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="moveBox">';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Hình thức</label><div class="segbtn" id="mvMode"><button type="button" data-val="car" class="on"><i class="ti ti-car"></i> Xe</button><button type="button" data-val="flight"><i class="ti ti-plane"></i> Máy bay</button></div></div>';
- H+='<div id="mvCarBox" style="margin-top:8px"><div class="frow" style="padding:0"><div class="fld"><label class="flbl">Tài xế / hãng xe</label><input id="mvCarName" class="in" placeholder="Tên tài xế hoặc hãng"></div></div><div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">SĐT tài xế</label><div style="display:flex;gap:8px"><input id="mvCarPhone" class="in" inputmode="tel"><button class="iconbtn" type="button" id="mvCarTel"><i class="ti ti-phone"></i></button></div></div></div></div>';
+ H+='<div id="mvCarBox" style="margin-top:8px">'+supplierPicker('mvCar','driver','Tài xế / hãng xe')+'</div>';
  H+='<div id="mvFlightBox" style="margin-top:8px;display:none">';
  H+='<div class="calcd">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, mã chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Mã chuyến bay</label><input id="mvFlNo" class="in" placeholder="VD: VN213"></div><div class="fld"><label class="flbl">Lộ trình</label><input id="mvFlRoute" class="in" placeholder="SGN → HAN"></div></div>';
@@ -1019,7 +1062,7 @@ function screenCreate(){
  H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính KS → sân bay bằng Maps API — Phase 2.</div>';
  H+='</div>';/* mvFlightBox */
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Chi phí di chuyển</label><input id="mvCost" class="in" inputmode="numeric" placeholder="0"></div>';
- H+=paidSw('mvPaid');
+ H+=paidSeg('mvPaid');
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Ghi chú</label><textarea id="mvNote" class="in" placeholder="Ghi chú di chuyển…"></textarea></div>';
  H+='</div>';/* moveBox */
  H+='</div>';/* prepBox group */
@@ -1113,16 +1156,17 @@ function bindCreateForm(){
  seg('ctInvMode',function(v){document.getElementById('ctTotInvWrap').style.display=v==='total'?'block':'none';document.querySelectorAll('.iInvWrap').forEach(function(e){e.style.display=v==='per'?'block':'none';});});
  tog('swPrep','prepBox');tog('swReh','rehBox');tog('swSc','scBox');tog('swmakeup','makeupBox');tog('swphoto','photoBox');tog('swsocial','socialBox');tog('swBeat','beatBox');tog('swDress','dressBox');tog('swDancer','dancerBox');tog('swStay','stayBox');tog('swMove','moveBox');tog('swCt','ctBox');
  seg('mvMode',function(v){document.getElementById('mvCarBox').style.display=v==='car'?'':'none';document.getElementById('mvFlightBox').style.display=v==='flight'?'block':'none';});
+ document.querySelectorAll('.paidseg').forEach(function(c){c.querySelectorAll('button').forEach(function(b){b.onclick=function(){c.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});});
  var et=document.getElementById('evType');et.onchange=function(){document.getElementById('ctWrap').style.display=NOCT[et.value]?'none':'';};
  document.getElementById('evMap').onclick=function(){openMap(document.getElementById('evLoc').value);};
  document.getElementById('beatOpen').onclick=function(){openURL(document.getElementById('beatLink').value);};
  document.getElementById('stMap').onclick=function(){openMap(document.getElementById('stHotel').value);};
  function telBtn(btnId,inpId){var b=document.getElementById(btnId);if(b)b.onclick=function(){var p=(document.getElementById(inpId).value||'').replace(/\s/g,'');if(p)window.open('tel:'+p);else alert('Nhập số điện thoại trước.');};}
- telBtn('stTel','stPhone');telBtn('mvCarTel','mvCarPhone');telBtn('dcTel','dcPhone');
- ['makeup','photo','social'].forEach(function(k){
-  var tb=document.getElementById(k+'Tel');if(tb)tb.onclick=function(){var s=document.getElementById(k+'Vendor');var o=s.selectedOptions[0];if(o&&o.dataset.phone)window.open('tel:'+o.dataset.phone);else alert('Chọn vendor có số điện thoại trước.');};
-  var mb=document.getElementById(k+'Map');if(mb)mb.onclick=function(){openMap((document.getElementById(k+'Loc')||{}).value);};
- });
+ telBtn('stTel','stPhone');
+ bindSupplier('makeup','makeup');bindSupplier('photo','photo');bindSupplier('social','social');bindSupplier('band','band');bindSupplier('dancer','dancer');bindSupplier('mvCar','driver');
+ ['makeup'].forEach(function(k){var mb=document.getElementById(k+'Map');if(mb)mb.onclick=function(){openMap((document.getElementById(k+'Loc')||{}).value);};});
+ function dcRecalc(){var v=parseMoney((document.getElementById('dcCost')||{}).value);var tax=+(document.querySelector('#dcTax .on')||{dataset:{val:0}}).dataset.val;var t=document.getElementById('dcTotal');if(t)t.textContent=money(Math.round(v*(1+tax/100)));}
+ seg('dcTax',dcRecalc);var dcc=document.getElementById('dcCost');if(dcc)dcc.oninput=dcRecalc;
  document.getElementById('rehAdd').onclick=function(){var w=document.getElementById('rehRows');w.insertAdjacentHTML('beforeend',_rehRow());applyIcons();_bindReh();};
  document.getElementById('ctValue').oninput=_recalcTotal;
  document.getElementById('ctFile').oninput=function(){for(var i=0;i<qc.n;i++)_instChip(i);};
@@ -1165,20 +1209,24 @@ function saveEvent(){
  var id='j'+Date.now();
  var rehearsals=[];
  if(C('swReh'))document.querySelectorAll('#rehRows .reh').forEach(function(r){var dd=r.querySelector('.rDate').value;if(!dd)return;rehearsals.push({date:dd,time:r.querySelector('.rTime').value,location:r.querySelector('.rLoc').value.trim(),mapLink:''});});
- function vend(k){var s=document.getElementById(k+'Vendor');var o=s?s.selectedOptions[0]:null;return {on:C('sw'+k),vendorId:s?s.value:'',name:o?(o.dataset.name||''):'',phone:o?(o.dataset.phone||''):'',cost:parseMoney(V(k+'Cost')),paid:C(k+'Paid'),time:V(k+'Time'),location:V(k+'Loc'),mapLink:''};}
+ var bandSup=readSupplier('band');
+ function vend(k){var s=readSupplier(k);return {on:C('sw'+k),vendorId:s.vendorId,name:s.name,phone:s.phone,cost:parseMoney(V(k+'Cost')),paid:paidVal(k+'Paid'),time:V(k+'Time'),location:V(k+'Loc'),mapLink:''};}
+ var dcCost=parseMoney(V('dcCost')),dcTax=+seg('dcTax'),dcSup=readSupplier('dancer');
+ var carSup=readSupplier('mvCar');
  var job={id:id,name:name,type:type,status:status,start:start,end:end,
   loc:V('evLoc'),prov:'',client:'',contact:'',phone:'',call:null,timeline:'',setlist:'',
   note:V('evNote'),follow:false,chips:[],net:0,
   hasContract:C('swCt')&&!NOCT[type],
+  band:{on:C('swReh'),vendorId:bandSup.vendorId,name:bandSup.name,phone:bandSup.phone},
   rehearsals:rehearsals,
   soundcheck:{on:C('swSc'),date:V('scDate'),time:V('scTime')},
   makeup:vend('makeup'),photo:vend('photo'),social:vend('social'),
-  beat:{on:C('swBeat'),link:V('beatLink')},
+  beat:{on:C('swBeat'),link:V('beatLink'),songs:V('beatSongs')},
   dressCode:{on:C('swDress'),text:V('dressText'),fileLink:'',images:[]},
-  dancer:{on:C('swDancer'),name:V('dcName'),count:V('dcCount'),contact:V('dcContact'),phone:V('dcPhone'),time:V('dcTime'),cost:parseMoney(V('dcCost')),paid:C('dcPaid')},
-  stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),cost:parseMoney(V('stCost')),paid:C('stPaid'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin')},
-  move:{on:C('swMove'),mode:seg('mvMode')||'car',cost:parseMoney(V('mvCost')),paid:C('mvPaid'),note:V('mvNote'),
-   car:{name:V('mvCarName'),phone:V('mvCarPhone')},
+  dancer:{on:C('swDancer'),vendorId:dcSup.vendorId,name:dcSup.name,phone:dcSup.phone,count:V('dcCount'),songs:V('dcSongs'),time:V('dcTime'),cost:dcCost,taxRate:dcTax,total:Math.round(dcCost*(1+dcTax/100)),paid:paidVal('dcPaid')},
+  stay:{on:C('swStay'),hotel:V('stHotel'),mapLink:'',booking:V('stBooking'),fileLink:'',phone:V('stPhone'),room:V('stRoom'),cost:parseMoney(V('stCost')),paid:paidVal('stPaid'),checkin:V('stCin'),checkout:V('stCout'),distKm:V('stDistKm'),distMin:V('stDistMin')},
+  move:{on:C('swMove'),mode:seg('mvMode')||'car',cost:parseMoney(V('mvCost')),paid:paidVal('mvPaid'),note:V('mvNote'),
+   car:{vendorId:carSup.vendorId,name:carSup.name,phone:carSup.phone},
    flight:{no:V('mvFlNo'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin')}}};
  var contract=null,newPays=[];
  if(job.hasContract){
@@ -1206,7 +1254,7 @@ function saveEvent(){
  if(job.makeup.on)pushExp('makeup','Makeup','Makeup',job.makeup.name,job.makeup.cost,job.makeup.paid);
  if(job.photo.on)pushExp('photo','Photo','Photo',job.photo.name,job.photo.cost,job.photo.paid);
  if(job.social.on)pushExp('social','Social','Social',job.social.name,job.social.cost,job.social.paid);
- if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.contact,job.dancer.cost,job.dancer.paid);
+ if(job.dancer.on)pushExp('dancer','Dancer'+(job.dancer.name?(' - '+job.dancer.name):''),'Dancer',job.dancer.name,job.dancer.total,job.dancer.paid);
  if(job.stay.on)pushExp('stay','Lưu trú'+(job.stay.hotel?(' - '+job.stay.hotel):''),'Lưu trú',job.stay.hotel,job.stay.cost,job.stay.paid);
  if(job.move.on)pushExp('move','Di chuyển ('+(job.move.mode==='flight'?'máy bay':'xe')+')','Di chuyển',job.move.mode==='flight'?job.move.flight.no:job.move.car.name,job.move.cost,job.move.paid);
  alert('Đã lưu sự kiện: '+name);
