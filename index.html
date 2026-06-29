@@ -662,13 +662,14 @@ var accounts=[
  {id:"a2",label:"Heart Soldier - Vietinbank",bank:"Vietinbank - CN Chương Dương",number:"117600881988"}
 ];
 var teamNotes=[
- {id:"n1",title:"📸 Gallery hình",body:"Album ảnh các show:\nhttps://photos.app.goo.gl/qt-gallery",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
+ {id:"n1",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit",sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
  {id:"n2",title:"🖼️ Poster / Key visual",body:"Folder poster & KV chính thức:\nhttps://drive.google.com/folder/posters",tags:["media"],pinned:true,locked:true,by:"Trúc",updatedAt:Date.now()-86400000*2},
- {id:"n3",title:"🎼 Folder tổng phổ",body:"https://drive.google.com/folder/tongpho",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-86400000},
- {id:"n4",title:"🎵 Folder beat",body:"https://drive.google.com/folder/beat",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-80000000},
+ {id:"n3",title:"🎼 Folder tổng phổ",body:"https://drive.google.com/drive/folders/1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",folderId:"1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-86400000},
+ {id:"n4",title:"🎵 Folder beat",body:"https://drive.google.com/drive/folders/1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",folderId:"1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-80000000},
  {id:"n5",title:"✅ List bài hát có beat",body:"1. Phía sau một cô gái\n2. Yêu 5\n3. Đường tôi chở em về\n4. (đang xin) Chạy ngay đi",tags:["nhạc","todo"],pinned:false,locked:false,by:"Vi",updatedAt:Date.now()-70000000},
  {id:"n6",title:"📤 Drive upload chung",body:"Up file cần duyệt vào đây:\nhttps://drive.google.com/folder/upload",tags:[],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-60000000},
- {id:"n7",title:"❓ Kịch bản / câu hỏi cần trả lời",body:"- Thứ tự ra sân khấu?\n- Thêm 1 bài tủ phần giao lưu?\n- Trang phục đổi mấy lần?",tags:["hỏi"],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-50000000}
+ {id:"n7",title:"❓ Kịch bản / câu hỏi cần trả lời",body:"- Thứ tự ra sân khấu?\n- Thêm 1 bài tủ phần giao lưu?\n- Trang phục đổi mấy lần?",tags:["hỏi"],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-50000000},
+ {id:"n8",title:"📑 Proposal SKYNote26",body:"https://drive.google.com/drive/folders/1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",folderId:"1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",tags:["proposal"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-40000000}
 ];
 var contracts=[
  {id:"demo1",eventId:"demo1",contractNo:"HD2026-07",partner:"Cty ABC Entertainment",address:"123 Lê Lợi, P. Bến Nghé, Q1, HCM",taxCode:"0312345678",phone:"02838111222",rep:"Nguyễn Văn A",repTitle:"Giám đốc",bankNo:"007100112233",bankName:"Vietcombank",branch:"HCM",email:"ketoan@abc.vn",signDate:new Date("2026-06-20T00:00:00+07:00"),bankAccount:"a1",valuePreTax:400000000,taxRate:8,totalValue:432000000,installments:[{pct:50,amount:216000000,dueNote:"Sau khi ký HĐ",dueDate:"2026-06-20",invoiced:true,invoiceNo:"0001234",paid:true,paidDate:"2026-06-22"},{pct:50,amount:216000000,dueNote:"Sau khi diễn",dueDate:"2026-07-05",invoiced:false,invoiceNo:"",paid:false,paidDate:""}],invoiceMode:"per",totalInvoiceNo:"",fileUrl:"https://drive.google.com/file/d/HD-DEMO-1/view",docs:[{type:"HĐ",url:"https://drive.google.com/file/d/HD-DEMO-1/view"},{type:"BBNT",url:"https://drive.google.com/file/d/BBNT-DEMO-1/view"}],source:"manual"}
@@ -865,6 +866,7 @@ function renderTabs(){
   b.innerHTML='<i class="ti '+t[2]+' i"></i>'+t[1];b.onclick=function(){scrollNext=true;state.screen=t[0];render();};tb.appendChild(b);});
 }
 function render(){
+ if(typeof migrateNotes==='function')migrateNotes();
  var base=state.screen.indexOf('job:')==0?'jobs':(state.screen.indexOf('note:')==0?'team':state.screen);
  document.getElementById('hTitle').textContent=TITLES[base]||'QT';
  var sc=document.getElementById('screen');var s=state.screen;
@@ -890,6 +892,7 @@ function bind(){
  document.querySelectorAll('[data-job]').forEach(function(el){el.onclick=function(){openJob(el.dataset.job);};});
  document.querySelectorAll('[data-occ]').forEach(function(el){el.onclick=function(){openOcc(el.dataset.oj,el.dataset.ok,+el.dataset.oi);};});
  document.querySelectorAll('[data-note]').forEach(function(el){el.onclick=function(){openNote(el.dataset.note);};});
+ var ll=document.getElementById('liveList');if(ll&&typeof loadLive==='function')loadLive(ll);
  var js=document.getElementById('jobSearch');if(js)js.oninput=function(){state.jobQ=js.value;window.__refocusJob=true;render();};
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
  document.querySelectorAll('[data-day]').forEach(function(el){el.onclick=function(){state.selDate=new Date(+el.dataset.day);render();};});
@@ -1244,7 +1247,7 @@ function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt
 function escAttr(s){return escHtml(s).replace(/"/g,'&quot;');}
 function linkify(s){return escHtml(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" style="color:var(--brand);word-break:break-all">$1</a>');}
 function notesById(id){for(var i=0;i<teamNotes.length;i++)if(teamNotes[i].id===id)return teamNotes[i];return null;}
-function noteCard(n){var snip=(n.body||'').split('\n').slice(0,3).join('\n');return '<button class="notecard" data-note="'+n.id+'">'+(n.locked?'<span class="lk">🔒</span>':'')+'<div class="nt">'+escHtml(n.title)+'</div><div class="nbody">'+escHtml(snip)+'</div>'+((n.tags||[]).length?('<div class="ntags">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>'):'')+'</button>';}
+function noteCard(n){var snip=(n.folderId)?'📂 Danh sách file (Drive) — chạm để mở':(n.sheetId)?'📋 Danh sách (Google Sheet) — chạm để mở':(n.body||'').split('\n').slice(0,3).join('\n');return '<button class="notecard" data-note="'+n.id+'">'+(n.locked?'<span class="lk">🔒</span>':'')+'<div class="nt">'+escHtml(n.title)+'</div><div class="nbody">'+escHtml(snip)+'</div>'+((n.tags||[]).length?('<div class="ntags">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>'):'')+'</button>';}
 function screenTeam(){
  var notes=(teamNotes||[]).slice();
  function byUpd(a,b){return (b.updatedAt||0)-(a.updatedAt||0);}
@@ -1277,8 +1280,59 @@ function screenNote(id){
   h+='<button class="bigbtn alt" data-copy="'+escAttr(n.body)+'"><i class="ti ti-link i"></i> Copy nội dung</button>';
   h+='<div class="calcd" style="margin-top:8px">🔒 Đã khoá bởi quản lý — chỉ xem & copy.</div>';
  }
+ if(n.folderId||n.sheetId){
+  h+='<div class="gtitle" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px"><span>'+(n.sheetId?'📋 Danh sách':'📂 Danh sách file')+'</span><button class="chip" onclick="reloadLive()"><i class="ti ti-refresh"></i> Tải lại</button></div>';
+  h+='<div id="liveList" '+(n.folderId?('data-folder="'+escAttr(n.folderId)+'"'):('data-sheet="'+escAttr(n.sheetId)+'"'))+'><div class="calcd">⏳ Đang tải…</div></div>';
+ }
  h+='<div class="calcd" style="margin-top:10px">Cập nhật bởi '+(n.by||'?')+(n.updatedAt?(' · '+dd(new Date(n.updatedAt))):'')+'</div>';
  return h;
+}
+/* ===== Live list (Drive folder / Google Sheet) qua maps-ocr.gs ===== */
+window.__liveCache=window.__liveCache||{};
+function wireUrls(el){var bs=el.querySelectorAll('[data-url]');for(var i=0;i<bs.length;i++){(function(b){b.onclick=function(){openURL(b.getAttribute('data-url'));};})(bs[i]);}}
+function renderDriveItems(el,files){
+ if(!files||!files.length){el.innerHTML='<div class="calcd">Folder trống hoặc chưa truy cập được.</div>';return;}
+ el.innerHTML='<div class="group">'+files.map(function(f){return '<button class="item" data-url="'+escAttr(f.url)+'"><div style="flex:1;min-width:0"><div class="t">'+escHtml(f.name)+'</div></div><i class="ti ti-external-link chev"></i></button>';}).join('')+'</div>';
+ wireUrls(el);
+}
+function renderSheetItems(el,rows){
+ if(!rows||!rows.length){el.innerHTML='<div class="calcd">Chưa có mục nào có link.</div>';return;}
+ var groups={},order=[];rows.forEach(function(it){var y=String(it.year||'Khác');if(!groups[y]){groups[y]=[];order.push(y);}groups[y].push(it);});
+ order.sort(function(a,b){return (parseInt(b,10)||0)-(parseInt(a,10)||0);});
+ var html='';order.forEach(function(y){html+='<div class="gtitle">'+escHtml(y)+'</div><div class="group">'+groups[y].map(function(it){var sub=[it.month?('Th'+it.month):'',it.note].filter(Boolean).join(' · ');return '<button class="item" data-url="'+escAttr(it.url)+'"><div style="flex:1;min-width:0"><div class="t">'+escHtml(it.name)+'</div>'+(sub?'<div class="s">'+escHtml(sub)+'</div>':'')+'</div><i class="ti ti-external-link chev"></i></button>';}).join('')+'</div>';});
+ el.innerHTML=html;wireUrls(el);
+}
+function loadLive(el){
+ var fid=el.getAttribute('data-folder'),sid=el.getAttribute('data-sheet');var key=fid?('f:'+fid):('s:'+sid);
+ if(window.__liveCache[key]){fid?renderDriveItems(el,window.__liveCache[key]):renderSheetItems(el,window.__liveCache[key]);return;}
+ if(!window.MAPS_OCR_URL){el.innerHTML='<div class="calcd">Chưa cấu hình MAPS_OCR_URL — deploy maps-ocr.gs rồi dán URL.</div>';return;}
+ el.innerHTML='<div class="calcd">⏳ Đang tải danh sách…</div>';
+ var payload=fid?{action:'drivelist',folderId:fid}:{action:'sheetlist',sheetId:sid};
+ mapsOcrPost(payload).then(function(r){
+  if(fid&&r&&r.files){window.__liveCache[key]=r.files;renderDriveItems(el,r.files);}
+  else if(sid&&r&&r.rows){window.__liveCache[key]=r.rows;renderSheetItems(el,r.rows);}
+  else{el.innerHTML='<div class="calcd">❌ '+((r&&r.error)||'không tải được danh sách')+'</div>';}
+ }).catch(function(e){el.innerHTML='<div class="calcd">❌ '+e.message+'</div>';});
+}
+function reloadLive(){window.__liveCache={};render();}
+window.reloadLive=reloadLive;
+/* migration: gắn folderId/sheetId cho note ghim sẵn (không cần bump SEED) */
+var __noteMig=false;
+var NOTE_MIG={
+ n1:{sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit"},
+ n3:{folderId:"1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",body:"https://drive.google.com/drive/folders/1bayavOGTQVpPfiH2IyOO8gJum1yram3Q"},
+ n4:{folderId:"1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",body:"https://drive.google.com/drive/folders/1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT"},
+ n8:{folderId:"1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",title:"📑 Proposal SKYNote26",body:"https://drive.google.com/drive/folders/1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",pinned:true}
+};
+function migrateNotes(){
+ if(__noteMig)return;
+ var any=notesById('n1')||notesById('n3')||notesById('n4');if(!any)return; // chờ data load
+ __noteMig=true;
+ Object.keys(NOTE_MIG).forEach(function(id){var m=NOTE_MIG[id];var n=notesById(id);
+  if(!n){ if(id==='n8'){n={id:'n8',title:m.title,body:m.body,folderId:m.folderId,tags:['proposal'],pinned:true,locked:false,by:'Thi',updatedAt:Date.now()};teamNotes.push(n);if(window.qtSave)window.qtSave('teamnotes','n8',n);} return; }
+  var need=(m.folderId&&!n.folderId)||(m.sheetId&&!n.sheetId);
+  if(need){if(m.folderId)n.folderId=m.folderId;if(m.sheetId)n.sheetId=m.sheetId;if(m.title)n.title=m.title;if(m.pinned)n.pinned=true;n.body=m.body;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);}
+ });
 }
 function saveNote(id){
  var t=(document.getElementById('noteTitle').value||'').trim();

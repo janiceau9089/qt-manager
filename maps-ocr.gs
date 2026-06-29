@@ -27,9 +27,11 @@ function doPost(e){
   var out;
   try{
     var req = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-    if(req.action === "maps")      out = doMaps_(req);
-    else if(req.action === "ocr")  out = doOcr_(req);
-    else                           out = { error:"unknown action (cần 'maps' hoặc 'ocr')" };
+    if(req.action === "maps")          out = doMaps_(req);
+    else if(req.action === "ocr")      out = doOcr_(req);
+    else if(req.action === "drivelist")out = doDrive_(req);
+    else if(req.action === "sheetlist")out = doSheet_(req);
+    else                               out = { error:"unknown action (cần 'maps' | 'ocr' | 'drivelist' | 'sheetlist')" };
   }catch(err){ out = { error:String(err) }; }
   return _json(out);
 }
@@ -51,6 +53,72 @@ function doMaps_(req){
   var min = Math.round(secs/60);
   return { km:km, min:min, kmText:km+" km", minText:min+" phút",
            startAddress:r.routes[0].legs[0].start_address, endAddress:r.routes[0].legs[r.routes[0].legs.length-1].end_address };
+}
+
+/* ============ DRIVE LIST (liệt kê file trong folder) ============ */
+function doDrive_(req){
+  var fid = String(req.folderId||"").trim();
+  if(!fid) return { error:"thiếu folderId" };
+  var folder;
+  try{ folder = DriveApp.getFolderById(fid); }
+  catch(e){ return { error:"không mở được folder (đã share với tài khoản chạy script chưa?): "+String(e) }; }
+  var it = folder.getFiles(), out = [];
+  while(it.hasNext()){
+    var f = it.next();
+    out.push({ name: f.getName().replace(/\.[A-Za-z0-9]{1,5}$/,""), url: f.getUrl() });   // bỏ đuôi file cho gọn
+  }
+  out.sort(function(a,b){ return a.name.localeCompare(b.name, "vi"); });
+  return { files: out, count: out.length, folderName: folder.getName() };
+}
+
+/* ============ SHEET LIST (đọc 1 sheet → tên + link, kèm link ẩn trong rich text) ============ */
+function doSheet_(req){
+  var sid = String(req.sheetId||"").trim();
+  if(!sid) return { error:"thiếu sheetId" };
+  var ss;
+  try{ ss = SpreadsheetApp.openById(sid); }
+  catch(e){ return { error:"không mở được sheet (đã share chưa?): "+String(e) }; }
+  var sh = req.sheetName ? ss.getSheetByName(req.sheetName) : ss.getSheets()[0];
+  if(!sh) return { error:"không thấy sheet" };
+  var rng = sh.getDataRange(), vals = rng.getValues(), rich = rng.getRichTextValues();
+  // tìm hàng header + cột (SỰ KIỆN / LINK / NĂM / THÁNG / NOTE)
+  var hr=-1,cEvent=-1,cLink=-1,cYear=-1,cMonth=-1,cNote=-1;
+  for(var r=0;r<Math.min(vals.length,6);r++){
+    var row = vals[r].map(function(x){ return String(x).toUpperCase(); });
+    var ie=-1,il=-1;
+    for(var c=0;c<row.length;c++){
+      if(row[c].indexOf("SỰ KIỆN")>=0||row[c].indexOf("SU KIEN")>=0) ie=c;
+      if(row[c].indexOf("LINK")>=0) il=c;
+    }
+    if(ie>=0&&il>=0){ hr=r; cEvent=ie; cLink=il;
+      for(var c2=0;c2<row.length;c2++){
+        if(row[c2].indexOf("NĂM")>=0||row[c2]==="NAM") cYear=c2;
+        if(row[c2].indexOf("THÁNG")>=0||row[c2].indexOf("THANG")>=0) cMonth=c2;
+        if(row[c2].indexOf("NOTE")>=0||row[c2].indexOf("GHI CHÚ")>=0) cNote=c2;
+      }
+      break;
+    }
+  }
+  if(hr<0) return { error:"không tìm thấy cột SỰ KIỆN / LINK trong sheet" };
+  var out=[], curYear="";
+  for(var r2=hr+1;r2<vals.length;r2++){
+    var v=vals[r2];
+    if(cYear>=0 && String(v[cYear]).trim()) curYear=String(v[cYear]).trim();
+    var url="";
+    var cell=rich[r2][cLink];
+    if(cell){
+      url = cell.getLinkUrl() || "";
+      if(!url){ var runs=cell.getRuns(); for(var k=0;k<runs.length;k++){ var lu=runs[k].getLinkUrl(); if(lu){ url=lu; break; } } }
+    }
+    var raw=String(v[cLink]||"").trim();
+    if(!url && /^https?:\/\//i.test(raw)) url=raw;
+    if(!url) continue; // chỉ lấy dòng có link bấm được
+    var name=String(v[cEvent]||"").trim() || raw || "(không tên)";
+    out.push({ name:name, url:url, year:curYear,
+               month:(cMonth>=0?String(v[cMonth]||"").trim():""),
+               note:(cNote>=0?String(v[cNote]||"").trim():"") });
+  }
+  return { rows:out, count:out.length, title:sh.getName() };
 }
 
 /* ============ OCR ============ */
