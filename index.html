@@ -147,8 +147,9 @@ img.llogo::before{display:none}
 /* segmented */
 .seg{display:flex;background:var(--chip);border-radius:14px;padding:4px;margin-bottom:14px;box-shadow:inset 0 1px 3px rgba(0,0,0,.06);position:sticky;top:54px;z-index:20}
 .seg::before{content:"";position:absolute;left:-16px;right:-16px;top:-10px;bottom:-9px;background:var(--bg);z-index:-1}
-.seg button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:9px;border-radius:11px}
-.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.seg button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:9px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.seg button .ti{font-size:16px}
+.seg button.on{background:var(--grad);color:#fff;font-weight:800;box-shadow:0 4px 12px var(--bshadow)}
 
 /* iOS-like Calendar */
 .calhead{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 12px}
@@ -315,6 +316,15 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .herocard .ht{font-size:19px;font-weight:800;margin:4px 0 6px;line-height:1.25}
 .herocard .hsub2{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .dashalert{display:flex;width:100%;text-align:left;align-items:center;gap:10px;background:var(--redbg);color:var(--red);border:none;border-radius:14px;padding:12px 14px;font-weight:700;font-size:13.5px;margin-bottom:16px;font-family:inherit}
+.greet{display:block;width:100%;text-align:left;background:var(--grad);border-radius:20px;padding:18px;margin:2px 0 16px;color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.greet::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent);pointer-events:none}
+.greet .gt{font-size:21px;font-weight:800;display:flex;align-items:center;gap:8px;position:relative}
+.greet .gs{font-size:13.5px;opacity:.95;margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;position:relative}
+.greet .gs .ti{font-size:15px}
+.dbadge{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:46px;padding:7px 4px;border-radius:13px;background:var(--soft);margin-right:2px;flex-shrink:0}
+.dbadge .dw{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--red)}
+.dbadge .dn{font-size:20px;font-weight:800;line-height:1;color:var(--text)}
+.hint{font-size:12.5px;color:var(--muted);margin:0 6px 12px;text-align:center}
 .subln{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:3px;white-space:pre-wrap;line-height:1.4}
 .tkt{background:linear-gradient(135deg,var(--soft),var(--surface));border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-top:4px;position:relative}
 .tkt .route{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -665,7 +675,22 @@ var contracts=[
 ];
 var contractById={};
 /* Dán URL Apps Script Web App (deploy contract-gen.gs) vào đây để bật "Tạo mẫu" → Drive */
-var CONTRACT_GEN_URL="https://script.google.com/macros/s/AKfycbzbFXoUlUvrYNNUvifDSzsxOerAyGANlOFaVLccSjhBlIZrqkf15491cMHjbLOaOhEf/exec";
+var CONTRACT_GEN_URL="https://script.google.com/macros/s/AKfycbw5CY18seUwBvmWpKD2IUC3991dKC2weUT-Pdx-uWfmfTi_K8ve1nbECJS6uklB9UwN/exec";
+var MAPS_OCR_URL="https://script.google.com/macros/s/AKfycbxxSa9lIREV-13JwU-9eDtGKhxnzB6XDvnHQ0g3p_UySdD7xachz5ruwf4JCa8uaBye/exec";/* Web app URL của maps-ocr.gs (Maps + OCR) */
+window.MAPS_OCR_URL=MAPS_OCR_URL;
+/* ==== Maps + OCR (Apps Script free) ==== */
+var QT_AIRPORTS={SGN:"Sân bay Tân Sơn Nhất, TP.HCM",HAN:"Sân bay Nội Bài, Hà Nội",DAD:"Sân bay Đà Nẵng",CXR:"Sân bay Cam Ranh, Nha Trang",PQC:"Sân bay Phú Quốc",HPH:"Sân bay Cát Bi, Hải Phòng",VCA:"Sân bay Cần Thơ",HUI:"Sân bay Phú Bài, Huế",DLI:"Sân bay Liên Khương, Đà Lạt",UIH:"Sân bay Phù Cát, Quy Nhơn",VII:"Sân bay Vinh",BMV:"Sân bay Buôn Ma Thuột",VDO:"Sân bay Vân Đồn",THD:"Sân bay Thọ Xuân, Thanh Hóa",TBB:"Sân bay Tuy Hòa",VCS:"Sân bay Côn Đảo"};
+function airportFromRoute(route){var m=String(route||"").toUpperCase().match(/\b([A-Z]{3})\b/);if(m&&QT_AIRPORTS[m[1]])return QT_AIRPORTS[m[1]];return m?m[1]:"";}
+function mapsOcrPost(payload){var url=window.MAPS_OCR_URL||"";if(!url)return Promise.reject(new Error("Chưa cấu hình MAPS_OCR_URL — deploy maps-ocr.gs rồi dán URL."));
+ return fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}).then(function(r){return r.json();});}
+function fileToB64(file){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result));};fr.onerror=function(){rej(new Error("đọc file lỗi"));};fr.readAsDataURL(file);});}
+function calcDist(originId,destId,kmId,minId,statusEl){var V=function(id){var e=document.getElementById(id);return e?(e.value||"").trim():"";};
+ var o=V(originId),d=V(destId);if(!o||!d){toast("Cần nhập cả 2 địa điểm");return;}
+ if(statusEl)statusEl.textContent="⏳ Đang tính khoảng cách…";
+ mapsOcrPost({action:"maps",origin:o,destination:d}).then(function(r){
+  if(r&&r.km!=null){var k=document.getElementById(kmId),m=document.getElementById(minId);if(k)k.value=r.km;if(m)m.value=r.min;if(statusEl)statusEl.textContent="✅ "+r.kmText+" · "+r.minText;}
+  else{if(statusEl)statusEl.textContent="❌ "+((r&&r.error)||"không tính được");}
+ }).catch(function(e){if(statusEl)statusEl.textContent="❌ "+e.message;});}
 function reContracts(){contractById={};contracts.forEach(function(c){contractById[c.id]=c;});}
 function vById(id){for(var i=0;i<vendors.length;i++)if(vendors[i].id===id)return vendors[i];return null;}
 function aById(id){for(var i=0;i<accounts.length;i++)if(accounts[i].id===id)return accounts[i];return null;}
@@ -682,7 +707,7 @@ function tm(d){return d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-dig
 function sameDay(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate();}
 function recvOf(id){var s=0;pays.forEach(function(p){if(p.job==id&&p.st=='da_thanh_toan')s+=p.amt});return s;}
 function fin(){return state.role=='thi'||state.role=='truc';}
-var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',expFilter:'all',expGroup:'type',jobQ:'',collapsed:{}};
+var state={role:'thi',screen:'dash',calMonth:new Date(now.getFullYear(),now.getMonth(),1),selDate:new Date(now),moneyTab:'pay',tab:'overview',taskFilter:'all',expFilter:'all',expGroup:'event',jobQ:'',collapsed:{}};
 function isColl(k,def){return (k in state.collapsed)?state.collapsed[k]:def;}
 function monthLabel(y,m){return 'Tháng '+(m+1)+'/'+y;}
 
@@ -892,19 +917,36 @@ function kpi(ic,l,v){return '<div class="kpi"><div class="ico"><i class="ti '+ic
 function jobItem(j,sub){return '<button class="item" data-job="'+j.id+'"><span class="bar" style="background:'+TC[j.type]+'"></span><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s">'+(sub||dt(j.start))+'</div></div>'+sbadge(j.status)+'<i class="ti ti-chevron-right chev"></i></button>';}
 function emp(t){return '<div class="empty">'+t+'</div>';}
 
+function dashItem(j){var d=j.start;var wk=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()];
+ return '<button class="item" data-job="'+j.id+'"><div class="dbadge"><span class="dw">'+wk+'</span><span class="dn">'+d.getDate()+'</span></div><div style="flex:1;min-width:0"><div class="t">'+j.name+'</div><div class="s"><i class="ti ti-map-pin"></i> '+(j.loc||j.prov||'—')+' · '+tm(d)+'</div><div style="margin-top:5px">'+sbadge(j.status)+'</div></div><i class="ti ti-chevron-right chev"></i></button>';}
 function screenDash(){
  var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
  var upAll=jobs.filter(function(j){return j.start>=todayStart;}).sort(function(a,b){return a.start-b.start;});
  var next=upAll[0];
- var h='<div class="hsub">Chào '+USERS[state.role].nm+' 👋 · '+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div>';
+ // 1) Hero chào hỏi (giờ + ngày) — thời tiết/bình minh để Phase API sau
+ var hr=now.getHours();var greet=hr<11?'Chào buổi sáng':hr<18?'Chào buổi chiều':'Chào buổi tối';var gem=hr<11?'☀️':hr<18?'🌤️':'🌙';
+ var h='<div class="greet"><div class="gt">'+gem+' '+greet+', '+USERS[state.role].nm+'!</div><div class="gs"><i class="ti ti-clock"></i> '+tm(now)+' · '+now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long'})+'</div></div>';
+ // 2) Sự kiện tiếp theo
  if(next){var dl=Math.round((stripT(next.start)-todayStart)/86400000);var when=dl<=0?'Hôm nay':dl===1?'Ngày mai':('Còn '+dl+' ngày');
-  h+='<button class="herocard" data-job="'+next.id+'" style="border-left:5px solid '+TC[next.type]+'"><div class="hl">'+when+' · '+tm(next.start)+'</div><div class="ht">'+next.name+'</div><div class="hsub2"><i class="ti ti-map-pin"></i> '+(next.loc||next.prov||'—')+' · '+sbadge(next.status)+'</div></button>';}
+  h+='<button class="herocard" data-job="'+next.id+'" style="border-left:5px solid '+TC[next.type]+'"><div class="hl">Sự kiện tiếp theo</div><div class="ht">'+next.name+'</div><div class="hsub2"><i class="ti ti-map-pin"></i> '+(next.loc||next.prov||'—')+' · '+tm(next.start)+'</div><div class="hsub2" style="margin-top:7px">'+sbadge(next.status)+'<span style="margin-left:auto;font-weight:800;color:var(--brand)">'+dd(next.start)+' · '+when+'</span></div></button>';}
+ // 3) Lưới KPI 2x2 — tiền cho quản lý, đếm sự kiện cho nghệ sĩ/trợ lý
  if(fin()){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt;});
   var od=pays.filter(function(p){return p.st=='qua_han';});var odSum=od.reduce(function(s,p){return s+p.amt;},0);
-  h+='<div class="kpis">'+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Còn phải thu',money(inc-rec))+kpi('ti-trending-down','Quá hạn',money(odSum))+'</div>';
-  if(odSum>0)h+='<button class="dashalert" data-go="money"><i class="ti ti-alert-triangle i"></i><span>'+od.length+' khoản quá hạn thu · '+money(odSum)+' — bấm để xem</span></button>';}
+  var thisM=pays.reduce(function(s,p){return s+((p.due&&p.due.getMonth()==now.getMonth()&&p.due.getFullYear()==now.getFullYear())?p.amt:0);},0);
+  h+='<div class="kpis">'+kpi('ti-trending-up','Đã thu',money(rec))+kpi('ti-clock','Còn phải thu',money(inc-rec))+kpi('ti-trending-down','Quá hạn',money(odSum))+kpi('ti-cash','Thu tháng này',money(thisM))+'</div>';
+  if(odSum>0)h+='<button class="dashalert" data-go="money"><i class="ti ti-alert-triangle i"></i><span>'+od.length+' khoản quá hạn thu · '+money(odSum)+' — bấm để xem</span></button>';
+ } else {
+  var mNow=now.getMonth(),yNow=now.getFullYear();var nm=new Date(yNow,mNow+1,1);
+  function inMo(d,m,y){return d.getMonth()==m&&d.getFullYear()==y;}
+  var cntUp=upAll.length;
+  var cntThis=jobs.filter(function(j){return inMo(j.start,mNow,yNow);}).length;
+  var cntDone=jobs.filter(function(j){return inMo(j.start,mNow,yNow)&&(j.status=='hoan_thanh'||j.start<todayStart);}).length;
+  var cntNext=jobs.filter(function(j){return inMo(j.start,nm.getMonth(),nm.getFullYear());}).length;
+  h+='<div class="kpis">'+kpi('ti-calendar-event','Sắp tới',cntUp)+kpi('ti-circle-check','Hoàn tất tháng này',cntDone)+kpi('ti-calendar','Sự kiện tháng này',cntThis)+kpi('ti-calendar-plus','Tháng sau',cntNext)+'</div>';
+ }
+ // 4) Sắp tới (badge ngày)
  var up=upAll.slice(0,5);
- h+='<div class="gtitle">Sắp diễn ra</div><div class="group">'+(up.length?up.map(function(j){return jobItem(j)}).join(''):emp('Chưa có lịch sắp tới'))+'</div>';
+ h+='<div class="gtitle">Sắp tới</div><div class="group">'+(up.length?up.map(dashItem).join(''):emp('Chưa có lịch sắp tới'))+'</div>';
  var fu=jobs.filter(function(j){return j.follow;});
  if(fu.length)h+='<div class="gtitle">Cần follow-up</div><div class="group">'+fu.map(function(j){return jobItem(j,SL[j.status])}).join('')+'</div>';
  return h;
@@ -1006,7 +1048,7 @@ function screenCal(){
  return h;
 }
 function screenMoney(){
- var h='<div class="seg"><button data-mt="pay" class="'+(state.moneyTab=='pay'?'on':'')+'">Tài chính thu</button><button data-mt="exp" class="'+(state.moneyTab=='exp'?'on':'')+'">Chi phí</button></div>';
+ var h='<div class="seg"><button data-mt="pay" class="'+(state.moneyTab=='pay'?'on':'')+'"><i class="ti ti-trending-up"></i> Tài chính thu</button><button data-mt="exp" class="'+(state.moneyTab=='exp'?'on':'')+'"><i class="ti ti-receipt"></i> Chi phí</button></div>';
  if(state.moneyTab=='pay'){var inc=0,rec=0;pays.forEach(function(p){inc+=p.amt;if(p.st=='da_thanh_toan')rec+=p.amt});
   var thisM=pays.reduce(function(s,p){return s+((p.due&&p.due.getMonth()==now.getMonth()&&p.due.getFullYear()==now.getFullYear())?p.amt:0);},0);
   h+='<div class="kpis">'+kpi('ti-wallet','Dự kiến',money(inc))+kpi('ti-cash','Đã nhận',money(rec))+kpi('ti-clock','Công nợ',money(inc-rec))+kpi('ti-cash','Thu tháng này',money(thisM))+'</div>';
@@ -1023,7 +1065,12 @@ function screenMoney(){
   h+='<div class="chiprow" style="margin-bottom:12px"><span style="font-size:12px;color:var(--muted);align-self:center;margin-right:2px">Nhóm theo:</span>'+gchip('type','Loại')+gchip('event','Sự kiện')+'</div>';
   var fl=live.filter(function(e){return filt==='paid'?e.st==='da_thanh_toan':filt==='unpaid'?e.st!=='da_thanh_toan':true;});
   var groups={},order=[];fl.forEach(function(e){var key=grp==='type'?(e.type||'Khác'):((jById[e.job]||{}).name||e.job);if(!groups[key]){groups[key]=[];order.push(key);}groups[key].push(e);});
+  // Theo sự kiện + xem "Tất cả": tự ẩn sự kiện đã thanh toán toàn bộ (bấm "✅ Đã TT" để xem lại)
+  var hiddenDone=0;
+  if(grp==='event'&&filt==='all'){order=order.filter(function(k){var allPaid=groups[k].length>0&&groups[k].every(function(e){return e.st==='da_thanh_toan';});if(allPaid){hiddenDone++;return false;}return true;});}
+  if(hiddenDone)h+='<div class="hint">🙈 Đã ẩn '+hiddenDone+' sự kiện đã thanh toán đủ · bấm "✅ Đã TT" để xem</div>';
   if(!fl.length)h+=emp('Không có khoản chi');
+  else if(!order.length)h+=emp('Tất cả chi phí đã thanh toán đủ 🎉');
   order.forEach(function(k){var g=groups[k];var sub=g.reduce(function(s,e){return s+amtOf(e);},0);
    h+='<div class="gtitle" style="display:flex;justify-content:space-between;align-items:baseline"><span>'+k+'</span><span style="color:var(--brand)">'+money(sub)+'</span></div>';
    h+='<div class="group">'+g.map(function(e){var j=jById[e.job];var paid=e.st==='da_thanh_toan';return '<button class="item" data-job="'+e.job+'"><div style="flex:1;min-width:0"><div class="t">'+e.name+'</div><div class="s">'+(grp==='type'?((j&&j.name)||''):(e.type||''))+(e.vendor?(' · '+e.vendor):'')+'</div></div><div style="text-align:right"><div class="money">'+money(amtOf(e))+'</div><span class="cstat" style="background:'+(paid?'var(--greenbg)':'#fff1de')+';color:'+(paid?'var(--green)':'#d9730d')+';margin-top:3px;display:inline-flex">'+(paid?'✅ Đã TT':'⏳ Chưa TT')+'</span></div></button>';}).join('')+'</div>';
@@ -1319,6 +1366,7 @@ function screenCreate(){
  H+=paidSeg('stPaid');
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Check-in</label><input id="stCin" type="time" class="in"></div><div class="fld"><label class="flbl">Check-out</label><input id="stCout" type="time" class="in"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → nơi diễn (km)</label><input id="stDistKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="stDistMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
+ H+='<button type="button" class="addrow" id="stCalcDist"><i class="ti ti-route"></i> 📍 Tự tính KS → nơi diễn</button><div id="stDistMsg" class="calcd" style="padding:2px 0 0"></div>';
  H+='<div class="calcd" style="padding:5px 0 0">🤖 Tự tính khoảng cách & thời gian bằng Maps API — Phase 2.</div>';
  H+='</div>';/* stayBox */
  /* di chuyển (riêng) */
@@ -1328,12 +1376,15 @@ function screenCreate(){
  /* máy bay */
  H+='<div class="swrow" style="padding:10px 0 0"><span class="swt" style="font-size:14px"><i class="ti ti-plane"></i> Máy bay</span><label class="switch"><input type="checkbox" id="swFlight"><span class="slider"></span></label></div>';
  H+='<div class="sub" id="mvFlightBox">';
- H+='<div class="calcd" style="padding:8px 0 0">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, chuyến, lộ trình & giờ bay — Phase 2/3.</div>';
+ H+='<div class="calcd" style="padding:8px 0 0">🤖 Tải vé (ảnh/PDF) → tự đọc mã vé, chuyến, lộ trình & giờ bay (cần cấu hình MAPS_OCR_URL).</div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Mã chuyến bay</label><input id="mvFlNo" class="in" placeholder="VD: VN213"></div><div class="fld"><label class="flbl">Code vé (PNR)</label><input id="mvFlCode" class="in" placeholder="VD: ABC123"></div></div>';
  H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Lộ trình</label><input id="mvFlRoute" class="in" placeholder="SGN → HAN"></div>';
+ H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">KS → sân bay (km)</label><input id="mvAirKm" class="in" inputmode="numeric" placeholder="km"></div><div class="fld"><label class="flbl">Thời gian (phút)</label><input id="mvAirMin" class="in" inputmode="numeric" placeholder="phút"></div></div>';
+ H+='<button type="button" class="addrow" id="mvCalcAir"><i class="ti ti-route"></i> 📍 Tự tính KS → sân bay (theo lộ trình)</button><div id="mvAirMsg" class="calcd" style="padding:2px 0 0"></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Giờ bay</label><input id="mvFlDep" type="time" class="in"></div><div class="fld"><label class="flbl">Giờ đáp</label><input id="mvFlArr" type="time" class="in"></div></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Thời gian bay</label><input id="mvFlDur" class="in" placeholder="VD: 2h10"></div><div class="fld"><label class="flbl">Chênh giờ điểm đến</label><input id="mvFlTz" class="in" placeholder="VD: +0h"></div></div>';
- H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link vé máy bay (file) — team upload</label><input id="mvFlTicket" class="in" placeholder="Dán link ảnh/PDF vé… (Phase 2: upload trực tiếp)"></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">🤖 Đọc vé tự động (ảnh/PDF)</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="mvFlFile" accept="image/*,application/pdf" class="in" style="padding:7px"><button type="button" class="iconbtn" id="mvFlRead" title="Đọc vé"><i class="ti ti-robot"></i></button></div><div id="mvFlMsg" class="calcd" style="padding:2px 0 0"></div></div>';
+ H+='<div class="fld" style="padding:8px 0 0"><label class="flbl">Link vé máy bay (file) — team upload</label><input id="mvFlTicket" class="in" placeholder="Dán link ảnh/PDF vé…"></div>';
  H+='<div class="frow" style="padding:8px 0 0"><div class="fld"><label class="flbl">Chi phí vé</label><input id="mvFlCost" class="in" inputmode="numeric" placeholder="0"></div><div class="fld"></div></div>';
  H+=paidSeg('mvFlPaid');
  H+='</div>';/* mvFlightBox */
@@ -1354,7 +1405,8 @@ function screenCreate(){
  H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
  H+='<div class="segbtn" id="ctMode" style="margin:8px 0"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải file lên</button><button type="button" data-val="create" class="on"><i class="ti ti-pencil"></i> Tạo file mới</button></div>';
  H+='<div id="ctUploadBox" style="display:none;margin-bottom:6px">';
- H+='<div class="fld" style="padding:0"><label class="flbl">File (ảnh/PDF)</label><div style="display:flex;gap:8px"><input id="ctUpFile" class="in" placeholder="Dán link file…"><button class="iconbtn" type="button" id="ctReadBtn" title="Tải lên & đọc"><i class="ti ti-robot"></i></button></div></div>';
+ H+='<div class="fld" style="padding:0"><label class="flbl">🤖 Đọc file HĐ (ảnh/PDF) — OCR tự điền</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="ctUpFileF" accept="image/*,application/pdf" class="in" style="padding:7px"><button class="iconbtn" type="button" id="ctReadBtn" title="Đọc file"><i class="ti ti-robot"></i></button></div></div>';
+ H+='<div class="fld" style="padding:6px 0 0"><label class="flbl">Hoặc dán link file đã upload</label><input id="ctUpFile" class="in" placeholder="Dán link ảnh/PDF…"></div>';
  H+='<div class="calcd" style="padding:6px 0 0">🤖 Tải file vào folder Drive chỉ định → hiện ở Tài liệu. API tự đọc nhận diện loại file & cập nhật thông tin (nếu sự kiện mới thì tự điền), kèm tóm tắt thay đổi để xác nhận — Phase 2/3.</div>';
  H+='</div>';
  H+='<div class="fld" id="ctPasteWrap" style="padding:0 0 4px"><label class="flbl">Dán thông tin từ đối tác (tên, MST, người ký, giá trị HĐ…)</label><textarea id="ctPaste" class="in" placeholder="Dán cụm thông tin đối tác + giá trị hợp đồng…"></textarea><button type="button" class="addrow" id="ctParseBtn"><i class="ti ti-robot"></i> Đọc & điền</button></div>';
@@ -1472,6 +1524,17 @@ function bindCreateForm(){
  document.getElementById('evDate').onchange=function(){if(document.getElementById('swCt').checked)_rebuildInst(qc.n,true);};
  document.getElementById('beatOpen').onclick=function(){openURL(document.getElementById('beatLink').value);};
  document.getElementById('stMap').onclick=function(){openMap(document.getElementById('stHotel').value);};
+ // Maps: tự tính khoảng cách (Apps Script free)
+ var scd=document.getElementById('stCalcDist');if(scd)scd.onclick=function(){calcDist('stHotel','evLoc','stDistKm','stDistMin',document.getElementById('stDistMsg'));};
+ var mca=document.getElementById('mvCalcAir');if(mca)mca.onclick=function(){var ap=airportFromRoute(document.getElementById('mvFlRoute').value);if(!ap){toast('Nhập lộ trình (VD: SGN → HAN) trước');return;}var tmp=document.createElement('input');tmp.id='_apTmp';tmp.value=ap;document.body.appendChild(tmp);calcDist('stHotel','_apTmp','mvAirKm','mvAirMin',document.getElementById('mvAirMsg'));setTimeout(function(){tmp.remove();},50);};
+ // OCR: đọc vé máy bay (Apps Script Drive OCR free)
+ var mfr=document.getElementById('mvFlRead');if(mfr)mfr.onclick=function(){var fi=document.getElementById('mvFlFile');var msg=document.getElementById('mvFlMsg');var f=fi&&fi.files&&fi.files[0];if(!f){toast('Chọn file vé trước');return;}msg.textContent='⏳ Đang đọc vé…';
+   fileToB64(f).then(function(b64){return mapsOcrPost({action:'ocr',kind:'flight',fileBase64:b64,mimeType:f.type});}).then(function(r){
+    if(r&&r.parsed){var p=r.parsed,got=[];function S(id,v){var e=document.getElementById(id);if(e&&v){e.value=v;return true;}return false;}
+     if(S('mvFlNo',p.no))got.push('mã chuyến');if(S('mvFlRoute',p.route))got.push('lộ trình');if(S('mvFlCode',p.code))got.push('PNR');if(S('mvFlDep',p.depart))got.push('giờ bay');if(S('mvFlArr',p.arrive))got.push('giờ đáp');
+     msg.textContent=got.length?('✅ Đã điền: '+got.join(', ')+'. Kiểm tra lại nhé.'):('Đọc được chữ nhưng chưa bóc được field — kiểm tra ảnh rõ hơn.');}
+    else{msg.textContent='❌ '+((r&&r.error)||'không đọc được');}
+   }).catch(function(e){msg.textContent='❌ '+e.message;});};
  var cpm=document.getElementById('mvCarPickupMap');if(cpm)cpm.onclick=function(){openMap(document.getElementById('mvCarPickup').value);};
  function telBtn(btnId,inpId){var b=document.getElementById(btnId);if(b)b.onclick=function(){var p=(document.getElementById(inpId).value||'').replace(/\s/g,'');if(p)window.open('tel:'+p);else alert('Nhập số điện thoại trước.');};}
  telBtn('stTel','stPhone');
@@ -1534,16 +1597,24 @@ function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return
  box.querySelectorAll('[data-rmdoc]').forEach(function(el){el.onclick=function(){ctDocsList.splice(+el.dataset.rmdoc,1);renderCtDocs();};});
 }
 function readContractFile(){
- var res=document.getElementById('ctGenResult');var u=(document.getElementById('ctUpFile').value||'').trim();
- if(!u){toast('Dán link file trước');return;}
+ var res=document.getElementById('ctGenResult');
+ var fi=document.getElementById('ctUpFileF');var file=fi&&fi.files&&fi.files[0];
+ var u=(document.getElementById('ctUpFile').value||'').trim();
+ if(file){ // OCR file thật qua maps-ocr.gs (free)
+  res.textContent='⏳ Đang đọc file HĐ (OCR)…';
+  fileToB64(file).then(function(b64){return mapsOcrPost({action:'ocr',kind:'contract',fileBase64:b64,mimeType:file.type});}).then(function(r){
+   if(r&&(r.parsed||r.text)){var p=r.parsed||{},got=[];function S(id,v){var e=document.getElementById(id);if(e&&v&&!e.value){e.value=v;return true;}return false;}
+    if(S('ctPartner',p.partner))got.push('đối tác');if(S('ctMst',p.taxCode))got.push('MST');if(p.value&&!parseMoney((document.getElementById('ctValue')||{}).value)){document.getElementById('ctValue').value=p.value;_recalcTotal();got.push('giá trị');}
+    var pa=document.getElementById('ctPaste');if(pa&&r.text){pa.value=r.text;} // đổ text để bấm "Đọc & điền" bóc thêm
+    if(typeof updateVital==='function')updateVital();
+    res.innerHTML=(got.length?('✅ Đã điền: '+got.join(', ')+'. '):'')+'Đã đổ toàn văn vào ô dán — bấm "Đọc & điền" để bóc thêm, rồi kiểm tra lại.';}
+   else{res.textContent='❌ '+((r&&r.error)||'không đọc được nội dung');}
+  }).catch(function(e){res.textContent='❌ Lỗi OCR: '+e.message;});
+  return;
+ }
+ if(!u){toast('Chọn file hoặc dán link trước');return;}
  ctDocsList.push({type:'HĐ',url:u});renderCtDocs();
- var url=window.CONTRACT_GEN_URL||'';
- if(!url){res.innerHTML='✅ Đã thêm file vào Tài liệu. 🤖 Tự đọc nội dung điền field — Phase 2/3 (gộp đợt API).';return;}
- res.textContent='⏳ Đang đọc nội dung file…';
- fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({docType:'READ',fileUrl:u})})
-  .then(function(r){return r.json();})
-  .then(function(d){if(d&&d.fields){var f=d.fields;function S(id,v){var e=document.getElementById(id);if(e&&v!=null)e.value=v;}S('ctNo',f.contractNo);S('ctPartner',f.partner);S('ctMst',f.taxCode);S('ctValue',f.valuePreTax);_recalcTotal();res.textContent='✅ Đã đọc & điền thông tin từ file.';}else{res.textContent='Đã thêm file. Không đọc được nội dung tự động.';}})
-  .catch(function(e){res.textContent='Đã thêm file. Lỗi đọc tự động: '+e.message;});
+ res.innerHTML='✅ Đã thêm link file vào Tài liệu. (Muốn OCR tự điền thì chọn file ảnh/PDF ở trên.)';
 }
 function _noDia(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');}
 function _abbr(name){var stop='CONG TY CO PHAN TNHH MTV DU LICH VA DAU TU THUONG MAI DICH VU TAP DOAN COMPANY LTD JSC GROUP CORP'.split(' ');var ws=_noDia(name).toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).filter(function(w){return w&&stop.indexOf(w)<0;});if(!ws.length)return 'KH';return ws.map(function(w){return w[0];}).join('').slice(0,4);}
