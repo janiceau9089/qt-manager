@@ -49,10 +49,12 @@ function onOpen(){SpreadsheetApp.getUi().createMenu('Firestore Sync')
  .addItem('① Định dạng tab Sync (+ cấp Mã sự kiện)','setupSheet')
  .addItem('③ Tạo / Cập nhật tab Hợp đồng','setupContractsTab')
  .addItem('② Đẩy lên app (gộp Sync + Hợp đồng)','pushToApp')
+ .addItem('②b Đẩy CHỈ tiền (pays) — không đụng job','pushPaysOnly')
  .addItem('↕ Sắp xếp lại theo ngày','sortSheet')
  .addSeparator()
  .addItem('⏰ Bật tự đồng bộ lịch mỗi sáng','enableAutoSync')
  .addItem('⏰ Tắt tự đồng bộ','disableAutoSync')
+ .addItem('⚠ Xoá sample data (demo + pays/exps/docs/tasks)','clearSampleData')
  .addItem('⚠ Xoá hết jobs/pays trên app (reset)','resetApp').addToUi();}
 
 /* ===== tiện ích ===== */
@@ -218,5 +220,24 @@ function pushToApp(){
  }
  sortSheet();
  SpreadsheetApp.getUi().alert('Đã đẩy lên app: '+nJobs+' job, '+nPays+' đợt (tiền lấy từ tab Hợp đồng).');
+}
+/* ②b — Đẩy CHỈ tiền (pays) từ tab Hợp đồng, KHÔNG ghi/đụng job (tránh mất field giàu) */
+function paysStartMap_(){var m={};var sh=SpreadsheetApp.getActive().getSheetByName(SHEET_NAME);if(!sh)return m;var d=sh.getDataRange().getValues();if(d.length<2)return m;var h=d[0].map(function(x){return String(x).trim();});var col={};h.forEach(function(x,i){var k=keyForHeader_(x);if(k)col[k]=i;});if(col['eventId']===undefined)return m;
+ for(var r=1;r<d.length;r++){var eid=String(d[r][col['eventId']]||'').trim();if(!eid)continue;var date=toYMD_(d[r][col['date']]);var tm=String(col['time']!==undefined?d[r][col['time']]:'');var tmm=tm.match(/(\d{1,2}):(\d{2})/);m[eid]=isoStart_(date,tmm?(pad_(tmm[1],2)+':'+tmm[2]):'19:00');}return m;}
+function pushPaysOnly(){
+ var HD=readContracts_();var startById=paysStartMap_();var n=0, ev=0;
+ Object.keys(HD).forEach(function(eventId){var fin=HD[eventId];if(!fin)return;ev++;
+  for(var k=0;k<fin.inst.length;k++){var it=fin.inst[k];if(!it.amt)continue;
+   var due=it.date?(it.date+'T00:00:00+07:00'):(startById[eventId]||isoStart_(toYMD_(new Date()),'19:00'));
+   var stt=String(it.st||'').trim();
+   write_('pays',eventId+'_'+(k+1),{id:eventId+'_'+(k+1),job:eventId,label:'Đợt '+(k+1),amt:it.amt,pct:fin.totalValue?Math.round(it.amt/fin.totalValue*100):0,due:due,st:PAYST_MAP[stt]||'chua_den_han',paid:(stt==='Đã thanh toán')?new Date().toISOString():null,sourceApp:'qt-artist-manager',entityType:'payment',jobId:eventId,updatedAt:new Date().toISOString()});n++;}});
+ SpreadsheetApp.getUi().alert('Đã đẩy '+n+' đợt thu (từ '+ev+' HĐ) — CHỈ tiền, KHÔNG đụng job.');
+}
+/* Xoá sample data: job demo + toàn bộ pays/exps/docs/tasks/contracts mẫu. GIỮ lịch thật. */
+function clearSampleData(){var ui=SpreadsheetApp.getUi();
+ if(ui.alert('Xoá sample data trên app?','Xoá job demo + toàn bộ pays/exps/docs/tasks/contracts mẫu. GIỮ lịch g1–g106 thật. Không thể hoàn tác.',ui.ButtonSet.YES_NO)!==ui.Button.YES)return;
+ del_('jobs','demo1');
+ var n=0;['pays','exps','docs','tasks','contracts'].forEach(function(c){listIds_(c).forEach(function(id){del_(c,id);n++;});});
+ ui.alert('Đã xoá job demo + '+n+' bản ghi pays/exps/docs/tasks/contracts mẫu. Lịch thật được giữ. (Bấm ②b để nạp lại tiền từ Hợp đồng.)');
 }
 function resetApp(){var ui=SpreadsheetApp.getUi();if(ui.alert('Xoá toàn bộ jobs & pays trên app?','Để Sheet làm nguồn chính.',ui.ButtonSet.YES_NO)!==ui.Button.YES)return;['jobs','pays'].forEach(function(c){listIds_(c).forEach(function(id){del_(c,id);});});ui.alert('Đã xoá. Bấm ② để nạp lại.');}
