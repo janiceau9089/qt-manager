@@ -855,6 +855,7 @@ function renderTabs(){
 }
 function render(){
  if(typeof migrateNotes==='function')migrateNotes();
+ if(typeof purgeOldTrash==='function')purgeOldTrash();
  var base=state.screen.indexOf('job:')==0?'jobs':(state.screen.indexOf('note:')==0?'team':state.screen);
  document.getElementById('hTitle').textContent=TITLES[base]||'QT';
  var sc=document.getElementById('screen');var s=state.screen;
@@ -882,6 +883,7 @@ function bind(){
  document.querySelectorAll('[data-note]').forEach(function(el){el.onclick=function(){openNote(el.dataset.note);};});
  document.querySelectorAll('[data-del]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();delNote(el.dataset.del);};});
  document.querySelectorAll('[data-restore]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();restoreNote(el.dataset.restore);};});
+ document.querySelectorAll('[data-purge]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();purgeNote(el.dataset.purge);};});
  var ll=document.getElementById('liveList');if(ll&&typeof loadLive==='function')loadLive(ll);
  var js=document.getElementById('jobSearch');if(js)js.oninput=function(){state.jobQ=js.value;window.__refocusJob=true;render();};
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
@@ -1261,11 +1263,27 @@ function screenTeam(){
  if(pinned.length)h+='<div class="gtitle">📌 Ghim</div><div class="notegrid">'+pinned.map(noteCard).join('')+'</div>';
  h+='<div class="gtitle">Ghi chú</div>'+(others.length?('<div class="notegrid">'+others.map(noteCard).join('')+'</div>'):emp('Chưa có ghi chú'));
  if(trash.length){
-  h+='<div class="gtitle" style="margin-top:20px">🗑️ Thùng rác ('+trash.length+')</div><div class="group">'+trash.sort(byUpd).map(function(n){return '<div class="item" style="cursor:default"><div style="flex:1;min-width:0"><div class="t" style="color:var(--muted)">'+escHtml(n.title)+'</div><div class="s">đã xoá</div></div><button class="chip" data-restore="'+n.id+'"><i class="ti ti-arrow-back-up"></i> Khôi phục</button></div>';}).join('')+'</div>';
+  h+='<div style="text-align:right;margin:14px 2px 2px"><button class="chip" onclick="toggleTrash()" title="Thùng rác (tự xoá sau 7 ngày)"><i class="ti ti-trash"></i> '+trash.length+(state.showTrash?' ✕':'')+'</button></div>';
+  if(state.showTrash){
+   h+='<div class="group" style="margin-top:8px">'+trash.sort(byUpd).map(function(n){
+    var dleft=n.deletedAt?Math.max(0,7-Math.floor((Date.now()-n.deletedAt)/86400000)):7;
+    return '<div class="item" style="cursor:default"><div style="flex:1;min-width:0"><div class="t" style="color:var(--muted)">'+escHtml(n.title)+'</div><div class="s">tự xoá hẳn sau '+dleft+' ngày</div></div><button class="chip" data-restore="'+n.id+'" title="Khôi phục"><i class="ti ti-arrow-back-up"></i></button><button class="chip" data-purge="'+n.id+'" title="Xoá hẳn" style="color:var(--red)"><i class="ti ti-trash-x"></i></button></div>';
+   }).join('')+'</div>';
+  }
  }
  return h;
 }
-function delNote(id){var n=notesById(id);if(!n)return;if(n.folderId||n.sheetId){toast('Note ghim quan trọng — không xoá được');return;}if(n.locked&&!canLinks()){toast('Note đang khoá');return;}if(!confirm('Chuyển "'+(n.title||'ghi chú')+'" vào thùng rác? (khôi phục được)'))return;n.deleted=true;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);if(state.screen.indexOf('note:')===0)state.screen='team';render();}
+function toggleTrash(){state.showTrash=!state.showTrash;render();}
+window.toggleTrash=toggleTrash;
+/* Tự xoá hẳn note trong thùng rác sau 7 ngày (đặt mốc deletedAt khi vào thùng) */
+function purgeOldTrash(){var now=Date.now();
+ (teamNotes||[]).slice().forEach(function(n){if(!n.deleted)return;
+  if(!n.deletedAt){n.deletedAt=now;if(window.qtSave)window.qtSave('teamnotes',n.id,n);return;}
+  if(now-n.deletedAt>7*86400000){if(window.qtDel)window.qtDel('teamnotes',n.id);teamNotes=teamNotes.filter(function(x){return x.id!==n.id;});}
+ });}
+function purgeNote(id){var n=notesById(id);if(!n)return;if(!confirm('Xoá hẳn "'+(n.title||'ghi chú')+'"? Không khôi phục được.'))return;if(window.qtDel)window.qtDel('teamnotes',id);teamNotes=teamNotes.filter(function(x){return x.id!==id;});render();}
+window.purgeNote=purgeNote;
+function delNote(id){var n=notesById(id);if(!n)return;if(n.folderId||n.sheetId){toast('Note ghim quan trọng — không xoá được');return;}if(n.locked&&!canLinks()){toast('Note đang khoá');return;}if(!confirm('Chuyển "'+(n.title||'ghi chú')+'" vào thùng rác? (khôi phục trong 7 ngày)'))return;n.deleted=true;n.deletedAt=Date.now();n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);if(state.screen.indexOf('note:')===0)state.screen='team';render();}
 function restoreNote(id){var n=notesById(id);if(!n)return;n.deleted=false;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
 window.delNote=delNote;window.restoreNote=restoreNote;
 function screenNote(id){
@@ -1808,7 +1826,7 @@ applyIcons();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc, setDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyAa-QyGaHNE6G-1bbwbl2JI8XqYAXNBmOM",authDomain:"qt-manager-c55f4.firebaseapp.com",projectId:"qt-manager-c55f4",storageBucket:"qt-manager-c55f4.firebasestorage.app",messagingSenderId:"668774335722",appId:"1:668774335722:web:9c48e11a118b27e6f80393"};
 const SEED_VERSION="2026-06-29-notes";
 const COLLS=["jobs","pays","exps","docs","tasks","contracts","vendors","accounts","teamnotes"];
@@ -1838,6 +1856,7 @@ try{ const app=initializeApp(cfg); const auth=getAuth(app); const db=getFirestor
    onSnapshot(collection(db,"vendors"),function(snap){ if(!snap.empty)window.vendors=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}); });
  }catch(e){console.warn(e);} }
  window.qtSave=function(coll,id,obj){try{setDoc(doc(db,coll,id),ser(coll,obj),{merge:true});}catch(e){console.warn(e);}};
+ window.qtDel=function(coll,id){try{deleteDoc(doc(db,coll,id));}catch(e){console.warn(e);}};
  signInAnonymously(auth).then(loadAll).then(setupLive).catch(function(e){console.warn("QT: Firebase auth loi, dung du lieu cuc bo.",e);});
 }catch(e){console.warn("QT: Firebase init loi.",e);}
 </script>
