@@ -189,7 +189,16 @@ function installVendorTriggers(){
   ScriptApp.newTrigger("syncVendors").timeBased().everyMinutes(5).create();
 }
 
+// Xoá HẾT danh bạ (Firestore + sheet) — để Trúc/Thi nhập tay từ đầu. Không thể hoàn tác.
+function clearVendors(){
+  var ui=SpreadsheetApp.getUi();
+  if(ui.alert("Xoá HẾT danh bạ?","Xoá toàn bộ vendor trên app (Firestore) + dọn data tab Nhà cung cấp. Không thể hoàn tác.",ui.ButtonSet.YES_NO)!==ui.Button.YES)return;
+  var fsV=readFirestoreVendors();var n=0;
+  Object.keys(fsV).forEach(function(id){ UrlFetchApp.fetch(fsBase()+"/vendors/"+encodeURIComponent(id),{method:"delete",headers:fsHeaders(),muteHttpExceptions:true}); n++; });
+  var sh=getVendorSheet();var last=sh.getLastRow();if(last>1)sh.getRange(2,1,last-1,VCOLS.length).clearContent();
+  ui.alert("Đã xoá "+n+" vendor trên app + dọn sheet. Danh bạ trống — nhập tay từ app sẽ tự build lại (và sync về sheet).");
+}
 // (tuỳ chọn) thêm vào menu
 function addVendorMenu(){
-  SpreadsheetApp.getUi().createMenu("Danh bạ").addItem("⟳ Sync danh bạ ngay","syncVendors").addItem("Định dạng tab Nhà cung cấp","setupVendorSheet").addItem("Sửa số 0 đầu (SĐT/CCCD)","fixVendorZeros").addItem("Cài tự động","installVendorTriggers").addToUi();
+  SpreadsheetApp.getUi().createMenu("Danh bạ").addItem("⟳ Sync danh bạ ngay","syncVendors").addItem("Định dạng tab Nhà cung cấp","setupVendorSheet").addItem("Sửa số 0 đầu (SĐT/CCCD)","fixVendorZeros").addItem("⚠ Xoá hết danh bạ","clearVendors").addItem("Cài tự động","installVendorTriggers").addToUi();
 }

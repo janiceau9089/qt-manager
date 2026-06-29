@@ -637,26 +637,9 @@ var jById={};jobs.forEach(function(j){jById[j.id]=j});
 var now=new Date();
 /* ===== CẤU HÌNH DÙNG CHUNG (vendor + 3 tài khoản) ===== */
 /* Danh bạ nhà cung cấp — nguồn từ tab "Nhà cung cấp" trên Google Sheet (sync xuống). Đây là seed mẫu. */
-var vendors=[
- {id:"v1",name:"MUA Tina",role:"makeup",phone:"0901234567",fb:"https://facebook.com/mua.tina",cccd:"079090001234",bankNo:"0111000222",bankName:"Vietcombank",branch:"HCM",payCompany:"Tina Makeup"},
- {id:"v2",name:"Makeup Hồng Anh",role:"makeup",phone:"0903222111",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
- {id:"v3",name:"Studio Lá",role:"photo",phone:"0908765432",fb:"https://facebook.com/studiola",cccd:"",bankNo:"19001234",bankName:"Techcombank",branch:"Q1",payCompany:"Studio Lá Co."},
- {id:"v4",name:"Photo Khoa",role:"photo",phone:"0907111222",fb:"https://facebook.com/khoaphoto",cccd:"079091112223",bankNo:"",bankName:"",branch:"",payCompany:""},
- {id:"v5",name:"Social - Linh",role:"social",phone:"0912345678",fb:"https://facebook.com/linh.social",cccd:"",bankNo:"0331222",bankName:"ACB",branch:"HCM",payCompany:""},
- {id:"v6",name:"Team Content QT",role:"social",phone:"0911999888",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
- {id:"v7",name:"Mr.K Band",role:"band",phone:"0905111000",fb:"https://facebook.com/mrkband",cccd:"079088887777",bankNo:"0444555",bankName:"Vietcombank",branch:"HCM",payCompany:"Mây Saigon"},
- {id:"v8",name:"Band Acoustic Vũ",role:"band",phone:"0906222333",fb:"https://facebook.com/banvu",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
- {id:"v9",name:"ABC Crew",role:"dancer",phone:"0907333444",fb:"https://facebook.com/abccrew",cccd:"",bankNo:"0555666",bankName:"MB Bank",branch:"HCM",payCompany:"ABC Entertainment"},
- {id:"v10",name:"Dancer Hiphop 24",role:"dancer",phone:"0908444555",fb:"",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:""},
- {id:"v11",name:"Tài xế Hùng (7 chỗ)",role:"driver",phone:"0909555666",fb:"",cccd:"079086665555",bankNo:"0666777",bankName:"Sacombank",branch:"HCM",payCompany:""},
- {id:"v12",name:"Hãng xe Mai Linh",role:"driver",phone:"1055",fb:"https://facebook.com/mailinh",cccd:"",bankNo:"",bankName:"",branch:"",payCompany:"Mai Linh Corp"},
- {id:"v13",name:"Makeup Ngọc Anh",role:"makeup",phone:"0902555888",fb:"https://facebook.com/ngocanh.mua",cccd:"079095556667",bankNo:"0711222333",bankName:"BIDV",branch:"HCM",payCompany:""},
- {id:"v14",name:"Photo Hải Studio",role:"photo",phone:"0903666999",fb:"https://facebook.com/haistudio",cccd:"079093334445",bankNo:"0822333444",bankName:"VPBank",branch:"HCM",payCompany:"Hải Studio"},
- {id:"v15",name:"Social Team Mây",role:"social",phone:"0913777222",fb:"https://facebook.com/socialmay",cccd:"079091112226",bankNo:"0933444555",bankName:"Techcombank",branch:"HN",payCompany:""},
- {id:"v16",name:"Band Hoàng Anh",role:"band",phone:"0905888111",fb:"https://facebook.com/bandhoanganh",cccd:"079088882221",bankNo:"0444777888",bankName:"ACB",branch:"HCM",payCompany:""},
- {id:"v17",name:"Crew The Beat",role:"dancer",phone:"0907999333",fb:"https://facebook.com/thebeatcrew",cccd:"079077778882",bankNo:"0555888999",bankName:"MB Bank",branch:"HCM",payCompany:"The Beat Ent."},
- {id:"v18",name:"Tài xế Nam (16 chỗ)",role:"driver",phone:"0909222777",fb:"",cccd:"079082223336",bankNo:"0666999000",bankName:"Sacombank",branch:"HCM",payCompany:""}
-];
+/* Danh bạ trống — Trúc/Thi nhập tay khi tạo job, app tự lưu vào DB dần.
+   (Trên Firestore deploy: chạy menu "Danh bạ → Xoá hết danh bạ" trong vendor-sync.gs 1 lần để dọn vendor mẫu cũ.) */
+var vendors=[];
 var accounts=[
  {id:"a1",label:"Heart Soldier - ACB",bank:"Ngân hàng TMCP Á Châu (ACB) - CN Thảo Điền",number:"19 88 88 16"},
  {id:"a2",label:"Heart Soldier - Vietinbank",bank:"Vietinbank - CN Chương Dương",number:"117600881988"}
@@ -1216,21 +1199,31 @@ function supplierPicker(key,role,label){
  return '<div class="fld" style="padding:8px 0 0"><label class="flbl">'+label+'</label><div style="display:flex;gap:8px;align-items:center"><select class="in" style="flex:1;min-width:0" id="'+key+'Vendor">'+vendorOptsRole(role)+'</select><span id="'+key+'Info" class="supinfo"></span><button class="iconbtn" type="button" id="'+key+'Fb" title="Mở Facebook"><i class="ti ti-brand-facebook"></i></button><button class="iconbtn" type="button" id="'+key+'Tel" title="Gọi"><i class="ti ti-phone"></i></button></div></div>'
  +'<div id="'+key+'OtherBox" style="display:none"><div class="frow" style="padding:6px 0 0"><div class="fld"><label class="flbl">Tên</label><input class="in" id="'+key+'OName"></div><div class="fld"><label class="flbl">SĐT</label><input class="in" id="'+key+'OPhone" inputmode="tel"></div></div><button type="button" class="addrow" id="'+key+'Save"><i class="ti ti-plus"></i> Lưu vào danh bạ</button></div>';
 }
+/* Lưu danh bạ dần: tìm theo tên+vai trò, có thì cập nhật SĐT, chưa có thì tạo mới (bỏ qua STK). Trả về vendorId. */
+function ensureVendor(role,name,phone){
+ name=(name||'').trim();if(!name)return '';phone=(phone||'').trim();
+ var ex=vendors.filter(function(v){return v.role===role&&(v.name||'').trim().toLowerCase()===name.toLowerCase();})[0];
+ if(ex){if(phone&&!ex.phone){ex.phone=phone;ex.updatedAt=Date.now();if(window.qtSave)window.qtSave('vendors',ex.id,ex);}return ex.id;}
+ var nv={id:'v'+Date.now()+Math.floor(Math.random()*1000),name:name,role:role,phone:phone,fb:'',cccd:'',bankNo:'',bankName:'',branch:'',payCompany:'',updatedAt:Date.now()};
+ vendors.push(nv);if(window.qtSave)window.qtSave('vendors',nv.id,nv);return nv.id;
+}
 function bindSupplier(key,role){
  var sel=document.getElementById(key+'Vendor');if(!sel)return;
+ var okdot='<span class="okdot" title="Đã có SĐT"><i class="ti ti-check"></i></span>';
+ var warndot='<span class="warndot" title="Chưa có SĐT"><i class="ti ti-alert-triangle"></i></span>';
  function refresh(){
   var info=document.getElementById(key+'Info');var other=document.getElementById(key+'OtherBox');
-  if(sel.value==='__other__'){other.style.display='block';info.innerHTML='<span class="warndot" title="Chưa có thông tin thanh toán"><i class="ti ti-alert-triangle"></i></span>';}
+  if(sel.value==='__other__'){other.style.display='block';var ph=((document.getElementById(key+'OPhone')||{}).value||'').trim();info.innerHTML=ph?okdot:warndot;}
   else{var v=vById(sel.value);other.style.display='none';
-   if(!v){info.innerHTML='';}
-   else if(v.bankNo&&v.cccd){info.innerHTML='<span class="okdot" title="Đủ thông tin"><i class="ti ti-check"></i></span>';}
-   else{info.innerHTML='<span class="warndot" title="Chưa đủ thông tin thanh toán (thiếu STK/CCCD)"><i class="ti ti-alert-triangle"></i></span>';}}
+   info.innerHTML=!v?'':((v.phone&&String(v.phone).trim())?okdot:warndot);}
   applyIcons();
  }
+ if(!vendors.some(function(v){return v.role===role;}))sel.value='__other__'; // danh bạ trống vai trò này -> mở nhập tay luôn
  sel.onchange=refresh;refresh();
+ var op=document.getElementById(key+'OPhone');if(op)op.oninput=refresh;
  document.getElementById(key+'Fb').onclick=function(){var v=vById(sel.value);if(v&&v.fb)openURL(v.fb);else toast('Chưa có link Facebook');};
  document.getElementById(key+'Tel').onclick=function(){var v=vById(sel.value);var p=v?v.phone:((document.getElementById(key+'OPhone')||{}).value);if(p)window.open('tel:'+p);else toast('Chưa có SĐT');};
- var sv=document.getElementById(key+'Save');if(sv)sv.onclick=function(){var nm=(document.getElementById(key+'OName').value||'').trim();if(!nm){toast('Nhập tên trước');return;}var nv={id:'v'+Date.now(),name:nm,role:role,phone:(document.getElementById(key+'OPhone').value||'').trim(),fb:'',cccd:'',bankNo:'',bankName:'',branch:'',payCompany:'',updatedAt:Date.now()};vendors.push(nv);if(window.qtSave)window.qtSave('vendors',nv.id,nv);sel.innerHTML=vendorOptsRole(role);sel.value=nv.id;refresh();toast('Đã lưu vào danh bạ (nhớ bổ sung STK/CCCD trên Sheet)');};
+ var sv=document.getElementById(key+'Save');if(sv)sv.onclick=function(){var nm=(document.getElementById(key+'OName').value||'').trim();if(!nm){toast('Nhập tên trước');return;}var ph=(document.getElementById(key+'OPhone').value||'').trim();var vid=ensureVendor(role,nm,ph);sel.innerHTML=vendorOptsRole(role);sel.value=vid;refresh();toast(ph?'Đã lưu vào danh bạ':'Đã lưu — nhớ bổ sung SĐT sau');};
 }
 function readSupplier(key){var sel=document.getElementById(key+'Vendor');if(!sel)return {vendorId:'',name:'',phone:''};if(sel.value==='__other__'){return {vendorId:'',name:(document.getElementById(key+'OName').value||'').trim(),phone:(document.getElementById(key+'OPhone').value||'').trim()};}var v=vById(sel.value);return v?{vendorId:v.id,name:v.name,phone:v.phone}:{vendorId:'',name:'',phone:''};}
 function prepItem(key,label,icon,role,withLoc){
@@ -1316,8 +1309,9 @@ function loadLive(el){
 }
 function reloadLive(){window.__liveCache={};render();}
 window.reloadLive=reloadLive;
-/* migration: gắn folderId/sheetId cho note ghim sẵn (không cần bump SEED) */
-var __noteMig=false;
+/* migration: gắn folderId/sheetId cho note ghim sẵn (không cần bump SEED).
+   KHÔNG khoá 1 lần — vì render chạy sớm với seed rồi Firestore nạp đè note CŨ;
+   chạy lại mỗi render, chỉ ghi khi note thật sự thiếu field (idempotent, tự hội tụ). */
 var NOTE_MIG={
  n1:{sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit"},
  n3:{folderId:"1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",body:"https://drive.google.com/drive/folders/1bayavOGTQVpPfiH2IyOO8gJum1yram3Q"},
@@ -1325,9 +1319,7 @@ var NOTE_MIG={
  n8:{folderId:"1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",title:"📑 Proposal SKYNote26",body:"https://drive.google.com/drive/folders/1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",pinned:true}
 };
 function migrateNotes(){
- if(__noteMig)return;
- var any=notesById('n1')||notesById('n3')||notesById('n4');if(!any)return; // chờ data load
- __noteMig=true;
+ var any=notesById('n1')||notesById('n3')||notesById('n4')||notesById('n8');if(!any)return; // chờ data load
  Object.keys(NOTE_MIG).forEach(function(id){var m=NOTE_MIG[id];var n=notesById(id);
   if(!n){ if(id==='n8'){n={id:'n8',title:m.title,body:m.body,folderId:m.folderId,tags:['proposal'],pinned:true,locked:false,by:'Thi',updatedAt:Date.now()};teamNotes.push(n);if(window.qtSave)window.qtSave('teamnotes','n8',n);} return; }
   var need=(m.folderId&&!n.folderId)||(m.sheetId&&!n.sheetId);
@@ -1740,6 +1732,13 @@ function saveEvent(){
   move:{on:C('swMove'),note:V('mvNote'),
    flight:{on:C('swFlight'),no:V('mvFlNo'),code:V('mvFlCode'),route:V('mvFlRoute'),depart:V('mvFlDep'),arrive:V('mvFlArr'),dur:V('mvFlDur'),tz:V('mvFlTz'),airKm:V('mvAirKm'),airMin:V('mvAirMin'),ticketUrl:V('mvFlTicket'),cost:parseMoney(V('mvFlCost')),paid:paidVal('mvFlPaid')},
    car:{on:C('swCar'),vendorId:carSup.vendorId,name:carSup.name,phone:carSup.phone,time:V('mvCarTime'),pickup:V('mvCarPickup'),note:V('mvCarNote'),cost:parseMoney(V('mvCarCost')),paid:paidVal('mvCarPaid')}}};
+ /* Lưu danh bạ dần: supplier nhập tay (có tên, chưa có vendorId) → thêm/cập nhật vào DB */
+ var SUPS=[['band',job.band],['makeup',job.makeup],['photo',job.photo],['social',job.social],['dancer',job.dancer],['driver',job.move&&job.move.car]];
+ SUPS.forEach(function(p){var sup=p[1];if(sup&&sup.on&&sup.name&&!sup.vendorId)sup.vendorId=ensureVendor(p[0],sup.name,sup.phone);});
+ /* Cảnh báo thiếu SĐT (không chặn lưu) */
+ var LBL={band:'Band',makeup:'Makeup',photo:'Photo',social:'Social',dancer:'Dancer',driver:'Tài xế'};
+ var noPhone=SUPS.filter(function(p){var s=p[1];return s&&s.on&&s.name&&!String(s.phone||'').trim();}).map(function(p){return LBL[p[0]];});
+ if(noPhone.length)toast('⚠️ Chưa có SĐT: '+noPhone.join(', ')+' — nhớ bổ sung sau');
  var contract=null,newPays=[];
  if(job.hasContract){
   var v=parseMoney(V('ctValue'));var tax=+seg('ctTax');var total=Math.round(v*(1+tax/100));
