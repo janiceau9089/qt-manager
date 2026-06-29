@@ -169,14 +169,50 @@ function parseFlight_(t){
   return o;
 }
 /* ---- bóc tách hợp đồng (nhẹ — client còn dùng parsePartnerInfo) ---- */
+var HS_MST = "0318280207"; // MST Heart Soldier (Bên B) — bỏ qua khi tìm MST đối tác
 function parseContract_(t){
   t = String(t||"");
   var o = {};
-  var partner = t.match(/(C[ÔO]NG TY[^\n]{3,80})/i);
-  if(partner) o.partner = partner[1].trim().replace(/\s+/g," ");
-  var mst = t.match(/\b\d{10}(\d{3})?\b/);
-  if(mst) o.taxCode = mst[0];
-  var nums = (t.match(/\d{1,3}(?:[.,]\d{3})+/g)||[]).map(function(s){ return parseInt(s.replace(/[^\d]/g,""),10); }).filter(function(n){ return n>=1000000; });
-  if(nums.length) o.value = Math.max.apply(null, nums);
+  // Tên đối tác: dòng "CÔNG TY ..." đầu tiên
+  var partner = t.match(/(C[ÔO]NG TY[^\n]{2,90})/i);
+  if(partner) o.partner = partner[1].replace(/[•\t].*$/,"").replace(/\s{2,}/g," ").trim();
+  // MST đối tác: 10–13 số, loại MST Heart Soldier
+  var msts = (t.match(/\b\d{10}(?:\d{3})?\b/g)||[]).filter(function(m){ return m !== HS_MST; });
+  if(msts.length) o.taxCode = msts[0];
+  // Số HĐ: ưu tiên token chứa /HDDV/ hoặc /HĐ/, fallback nhãn "Số:"
+  var cn = t.match(/([0-9A-Za-zĐđ.]+\/(?:HDDV|H[ĐD]DV|H[ĐD])\/[0-9A-Za-zĐđ.\-]+)/i) || t.match(/S[ốo]\s*[:：]\s*([0-9A-Za-zĐđ.]+(?:\/[0-9A-Za-zĐđ.\-]+){1,})/);
+  if(cn) o.contractNo = cn[1].trim();
+  // Ngày ký: "ngày 30 tháng 06 năm 2026" → 2026-06-30 (cho input type=date)
+  var sd = t.match(/ng[àa]y\s*(\d{1,2})\s*th[áa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i);
+  if(sd) o.signDate = sd[3] + "-" + ("0"+sd[2]).slice(-2) + "-" + ("0"+sd[1]).slice(-2);
+  // Địa chỉ: nhãn "Trụ sở" hoặc "Địa chỉ" (lấy dòng đầu = Bên A/đối tác)
+  var addr = t.match(/(?:Tr[ụu] s[ởo]|[ĐD][ịi]a ch[ỉi])\s*[:：]?[\s\t]*([^\n]+)/i);
+  if(addr) o.address = addr[1].replace(/[•\t].*$/,"").replace(/\s{2,}/g," ").trim();
+  // Người đại diện + chức vụ — loại Heart Soldier (Đỗ Mộc Lan Vi)
+  var reps=[], rre=/(?:B[àa]|[ÔO]ng)\s+([^\n•\t:]{2,40}?)\s+Ch[ứu]c\s*v[ụu]\s*[:：]?\s*([^\n•\t]{2,30})/gi, rm;
+  while((rm=rre.exec(t))){ reps.push({ n:rm[1].replace(/\s{2,}/g," ").trim(), tt:rm[2].replace(/\s{2,}/g," ").trim() }); }
+  var rep = reps.filter(function(x){ return !/Lan\s*Vi/i.test(x.n); })[0] || reps[0];
+  if(rep){ o.rep = rep.n; o.repTitle = rep.tt; }
+  // Số TK + ngân hàng + chi nhánh đối tác — loại TK Heart Soldier (ACB 19 88 88 16)
+  var bres=[], bre=/(\d[\d\s]{5,}\d)\s*t[ạa]i\s*(?:t[ạa]i\s*)?(?:ng[âa]n\s*h[àa]ng\s*)?([^\n•\t]{3,90})/gi, bm;
+  while((bm=bre.exec(t))){ bres.push({ no:bm[1].replace(/\s/g,""), bank:bm[2].replace(/[•\t].*$/,"").replace(/\s{2,}/g," ").trim() }); }
+  var bk = bres.filter(function(x){ return !/Á\s*Châu|ACB|19\s*88\s*88\s*16/i.test(x.bank + x.no); })[0] || bres[0];
+  if(bk){ o.bankNo = bk.no;
+    o.bankName = bk.bank.replace(/\s*[–\-]\s*(?:CN|Chi nh[áa]nh)\s.*/i,"").trim();
+    var brm = bk.bank.match(/(?:CN|Chi nh[áa]nh)\s+([^\n,–\-]+)/i); if(brm) o.branch = ("CN " + brm[1].trim()).replace(/\s{2,}/g," ");
+  }
+  // Email nhận hóa đơn
+  var em = t.match(/[\w.\-]+@[\w.\-]+\.[A-Za-z]{2,}/); if(em) o.email = em[0];
+  // Tiền: trước thuế / sau thuế / % — bắt theo nhãn, KHÔNG lấy số lớn nhất
+  function num(re){ var m=t.match(re); return m?parseInt(String(m[1]).replace(/[^\d]/g,""),10):0; }
+  var pre = num(/tr[ưufuts][ớoọ]?c\s*thu[ếe][^\d]{0,40}([\d][\d.,]{6,})/i);
+  var tot = num(/sau\s*thu[ếe][^\d]{0,40}([\d][\d.,]{6,})/i);
+  var rate = (t.match(/(?:GTGT|VAT|thu[ếe])[^\d%]{0,8}(\d{1,2})\s*%/i)||[])[1];
+  if(pre) o.value = pre;
+  if(tot) o.total = tot;
+  if(rate) o.tax = Number(rate);
+  // Fallback nếu không thấy nhãn "trước thuế": suy từ sau thuế & %, hoặc số lớn nhất
+  if(!o.value && tot && rate) o.value = Math.round(tot/(1+rate/100));
+  if(!o.value){ var nums=(t.match(/\d{1,3}(?:[.,]\d{3})+/g)||[]).map(function(s){return parseInt(s.replace(/[^\d]/g,""),10);}).filter(function(n){return n>=1000000;}); if(nums.length)o.value=Math.max.apply(null,nums); }
   return o;
 }

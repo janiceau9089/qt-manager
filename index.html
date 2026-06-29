@@ -643,8 +643,8 @@ var now=new Date();
    (Trên Firestore deploy: chạy menu "Danh bạ → Xoá hết danh bạ" trong vendor-sync.gs 1 lần để dọn vendor mẫu cũ.) */
 var vendors=[];
 var accounts=[
- {id:"a1",label:"Heart Soldier - ACB",bank:"Ngân hàng TMCP Á Châu (ACB) - CN Thảo Điền",number:"19 88 88 16"},
- {id:"a2",label:"Heart Soldier - Vietinbank",bank:"Vietinbank - CN Chương Dương",number:"117600881988"}
+ {id:"a1",label:"Heart Soldier - ACB (mặc định)",bank:"Ngân hàng TMCP Á Châu (ACB) - CN Thảo Điền - TP.HCM",number:"19 88 88 16"},
+ {id:"a2",label:"Heart Soldier - VietinBank",bank:"Ngân hàng TMCP Công Thương Việt Nam (VietinBank)",number:"117600881988"}
 ];
 var teamNotes=[
  {id:"n1",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit",sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
@@ -856,6 +856,7 @@ function renderTabs(){
 function render(){
  if(typeof migrateNotes==='function')migrateNotes();
  if(typeof purgeOldTrash==='function')purgeOldTrash();
+ if(typeof migrateAccounts==='function')migrateAccounts();
  var base=state.screen.indexOf('job:')==0?'jobs':(state.screen.indexOf('note:')==0?'team':state.screen);
  document.getElementById('hTitle').textContent=TITLES[base]||'QT';
  var sc=document.getElementById('screen');var s=state.screen;
@@ -1283,6 +1284,23 @@ function purgeOldTrash(){var now=Date.now();
  });}
 function purgeNote(id){var n=notesById(id);if(!n)return;if(!confirm('Xoá hẳn "'+(n.title||'ghi chú')+'"? Không khôi phục được.'))return;if(window.qtDel)window.qtDel('teamnotes',id);teamNotes=teamNotes.filter(function(x){return x.id!==id;});render();}
 window.purgeNote=purgeNote;
+/* Tài khoản nhận chuẩn (ACB mặc định = a1 đứng đầu) — tự sửa trên Firestore nếu còn data cũ, không cần bump SEED */
+var ACC_FIX=[
+ {id:'a1',label:'Heart Soldier - ACB (mặc định)',bank:'Ngân hàng TMCP Á Châu (ACB) - CN Thảo Điền - TP.HCM',number:'19 88 88 16'},
+ {id:'a2',label:'Heart Soldier - VietinBank',bank:'Ngân hàng TMCP Công Thương Việt Nam (VietinBank)',number:'117600881988'}
+];
+function migrateAccounts(){
+ if(!window.accounts)return;
+ ACC_FIX.forEach(function(f){var a=aById(f.id);
+  if(!a){accounts.push(Object.assign({},f));if(window.qtSave)window.qtSave('accounts',f.id,f);}
+  else if(a.number!==f.number||a.bank!==f.bank||a.label!==f.label){a.label=f.label;a.bank=f.bank;a.number=f.number;if(window.qtSave)window.qtSave('accounts',f.id,a);}
+ });
+ // bỏ TK mẫu a3 nếu còn
+ var a3=aById('a3');if(a3){if(window.qtDel)window.qtDel('accounts','a3');accounts=accounts.filter(function(x){return x.id!=='a3';});}
+ // đảm bảo ACB (a1) đứng đầu = mặc định
+ accounts.sort(function(x,y){return (x.id==='a1'?-1:0)-(y.id==='a1'?-1:0);});
+}
+window.migrateAccounts=migrateAccounts;
 function delNote(id){var n=notesById(id);if(!n)return;if(n.folderId||n.sheetId){toast('Note ghim quan trọng — không xoá được');return;}if(n.locked&&!canLinks()){toast('Note đang khoá');return;}if(!confirm('Chuyển "'+(n.title||'ghi chú')+'" vào thùng rác? (khôi phục trong 7 ngày)'))return;n.deleted=true;n.deletedAt=Date.now();n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);if(state.screen.indexOf('note:')===0)state.screen='team';render();}
 function restoreNote(id){var n=notesById(id);if(!n)return;n.deleted=false;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
 window.delNote=delNote;window.restoreNote=restoreNote;
@@ -1685,11 +1703,26 @@ function readContractFile(){
  if(file){ // OCR file thật qua maps-ocr.gs (free)
   res.textContent='⏳ Đang đọc file HĐ (OCR)…';
   fileToB64(file).then(function(b64){return mapsOcrPost({action:'ocr',kind:'contract',fileBase64:b64,mimeType:file.type});}).then(function(r){
-   if(r&&(r.parsed||r.text)){var p=r.parsed||{},got=[];function S(id,v){var e=document.getElementById(id);if(e&&v&&!e.value){e.value=v;return true;}return false;}
-    if(S('ctPartner',p.partner))got.push('đối tác');if(S('ctMst',p.taxCode))got.push('MST');if(p.value&&!parseMoney((document.getElementById('ctValue')||{}).value)){document.getElementById('ctValue').value=p.value;_recalcTotal();got.push('giá trị');}
+   if(r&&(r.parsed||r.text)){var p=r.parsed||{},got=[];
+    function S(id,v){var e=document.getElementById(id);if(e&&v){e.value=v;return true;}return false;} // ghi đè (OCR là nguồn chuẩn)
+    if(S('ctNo',p.contractNo))got.push('số HĐ');
+    if(S('ctSign',p.signDate))got.push('ngày ký');
+    if(S('ctPartner',p.partner))got.push('đối tác');
+    if(S('ctMst',p.taxCode))got.push('MST');
+    if(S('ctAddr',p.address))got.push('địa chỉ');
+    if(S('ctPhone',p.phone))got.push('SĐT');
+    if(S('ctRep',p.rep))got.push('đại diện');
+    if(S('ctRepTitle',p.repTitle))got.push('chức vụ');
+    if(S('ctBankNo',p.bankNo))got.push('STK');
+    if(S('ctBankName',p.bankName))got.push('ngân hàng');
+    if(S('ctBranch',p.branch))got.push('chi nhánh');
+    if(S('ctEmail',p.email))got.push('email');
+    if(p.tax){var tb=document.querySelector('#ctTax [data-val="'+p.tax+'"]');if(tb){document.querySelectorAll('#ctTax button').forEach(function(b){b.classList.remove('on');});tb.classList.add('on');got.push('thuế '+p.tax+'%');}}
+    if(p.value){document.getElementById('ctValue').value=p.value;got.push('giá trị trước thuế');}
+    _recalcTotal();
     var pa=document.getElementById('ctPaste');if(pa&&r.text){pa.value=r.text;} // đổ text để bấm "Đọc & điền" bóc thêm
     if(typeof updateVital==='function')updateVital();
-    res.innerHTML=(got.length?('✅ Đã điền: '+got.join(', ')+'. '):'')+'Đã đổ toàn văn vào ô dán — bấm "Đọc & điền" để bóc thêm, rồi kiểm tra lại.';}
+    res.innerHTML=(got.length?('✅ Đã điền: '+got.join(', ')+'. Kiểm tra lại rồi lưu.'):'Không bóc được field — xem ô dán bên dưới.');}
    else{res.textContent='❌ '+((r&&r.error)||'không đọc được nội dung');}
   }).catch(function(e){res.textContent='❌ Lỗi OCR: '+e.message;});
   return;
