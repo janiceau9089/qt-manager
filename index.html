@@ -1487,7 +1487,7 @@ function screenCreate(){
  H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
  H+='<div class="segbtn" id="ctMode" style="margin:8px 0"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải file lên</button><button type="button" data-val="create" class="on"><i class="ti ti-pencil"></i> Tạo file mới</button></div>';
  H+='<div id="ctUploadBox" style="display:none;margin-bottom:6px">';
- H+='<div class="fld" style="padding:0"><label class="flbl">🤖 Đọc file HĐ (ảnh/PDF) — OCR tự điền</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="ctUpFileF" accept="image/*,application/pdf" class="in" style="padding:7px"><button class="iconbtn" type="button" id="ctReadBtn" title="Đọc file"><i class="ti ti-robot"></i></button></div></div>';
+ H+='<div class="fld" style="padding:0"><label class="flbl">🤖 Đọc file HĐ (ảnh / PDF / Word) — tự điền</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="ctUpFileF" accept="image/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="in" style="padding:7px"><button class="iconbtn" type="button" id="ctReadBtn" title="Đọc file"><i class="ti ti-robot"></i></button></div></div>';
  H+='<div class="fld" style="padding:6px 0 0"><label class="flbl">Hoặc dán link file đã upload</label><input id="ctUpFile" class="in" placeholder="Dán link ảnh/PDF…"></div>';
  H+='<div class="calcd" style="padding:6px 0 0">🤖 Tải file vào folder Drive chỉ định → hiện ở Tài liệu. API tự đọc nhận diện loại file & cập nhật thông tin (nếu sự kiện mới thì tự điền), kèm tóm tắt thay đổi để xác nhận — Phase 2/3.</div>';
  H+='</div>';

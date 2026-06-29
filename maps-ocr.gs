@@ -130,16 +130,20 @@ function doOcr_(req){
   var mime = req.mimeType || "image/jpeg";
   var kind = req.kind || "text";
   var text;
-  try{ text = ocrText_(Utilities.newBlob(Utilities.base64Decode(b64), mime, "qt-ocr")); }
-  catch(err){ return { error:"OCR lỗi (đã bật Drive API service chưa?): "+String(err) }; }
+  try{ text = ocrText_(Utilities.newBlob(Utilities.base64Decode(b64), mime, "qt-ocr"), mime); }
+  catch(err){ return { error:"Đọc file lỗi (đã bật Drive API service chưa?): "+String(err) }; }
   var parsed = kind==="flight" ? parseFlight_(text) : (kind==="contract" ? parseContract_(text) : {});
   return { text:text, parsed:parsed };
 }
-function ocrText_(blob){
+function ocrText_(blob, mime){
+  mime = mime || "";
+  var isImgPdf = /^image\//.test(mime) || mime === "application/pdf";
+  // Ảnh/PDF → OCR; Word (.doc/.docx) → chỉ convert sang Google Doc (lấy text chuẩn, không cần OCR)
+  var opts = isImgPdf ? { ocr:true, ocrLanguage:"vi" } : {};
   var meta = { title:"qt-ocr-"+Date.now(), mimeType:"application/vnd.google-apps.document" };
   var file;
-  try{ file = Drive.Files.insert(meta, blob, { ocr:true, ocrLanguage:"vi" }); }       // Drive API v2
-  catch(e1){ file = Drive.Files.create({ name:meta.title, mimeType:meta.mimeType }, blob, { ocr:true, ocrLanguage:"vi" }); } // v3 fallback
+  try{ file = Drive.Files.insert(meta, blob, opts); }       // Drive API v2
+  catch(e1){ file = Drive.Files.create({ name:meta.title, mimeType:meta.mimeType }, blob, opts); } // v3 fallback
   var id = file.id;
   var text = DocumentApp.openById(id).getBody().getText();
   try{ Drive.Files.remove(id); }catch(e){ try{ DriveApp.getFileById(id).setTrashed(true); }catch(e2){} }   // dọn file tạm
