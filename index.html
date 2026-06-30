@@ -643,10 +643,10 @@ var STSEQ=['todo','doing','waiting','done'];
 var STMETA={todo:['Cần làm','var(--chip)','var(--muted)'],doing:['Đang làm','var(--bluebg)','var(--blue)'],waiting:['Chờ','var(--amberbg)','var(--amber)'],done:['Xong','var(--greenbg)','var(--green)']};
 var USERS={thi:{nm:'Thi',rl:'Quản lý'},truc:{nm:'Trúc',rl:'Admin'},vi:{nm:'Vi',rl:'Trợ lý'},artist:{nm:'Quốc Thiên',rl:'Nghệ sĩ'}};
 var TABS={
- thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note'],['money','Tiền','ti-wallet']],
- truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['team','Ghi Chú','ti-note'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
- vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note']],
- artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note'],['qtmoney','Thu chi','ti-cash']]
+ thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-checklist'],['money','Tiền','ti-wallet']],
+ truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['team','Ghi Chú','ti-checklist'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
+ vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-checklist']],
+ artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-checklist'],['qtmoney','Thu chi','ti-cash']]
 };
 var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện',team:'Ghi Chú'};
 var jById={};jobs.forEach(function(j){jById[j.id]=j});
