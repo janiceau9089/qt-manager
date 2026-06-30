@@ -890,6 +890,7 @@ function render(){
  document.getElementById('tabbar').style.display=(s=='create')?'none':'';
  if(s=='create')bindCreateForm();
  if(window.__refocusJob){var je=document.getElementById('jobSearch');if(je){je.focus();var v=je.value;je.value='';je.value=v;}window.__refocusJob=false;}
+ if(window.__refocusNote){var ne=document.getElementById('noteSearch');if(ne){ne.focus();var nv=ne.value;ne.value='';ne.value=nv;}window.__refocusNote=false;}
  if(scrollNext){window.scrollTo(0,0);scrollNext=false;}
 }
 function bind(){
@@ -901,6 +902,8 @@ function bind(){
  document.querySelectorAll('[data-purge]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();purgeNote(el.dataset.purge);};});
  document.querySelectorAll('.noterich [data-chk]').forEach(function(el){el.onclick=function(){toggleCheck(el.getAttribute('data-nid'),+el.getAttribute('data-chk'));};});
  document.querySelectorAll('.noterich [data-url]').forEach(function(el){el.onclick=function(){openURL(el.getAttribute('data-url'));};});
+ var ns=document.getElementById('noteSearch');if(ns){ns.oninput=function(){state.noteQ=ns.value;window.__refocusNote=true;render();};if((state.noteQ||'').trim())ensureLiveCaches(function(){if((state.noteQ||'').trim())render();});}
+ document.querySelectorAll('#noteSearchRes [data-url]').forEach(function(el){el.onclick=function(){openURL(el.getAttribute('data-url'));};});
  var ll=document.getElementById('liveList');if(ll&&typeof loadLive==='function')loadLive(ll);
  var js=document.getElementById('jobSearch');if(js)js.oninput=function(){state.jobQ=js.value;window.__refocusJob=true;render();};
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
@@ -1269,6 +1272,31 @@ function notesById(id){for(var i=0;i<teamNotes.length;i++)if(teamNotes[i].id===i
 function noteCard(n){var prot=n.folderId||n.sheetId;var snip=(n.folderId)?'📂 Danh sách file (Drive) — chạm để mở':(n.sheetId)?'📋 Danh sách (Google Sheet) — chạm để mở':(n.body||'').split('\n').slice(0,3).join('\n');
  var corner=prot?(n.locked?'<span class="lk">🔒</span>':''):((n.locked?'<span class="lk" style="right:36px">🔒</span>':'')+'<span class="ndel" data-del="'+n.id+'" title="Xoá (vào thùng rác)">🗑️</span>');
  return '<button class="notecard" data-note="'+n.id+'">'+corner+'<div class="nt">'+escHtml(n.title)+'</div><div class="nbody">'+escHtml(snip)+'</div>'+((n.tags||[]).length?('<div class="ntags">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>'):'')+'</button>';}
+/* Nạp sẵn danh sách live (folder phổ/beat + sheet) để search; gọi render lại khi tải xong */
+function ensureLiveCaches(cb){
+ window.__liveCache=window.__liveCache||{};window.__liveLoading=window.__liveLoading||{};var started=0;
+ (teamNotes||[]).forEach(function(n){if(n.deleted)return;var key=n.folderId?('f:'+n.folderId):(n.sheetId?('s:'+n.sheetId):null);if(!key)return;if(window.__liveCache[key]||window.__liveLoading[key])return;
+  window.__liveLoading[key]=true;started++;
+  var payload=n.folderId?{action:'drivelist',folderId:n.folderId}:{action:'sheetlist',sheetId:n.sheetId};
+  mapsOcrPost(payload).then(function(r){window.__liveCache[key]=n.folderId?((r&&r.files)||[]):((r&&r.rows)||[]);},function(){window.__liveCache[key]=[];}).then(function(){window.__liveLoading[key]=false;if(cb)cb();});
+ });
+ return started;
+}
+function noteSearchResults(q){
+ var nq=_noDia(q).toLowerCase();var html='';var loading=false;
+ var hits=[];
+ (teamNotes||[]).forEach(function(n){if(n.deleted)return;var key=n.folderId?('f:'+n.folderId):(n.sheetId?('s:'+n.sheetId):null);if(!key)return;
+  var items=window.__liveCache&&window.__liveCache[key];
+  if(!items){loading=true;return;}
+  items.forEach(function(it){var name=it.name||'';if(name&&_noDia(name).toLowerCase().indexOf(nq)>=0)hits.push({name:name,url:it.url,src:n.title});});
+ });
+ if(loading)html+='<div class="calcd">⏳ Đang tải danh sách phổ/beat để tìm…</div>';
+ if(hits.length)html+='<div class="gtitle">🎼 Phổ / Beat / file ('+hits.length+')</div><div class="group">'+hits.slice(0,80).map(function(x){return '<button class="item" data-url="'+escAttr(x.url)+'"><div style="flex:1;min-width:0"><div class="t">'+escHtml(x.name)+'</div><div class="s">'+escHtml(x.src)+'</div></div><i class="ti ti-external-link chev"></i></button>';}).join('')+'</div>';
+ var nmatch=(teamNotes||[]).filter(function(n){return !n.deleted&&_noDia((n.title||'')+' '+(n.body||'')).toLowerCase().indexOf(nq)>=0;});
+ if(nmatch.length)html+='<div class="gtitle">Ghi chú ('+nmatch.length+')</div><div class="notegrid">'+nmatch.map(noteCard).join('')+'</div>';
+ if(!hits.length&&!nmatch.length&&!loading)html=emp('Không tìm thấy "'+q+'"');
+ return html;
+}
 function screenTeam(){
  var all=(teamNotes||[]).slice();
  var notes=all.filter(function(n){return !n.deleted;});
@@ -1277,6 +1305,8 @@ function screenTeam(){
  var pinned=notes.filter(function(n){return n.pinned;}).sort(byUpd);
  var others=notes.filter(function(n){return !n.pinned;}).sort(byUpd);
  var h='<button class="bigbtn" onclick="openNote(\'new\')"><i class="ti ti-plus i"></i> Ghi chú mới</button>';
+ h+='<div class="searchbar"><i class="ti ti-search i"></i><input id="noteSearch" placeholder="Tìm phổ, beat, ghi chú…" value="'+escAttr(state.noteQ||'')+'"></div>';
+ if((state.noteQ||'').trim()){ return h+'<div id="noteSearchRes">'+noteSearchResults(state.noteQ.trim())+'</div>'; }
  if(pinned.length)h+='<div class="gtitle">📌 Ghim</div><div class="notegrid">'+pinned.map(noteCard).join('')+'</div>';
  h+='<div class="gtitle">Ghi chú</div>'+(others.length?('<div class="notegrid">'+others.map(noteCard).join('')+'</div>'):emp('Chưa có ghi chú'));
  if(trash.length){
