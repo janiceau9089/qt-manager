@@ -20,8 +20,9 @@
  * 5. Copy Web app URL (…/exec) → dán vào app: var MAPS_OCR_URL="…".
  ****************************************************************/
 
+var MAPS_OCR_VERSION = "2026-06-29-contract-v2"; // đổi mỗi lần cập nhật để dễ kiểm tra bản đang chạy
 function doGet(e){
-  return _json({ ok:true, msg:"QT maps-ocr alive", time:new Date().toISOString() });
+  return _json({ ok:true, version:MAPS_OCR_VERSION, msg:"QT maps-ocr alive", time:new Date().toISOString() });
 }
 function doPost(e){
   var out;

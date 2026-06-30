@@ -383,8 +383,8 @@ var PERFORM={ticket:1,public:1,event_checkin:1};
 var TI={ticket:'ti-ticket',public:'ti-tree',event_checkin:'ti-building',bieu_dien:'ti-ticket',gameshow:'ti-device-tv',podcast:'ti-microphone',quay_social:'ti-video',thu_am:'ti-music',phong_van:'ti-messages',chup_hinh:'ti-camera',livestream:'ti-broadcast',canhan:'ti-user',khac:'ti-calendar'};
 function tIcon(t){return TI[t]||'ti-calendar';}
 function tBadge(t,big){return '<span class="tbadge'+(big?' big':'')+'" style="background:'+(TC[t]||'#64748b')+';color:#fff"><i class="ti '+tIcon(t)+'"></i></span>';}
-var SL={inquiry:'Inquiry',bao_gia:'Đang báo giá',da_chot:'Đã chốt',da_ky_hd:'Đã ký HĐ',hoan_thanh:'Hoàn thành'};
-function sbadge(st){var m={bao_gia:['var(--amberbg)','var(--amber)'],da_chot:['var(--bluebg)','var(--blue)'],da_ky_hd:['var(--indigobg)','var(--indigo)'],hoan_thanh:['var(--greenbg)','var(--green)']};var c=m[st]||['var(--chip)','var(--muted)'];return '<span class="badge" style="background:'+c[0]+';color:'+c[1]+'">'+SL[st]+'</span>';}
+var SL={inquiry:'Inquiry',bao_gia:'Đang báo giá',da_chot:'Đã chốt',da_ky_hd:'Đã ký HĐ',hoan_thanh:'Hoàn thành',du_kien:'Dự kiến',da_xac_nhan:'Đã xác nhận'};
+function sbadge(st){var m={bao_gia:['var(--amberbg)','var(--amber)'],da_chot:['var(--bluebg)','var(--blue)'],da_ky_hd:['var(--indigobg)','var(--indigo)'],hoan_thanh:['var(--greenbg)','var(--green)'],du_kien:['var(--amberbg)','var(--amber)'],da_xac_nhan:['var(--bluebg)','var(--blue)']};var c=m[st]||['var(--chip)','var(--muted)'];return '<span class="badge" style="background:'+c[0]+';color:'+c[1]+'">'+(SL[st]||st||'—')+'</span>';}
 var jobs=[{id:"demo1",name:"⭐ DEMO — Liveshow đầy đủ (test)",type:"ticket",start:new Date("2026-07-05T19:00:00+07:00"),end:new Date("2026-07-05T21:00:00+07:00"),loc:"Nhà hát Hòa Bình, Q10, HCM",prov:"TP.HCM",client:"Cty ABC Entertainment",status:"da_ky_hd",net:432000000,call:new Date("2026-07-05T17:00:00+07:00"),timeline:"17:00 có mặt · 16:00 soundcheck · 19:00 diễn",setlist:"3 bài đơn + 1 song ca",contact:"Nguyễn Văn A",phone:"0901234567",note:"Standby 18:00. Mang 2 bộ vest. Link họp: https://meet.google.com/demo",follow:true,chips:[],
 hasContract:true,
 band:{on:true,vendorId:"v7",name:"Mr.K Band",phone:"0905111000"},
@@ -1408,6 +1408,8 @@ function screenCreate(){
  H+='<div class="fld"><label class="flbl">Loại</label><select id="evType" class="in">'+ETYPES.map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('')+'</select></div>';
  H+='<div class="frow"><div class="fld"><label class="flbl">Ngày</label><input id="evDate" type="date" class="in" value="'+dIn(d)+'"></div><div class="fld"><label class="flbl">Giờ</label><input id="evTime" type="time" class="in" value="19:00"></div></div>';
  H+='<div class="fld"><label class="flbl">Địa điểm</label><div style="display:flex;gap:8px"><input id="evLoc" class="in" placeholder="Tên / địa chỉ"><button class="iconbtn" type="button" id="evMap"><i class="ti ti-map-pin"></i></button></div></div>';
+ H+='<div class="frow"><div class="fld"><label class="flbl">Giờ có mặt (call time)</label><input id="evCall" type="time" class="in"></div><div class="fld"><label class="flbl">Khách hàng</label><input id="evClient" class="in" placeholder="Tên cty / khách"></div></div>';
+ H+='<div class="frow"><div class="fld"><label class="flbl">Người liên hệ</label><input id="evContact" class="in" placeholder="Tên người phụ trách"></div><div class="fld"><label class="flbl">SĐT liên hệ</label><input id="evPhone" class="in" inputmode="tel" placeholder="SĐT"></div></div>';
  H+='<div class="fld"><label class="flbl">Ghi chú / link họp online / cần mang theo</label><textarea id="evNote" class="in" placeholder="Dán link Google Meet, giờ standby, cần mang theo…"></textarea></div>';
  H+='</div>';
  /* 2. CHUẨN BỊ */
@@ -1581,7 +1583,7 @@ function _syncInst(){var amts=_amts();for(var i=0;i<qc.n;i++){var pe=document.qu
 function _recalcTotal(){var v=parseMoney((document.getElementById('ctValue')||{}).value);var tax=+(document.querySelector('#ctTax .on')||{dataset:{val:8}}).dataset.val;qc.total=Math.round(v*(1+tax/100));var t=document.getElementById('ctTotal');if(t)t.textContent=money(qc.total);_syncInst();}
 function _rebuildInst(n,resetDue){
  qc.n=n;qc.pcts=_defPcts(n);
- if(resetDue){var ds=document.getElementById('evDate').value;var base=ds?new Date(ds+'T00:00:00'):new Date(now);var pre=new Date(base);pre.setDate(pre.getDate()-7);qc.dueDates=[dIn(n===1?base:pre)];if(n>=2)qc.dueDates.push(dIn(addBizDays(base,15)));if(n>=3)qc.dueDates.push(dIn(addBizDays(base,30)));}
+ if(resetDue){var ds=document.getElementById('evDate').value;var base=ds?new Date(ds+'T00:00:00'):new Date(now);qc.dueDates=[dIn(base)];if(n>=2)qc.dueDates.push(dIn(addBizDays(base,15)));if(n>=3)qc.dueDates.push(dIn(addBizDays(base,30)));}
  else{while(qc.dueDates.length<n)qc.dueDates.push('');qc.dueDates=qc.dueDates.slice(0,n);}
  _renderInst();
 }
@@ -1657,6 +1659,7 @@ function prefillForm(j){
  var ty=document.getElementById('evType');if(ty){ty.value=j.type;if(ty.onchange)ty.onchange();}
  if(j.start){setV('evDate',dIn(j.start));setV('evTime',tIn(j.start));}
  setV('evLoc',j.loc);setV('evNote',j.note);
+ setV('evClient',j.client);setV('evContact',j.contact);setV('evPhone',j.phone);if(j.call)setV('evCall',tIn(j.call));
  var anyPrep=(j.band&&j.band.on)||(j.rehearsals&&j.rehearsals.length)||(j.soundcheck&&j.soundcheck.on)||(j.makeup&&j.makeup.on)||(j.photo&&j.photo.on)||(j.social&&j.social.on)||(j.beat&&j.beat.on)||(j.dressCode&&j.dressCode.on)||(j.dancer&&j.dancer.on)||(j.stay&&j.stay.on)||(j.move&&j.move.on);
  if(anyPrep)setSw('swPrep');
  if(j.band&&j.band.on){setSw('swBand');setSup('band',j.band);if(j.band.selfPay){setSeg('bandPay','self');setV('bandCost',j.band.cost||'');setSeg('bandTax',String(j.band.taxRate||0));setSeg('bandPaid',j.band.paid?'1':'0');}}
@@ -1786,7 +1789,7 @@ function saveEvent(){
  var dcCost=parseMoney(V('dcCost')),dcTax=+seg('dcTax'),dcSup=readSupplier('dancer');
  var carSup=readSupplier('mvCar');
  var job={id:id,name:name,type:type,status:status,start:start,end:end,
-  loc:V('evLoc'),prov:'',client:'',contact:'',phone:'',call:null,timeline:'',setlist:'',
+  loc:V('evLoc'),prov:'',client:V('evClient'),contact:V('evContact'),phone:V('evPhone'),call:(V('evCall')?new Date(ds+'T'+V('evCall')+':00'):null),timeline:'',setlist:'',
   note:V('evNote'),follow:false,chips:[],net:0,updatedAt:Date.now(),
   hasContract:C('swCt')&&!NOCT[type],
   band:(function(){var self=seg('bandPay')==='self';var bc=parseMoney(V('bandCost')),bt=+seg('bandTax');return {on:C('swBand'),vendorId:bandSup.vendorId,name:bandSup.name,phone:bandSup.phone,selfPay:self,cost:self?bc:0,taxRate:self?bt:0,total:self?Math.round(bc*(1+bt/100)):0,paid:self?paidVal('bandPaid'):false};})(),
