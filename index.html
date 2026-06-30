@@ -312,6 +312,20 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .notecard .lk{position:absolute;top:9px;right:10px;font-size:13px}
 .notecard .ndel{position:absolute;top:6px;right:8px;font-size:13px;color:var(--faint);padding:3px 5px;border-radius:7px;line-height:1}
 .notecard .ndel:hover{color:var(--red);background:var(--redbg)}
+.ntoolbar{display:flex;gap:6px;padding:0 0 8px;flex-wrap:wrap}
+.ntoolbar button{min-width:42px;height:38px;border:1px solid var(--border);background:linear-gradient(180deg,var(--glosstop),var(--surface));border-radius:11px;color:var(--brand);font-size:17px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.noterich{display:flex;flex-direction:column;gap:7px;font-size:15px;line-height:1.5;color:var(--text)}
+.noterich .nh{font-size:17px;font-weight:800;margin-top:4px}
+.noterich .ntext{white-space:pre-wrap;word-break:break-word}
+.noterich .nbr{height:3px}
+.noterich .nbul{display:flex;gap:8px;align-items:flex-start}
+.noterich .nbul .bd{color:var(--brand);font-weight:800;line-height:1.5}
+.noterich .il{color:var(--brand);word-break:break-all}
+.noterich .nchk{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;padding:3px 0;color:var(--text);font-family:inherit;font-size:15px;line-height:1.5}
+.noterich .nchk .cbx{color:var(--brand);font-size:21px;line-height:1;flex-shrink:0}
+.noterich .nchk.done .ctx{text-decoration:line-through;color:var(--muted)}
+.noterich .nchk.done .cbx{color:var(--green)}
+.noterich .nlink{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:var(--brand);border:none;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px;font-family:inherit;max-width:100%;text-align:left;word-break:break-all}
 .herocard{display:block;width:100%;text-align:left;background:linear-gradient(180deg,var(--glosstop),var(--surface));border:1px solid var(--border);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);margin:2px 0 16px;color:inherit;font-family:inherit}
 .herocard:active{transform:scale(.99)}
 .herocard .hl{font-size:12px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.3px}
@@ -629,12 +643,12 @@ var STSEQ=['todo','doing','waiting','done'];
 var STMETA={todo:['Cần làm','var(--chip)','var(--muted)'],doing:['Đang làm','var(--bluebg)','var(--blue)'],waiting:['Chờ','var(--amberbg)','var(--amber)'],done:['Xong','var(--greenbg)','var(--green)']};
 var USERS={thi:{nm:'Thi',rl:'Quản lý'},truc:{nm:'Trúc',rl:'Admin'},vi:{nm:'Vi',rl:'Trợ lý'},artist:{nm:'Quốc Thiên',rl:'Nghệ sĩ'}};
 var TABS={
- thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages'],['money','Tiền','ti-wallet']],
- truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['team','Nhóm','ti-messages'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
- vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages']],
- artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['team','Nhóm','ti-messages'],['qtmoney','Thu chi','ti-cash']]
+ thi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note'],['money','Tiền','ti-wallet']],
+ truc:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['team','Ghi Chú','ti-note'],['documents','Giấy tờ','ti-file-text'],['money','Tiền','ti-wallet']],
+ vi:[['dash','Tổng quan','ti-layout-dashboard'],['jobs','Sự kiện','ti-briefcase'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note']],
+ artist:[['artist','Sắp tới','ti-clock'],['calendar','Lịch','ti-calendar'],['team','Ghi Chú','ti-note'],['qtmoney','Thu chi','ti-cash']]
 };
-var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện',team:'Ghi chú nhóm'};
+var TITLES={dash:'Tổng quan',jobs:'Lịch & Sự kiện',calendar:'Lịch',money:'Tài chính',tasks:'Công việc',documents:'Giấy tờ',artist:'Lịch của tôi',qtmoney:'Thu chi & dòng tiền',create:'Tạo sự kiện',team:'Ghi Chú'};
 var jById={};jobs.forEach(function(j){jById[j.id]=j});
 var now=new Date();
 /* ===== CẤU HÌNH DÙNG CHUNG (vendor + 3 tài khoản) ===== */
@@ -885,6 +899,8 @@ function bind(){
  document.querySelectorAll('[data-del]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();delNote(el.dataset.del);};});
  document.querySelectorAll('[data-restore]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();restoreNote(el.dataset.restore);};});
  document.querySelectorAll('[data-purge]').forEach(function(el){el.onclick=function(ev){ev.stopPropagation();purgeNote(el.dataset.purge);};});
+ document.querySelectorAll('.noterich [data-chk]').forEach(function(el){el.onclick=function(){toggleCheck(el.getAttribute('data-nid'),+el.getAttribute('data-chk'));};});
+ document.querySelectorAll('.noterich [data-url]').forEach(function(el){el.onclick=function(){openURL(el.getAttribute('data-url'));};});
  var ll=document.getElementById('liveList');if(ll&&typeof loadLive==='function')loadLive(ll);
  var js=document.getElementById('jobSearch');if(js)js.oninput=function(){state.jobQ=js.value;window.__refocusJob=true;render();};
  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(){go(el.dataset.go);};});
@@ -1309,25 +1325,34 @@ function screenNote(id){
  var n=isNew?{id:'new',title:'',body:'',tags:[],pinned:false,locked:false,by:USERS[state.role].nm}:notesById(id);
  var h='<button class="back" data-go="team"><i class="ti ti-chevron-left"></i> Ghi chú nhóm</button>';
  if(!n)return h+emp('Không tìm thấy ghi chú');
+ var live=n.folderId||n.sheetId;
  var canEd=isNew||!n.locked||canLinks();
+ var editing=!live&&(isNew||(state.noteEdit&&canEd));
  var acts='';
- if(!isNew)acts+='<button class="chip'+(n.pinned?' on':'')+'" onclick="togglePin(\''+n.id+'\')">📌 '+(n.pinned?'Đang ghim':'Ghim')+'</button>';
- if(!isNew&&canLinks())acts+='<button class="chip'+(n.locked?' on':'')+'" onclick="toggleLock(\''+n.id+'\')">'+(n.locked?'🔒 Đang khoá':'🔓 Khoá')+'</button>';
- if(!isNew&&!(n.folderId||n.sheetId))acts+='<button class="chip" onclick="delNote(\''+n.id+'\')"><i class="ti ti-trash"></i> Xoá</button>';
- if(acts)h+='<div class="chiprow" style="margin-bottom:10px">'+acts+'</div>';
- if(canEd){
-  h+='<div class="group"><div class="fld"><label class="flbl">Tiêu đề</label><input id="noteTitle" class="in" value="'+escAttr(n.title)+'" placeholder="VD: 🎵 Folder beat"></div>';
-  h+='<div class="fld"><label class="flbl">Nội dung (dán link được)</label><textarea id="noteBody" class="in" style="min-height:160px" placeholder="Nội dung, dán link Drive/Photos…">'+escHtml(n.body)+'</textarea></div>';
-  h+='<div class="fld"><label class="flbl">Tag (phẩy ngăn cách)</label><input id="noteTags" class="in" value="'+escAttr((n.tags||[]).join(', '))+'" placeholder="nhạc, media, todo…"></div></div>';
-  h+='<button class="bigbtn" onclick="saveNote(\''+n.id+'\')"><i class="ti ti-check i"></i> Lưu ghi chú</button>';
- }else{
-  h+='<div class="dtitle" style="font-size:20px;margin-bottom:8px">'+escHtml(n.title)+' 🔒</div>';
-  h+='<div class="group"><div class="pre">'+linkify(n.body)+'</div></div>';
-  if((n.tags||[]).length)h+='<div class="chiprow">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>';
-  h+='<button class="bigbtn alt" data-copy="'+escAttr(n.body)+'"><i class="ti ti-link i"></i> Copy nội dung</button>';
-  h+='<div class="calcd" style="margin-top:8px">🔒 Đã khoá bởi quản lý — chỉ xem & copy.</div>';
+ if(!isNew){
+  acts+='<button class="chip'+(n.pinned?' on':'')+'" onclick="togglePin(\''+n.id+'\')">📌 '+(n.pinned?'Đang ghim':'Ghim')+'</button>';
+  if(canLinks())acts+='<button class="chip'+(n.locked?' on':'')+'" onclick="toggleLock(\''+n.id+'\')">'+(n.locked?'🔒 Đang khoá':'🔓 Khoá')+'</button>';
+  if(!live&&!editing&&canEd)acts+='<button class="chip" onclick="editNote()"><i class="ti ti-pencil"></i> Sửa</button>';
+  if(!live&&editing)acts+='<button class="chip" onclick="viewNote()"><i class="ti ti-eye"></i> Xem</button>';
+  if(!live)acts+='<button class="chip" onclick="delNote(\''+n.id+'\')"><i class="ti ti-trash"></i> Xoá</button>';
  }
- if(n.folderId||n.sheetId){
+ if(acts)h+='<div class="chiprow" style="margin-bottom:10px">'+acts+'</div>';
+ if(!live){
+  if(editing){
+   h+='<div class="group"><div class="fld"><label class="flbl">Tiêu đề</label><input id="noteTitle" class="in" value="'+escAttr(n.title)+'" placeholder="Tiêu đề ghi chú"></div>';
+   h+='<div class="ntoolbar"><button type="button" onclick="noteIns(\'head\')" title="Tiêu đề"><b>H</b></button><button type="button" onclick="noteIns(\'bold\')" title="Chữ đậm"><b>B</b></button><button type="button" onclick="noteIns(\'check\')" title="Checklist"><i class="ti ti-checkbox"></i></button><button type="button" onclick="noteIns(\'bullet\')" title="Gạch đầu dòng"><i class="ti ti-list"></i></button><button type="button" onclick="noteIns(\'link\')" title="Chèn link"><i class="ti ti-link"></i></button></div>';
+   h+='<div class="fld" style="padding-top:0"><textarea id="noteBody" class="in" style="min-height:220px" placeholder="Gõ nội dung… dùng thanh trên để thêm Tiêu đề / Checklist / Link.">'+escHtml(n.body)+'</textarea></div>';
+   h+='<div class="fld"><label class="flbl">Tag (phẩy ngăn cách)</label><input id="noteTags" class="in" value="'+escAttr((n.tags||[]).join(', '))+'" placeholder="nhạc, media, todo…"></div></div>';
+   h+='<button class="bigbtn" onclick="saveNote(\''+n.id+'\')"><i class="ti ti-check i"></i> Lưu ghi chú</button>';
+  }else{
+   h+='<div class="dtitle" style="font-size:21px;margin-bottom:10px">'+escHtml(n.title||'(không tiêu đề)')+(n.locked?' 🔒':'')+'</div>';
+   h+='<div class="group" style="padding:14px 15px"><div class="noterich">'+renderNoteRich(n)+'</div></div>';
+   if((n.tags||[]).length)h+='<div class="chiprow" style="margin-bottom:8px">'+n.tags.map(function(t){return '<span class="ntag">#'+t+'</span>';}).join('')+'</div>';
+   h+='<button class="bigbtn alt" data-copy="'+escAttr(n.body)+'"><i class="ti ti-copy i"></i> Copy nội dung</button>';
+   if(n.locked&&!canLinks())h+='<div class="calcd" style="margin-top:8px">🔒 Đã khoá — chỉ xem & copy.</div>';
+  }
+ }
+ if(live){
   h+='<div class="gtitle" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px"><span>'+(n.sheetId?'📋 Danh sách':'📂 Danh sách file')+'</span><button class="chip" onclick="reloadLive()"><i class="ti ti-refresh"></i> Tải lại</button></div>';
   h+='<div id="liveList" '+(n.folderId?('data-folder="'+escAttr(n.folderId)+'"'):('data-sheet="'+escAttr(n.sheetId)+'"'))+'><div class="calcd">⏳ Đang tải…</div></div>';
  }
@@ -1363,6 +1388,31 @@ function loadLive(el){
 }
 function reloadLive(){window.__liveCache={};render();}
 window.reloadLive=reloadLive;
+/* ===== Ghi chú kiểu Apple Notes: read view (heading/bullet/checklist/link chip) + toolbar ===== */
+function editNote(){state.noteEdit=true;render();}
+function viewNote(){state.noteEdit=false;render();}
+window.editNote=editNote;window.viewNote=viewNote;
+function _short(u){return String(u).replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/+$/,'').slice(0,42);}
+function _inlineMd(s){s=escHtml(s).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+ return s.replace(/(https?:\/\/[^\s]+)/g,function(u){return '<a href="'+u+'" target="_blank" rel="noopener" class="il">'+_short(u)+'</a>';});}
+function renderNoteRich(n){var L=(n.body||'').split('\n'),out='';
+ for(var i=0;i<L.length;i++){var t=L[i].trim();
+  if(!t){out+='<div class="nbr"></div>';continue;}
+  var cm=t.match(/^\[( |x|X)\]\s*(.*)$/);
+  if(cm){var dn=cm[1].toLowerCase()==='x';out+='<button class="nchk'+(dn?' done':'')+'" data-nid="'+n.id+'" data-chk="'+i+'"><span class="cbx"><i class="ti '+(dn?'ti-square-rounded-check-filled':'ti-square-rounded')+'"></i></span><span class="ctx">'+_inlineMd(cm[2])+'</span></button>';continue;}
+  var hm=t.match(/^#{1,3}\s+(.*)$/);if(hm){out+='<div class="nh">'+_inlineMd(hm[1])+'</div>';continue;}
+  var bm=t.match(/^[-*•]\s+(.*)$/);if(bm){out+='<div class="nbul"><span class="bd">•</span><span>'+_inlineMd(bm[1])+'</span></div>';continue;}
+  var lm=t.match(/^(?:(.{1,40}?):\s*)?(https?:\/\/\S+)$/);if(lm){out+='<button class="nlink" data-url="'+escAttr(lm[2])+'"><i class="ti ti-link"></i> '+escHtml(lm[1]||_short(lm[2]))+'</button>';continue;}
+  out+='<div class="ntext">'+_inlineMd(t)+'</div>';}
+ return out||'<div class="calcd">Trống</div>';}
+function toggleCheck(id,i){var n=notesById(id);if(!n)return;var L=(n.body||'').split('\n');var m=L[i]&&L[i].match(/^(\s*)\[( |x|X)\]\s*(.*)$/);if(!m)return;var dn=m[2].toLowerCase()==='x';L[i]=m[1]+'['+(dn?' ':'x')+'] '+m[3];n.body=L.join('\n');n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
+window.toggleCheck=toggleCheck;
+function _ins(tok,wrap){var ta=document.getElementById('noteBody');if(!ta)return;var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value;
+ if(wrap){var sel=v.slice(s,e)||'chữ';ta.value=v.slice(0,s)+tok+sel+tok+v.slice(e);ta.focus();ta.selectionStart=s+tok.length;ta.selectionEnd=s+tok.length+sel.length;}
+ else{var ls=v.lastIndexOf('\n',s-1)+1;ta.value=v.slice(0,ls)+tok+v.slice(ls);ta.focus();ta.selectionStart=ta.selectionEnd=s+tok.length;}}
+function noteIns(kind){if(kind==='check')_ins('[ ] ');else if(kind==='bullet')_ins('- ');else if(kind==='head')_ins('# ');else if(kind==='bold')_ins('**',true);
+ else if(kind==='link'){var ta=document.getElementById('noteBody');if(!ta)return;var u=prompt('Dán link:','https://');if(!u||u==='https://')return;var s=ta.selectionStart,v=ta.value;var ins=((s>0&&v[s-1]!=='\n')?'\n':'')+u+'\n';ta.value=v.slice(0,s)+ins+v.slice(s);ta.focus();}}
+window.noteIns=noteIns;
 /* migration: gắn folderId/sheetId cho note ghim sẵn (không cần bump SEED).
    KHÔNG khoá 1 lần — vì render chạy sớm với seed rồi Firestore nạp đè note CŨ;
    chạy lại mỗi render, chỉ ghi khi note thật sự thiếu field (idempotent, tự hội tụ). */
@@ -1388,11 +1438,11 @@ function saveNote(id){
  var n={id:nid,title:t||'(không tiêu đề)',body:b,tags:tags,pinned:ex?ex.pinned:false,locked:ex?ex.locked:false,by:USERS[state.role].nm,updatedAt:Date.now()};
  if(ex){for(var i=0;i<teamNotes.length;i++)if(teamNotes[i].id===nid)teamNotes[i]=n;}else teamNotes.push(n);
  if(window.qtSave)window.qtSave('teamnotes',nid,n);
- state.screen='team';scrollNext=true;render();
+ state.noteEdit=false;state.screen='note:'+nid;scrollNext=true;render();
 }
 function togglePin(id){var n=notesById(id);if(!n)return;n.pinned=!n.pinned;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
 function toggleLock(id){if(!canLinks())return;var n=notesById(id);if(!n)return;n.locked=!n.locked;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);render();}
-function openNote(id){state.screen='note:'+id;scrollNext=true;render();}
+function openNote(id){state.noteEdit=(id==='new');state.screen='note:'+id;scrollNext=true;render();}
 window.openNote=openNote;window.saveNote=saveNote;window.togglePin=togglePin;window.toggleLock=toggleLock;
 function screenCreate(){
  var d=(state.selDate&&stripT(state.selDate)>=stripT(now))?state.selDate:now;
@@ -1507,9 +1557,7 @@ function screenCreate(){
  H+='<div class="group collapsable" id="ctBox"><div style="padding:6px 15px 14px">';
  H+='<div class="segbtn" id="ctMode" style="margin:8px 0"><button type="button" data-val="upload"><i class="ti ti-upload"></i> Tải file lên</button><button type="button" data-val="create" class="on"><i class="ti ti-pencil"></i> Tạo file mới</button></div>';
  H+='<div id="ctUploadBox" style="display:none;margin-bottom:6px">';
- H+='<div class="fld" style="padding:0"><label class="flbl">🤖 Đọc file HĐ (ảnh / PDF / Word) — tự điền</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="ctUpFileF" accept="image/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="in" style="padding:7px"><button class="iconbtn" type="button" id="ctReadBtn" title="Đọc file"><i class="ti ti-robot"></i></button></div></div>';
- H+='<div class="fld" style="padding:6px 0 0"><label class="flbl">Hoặc dán link file đã upload</label><input id="ctUpFile" class="in" placeholder="Dán link ảnh/PDF…"></div>';
- H+='<div class="calcd" style="padding:6px 0 0">🤖 Tải file vào folder Drive chỉ định → hiện ở Tài liệu. API tự đọc nhận diện loại file & cập nhật thông tin (nếu sự kiện mới thì tự điền), kèm tóm tắt thay đổi để xác nhận — Phase 2/3.</div>';
+ H+='<div class="fld" style="padding:0"><label class="flbl">🤖 Tải file HĐ (ảnh / PDF / Word) — tự đọc & lưu Drive</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="ctUpFileF" accept="image/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="in" style="padding:7px"><button class="iconbtn" type="button" id="ctReadBtn" title="Đọc & lưu file"><i class="ti ti-robot"></i></button></div></div>';
  H+='</div>';
  H+='<div class="fld" id="ctPasteWrap" style="padding:0 0 4px"><label class="flbl">Dán thông tin từ đối tác (tên, MST, người ký, giá trị HĐ…)</label><textarea id="ctPaste" class="in" placeholder="Dán cụm thông tin đối tác + giá trị hợp đồng…"></textarea><button type="button" class="addrow" id="ctParseBtn"><i class="ti ti-robot"></i> Đọc & điền</button></div>';
  H+='<div id="ctVital" style="margin:8px 0 4px"></div>';
@@ -1692,7 +1740,7 @@ function ctCollectPayload(){
 }
 var ctDocsList=[];
 function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return;
- if(!ctDocsList.length){box.innerHTML='<div class="calcd">Chưa có file. Tạo file hoặc dán link bên dưới.</div>';return;}
+ if(!ctDocsList.length){box.innerHTML='<div class="calcd">Chưa có file. Tải file lên (tự lưu Drive) hoặc tạo file mới.</div>';return;}
  box.innerHTML='<div class="group">'+ctDocsList.map(function(dd,idx){return '<div class="item" style="cursor:default"><div class="di" style="width:36px;height:36px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0"><i class="ti ti-file-text"></i></div><div style="flex:1;min-width:0"><div class="t">'+dd.type+'</div></div><div class="rowacts"><button class="iconbtn2" type="button" data-openstop="'+dd.url+'" title="Mở"><i class="ti ti-external-link"></i></button><button class="iconbtn2" type="button" data-copy="'+dd.url+'" title="Copy"><i class="ti ti-link"></i></button><button class="iconbtn2" type="button" data-rmdoc="'+idx+'" title="Xoá" style="color:var(--muted)"><i class="ti ti-x"></i></button></div></div>';}).join('')+'</div>';
  applyIcons();
  box.querySelectorAll('[data-openstop]').forEach(function(el){el.onclick=function(){openURL(el.dataset.openstop);};});
@@ -1702,37 +1750,41 @@ function renderCtDocs(){var box=document.getElementById('ctDocs');if(!box)return
 function readContractFile(){
  var res=document.getElementById('ctGenResult');
  var fi=document.getElementById('ctUpFileF');var file=fi&&fi.files&&fi.files[0];
- var u=(document.getElementById('ctUpFile').value||'').trim();
- if(file){ // OCR file thật qua maps-ocr.gs (free)
-  res.textContent='⏳ Đang đọc file HĐ (OCR)…';
-  fileToB64(file).then(function(b64){return mapsOcrPost({action:'ocr',kind:'contract',fileBase64:b64,mimeType:file.type});}).then(function(r){
-   if(r&&(r.parsed||r.text)){var p=r.parsed||{},got=[];
-    function S(id,v){var e=document.getElementById(id);if(e&&v){e.value=v;return true;}return false;} // ghi đè (OCR là nguồn chuẩn)
-    if(S('ctNo',p.contractNo))got.push('số HĐ');
-    if(S('ctSign',p.signDate))got.push('ngày ký');
-    if(S('ctPartner',p.partner))got.push('đối tác');
-    if(S('ctMst',p.taxCode))got.push('MST');
-    if(S('ctAddr',p.address))got.push('địa chỉ');
-    if(S('ctPhone',p.phone))got.push('SĐT');
-    if(S('ctRep',p.rep))got.push('đại diện');
-    if(S('ctRepTitle',p.repTitle))got.push('chức vụ');
-    if(S('ctBankNo',p.bankNo))got.push('STK');
-    if(S('ctBankName',p.bankName))got.push('ngân hàng');
-    if(S('ctBranch',p.branch))got.push('chi nhánh');
-    if(S('ctEmail',p.email))got.push('email');
-    if(p.tax){var tb=document.querySelector('#ctTax [data-val="'+p.tax+'"]');if(tb){document.querySelectorAll('#ctTax button').forEach(function(b){b.classList.remove('on');});tb.classList.add('on');got.push('thuế '+p.tax+'%');}}
-    if(p.value){document.getElementById('ctValue').value=p.value;got.push('giá trị trước thuế');}
-    _recalcTotal();
-    var pa=document.getElementById('ctPaste');if(pa&&r.text){pa.value=r.text;} // đổ text để bấm "Đọc & điền" bóc thêm
-    if(typeof updateVital==='function')updateVital();
-    res.innerHTML=(got.length?('✅ Đã điền: '+got.join(', ')+'. Kiểm tra lại rồi lưu.'):'Không bóc được field — xem ô dán bên dưới.');}
-   else{res.textContent='❌ '+((r&&r.error)||'không đọc được nội dung');}
-  }).catch(function(e){res.textContent='❌ Lỗi OCR: '+e.message;});
-  return;
- }
- if(!u){toast('Chọn file hoặc dán link trước');return;}
- ctDocsList.push({type:'HĐ',url:u});renderCtDocs();
- res.innerHTML='✅ Đã thêm link file vào Tài liệu. (Muốn OCR tự điền thì chọn file ảnh/PDF ở trên.)';
+ if(!file){toast('Chọn file HĐ trước');return;}
+ function GV(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+ res.textContent='⏳ Đang đọc file HĐ…';
+ var _b64='';
+ fileToB64(file).then(function(b64){_b64=b64;return mapsOcrPost({action:'ocr',kind:'contract',fileBase64:b64,mimeType:file.type});}).then(function(r){
+  var p=(r&&r.parsed)||{},got=[];
+  function S(id,v){var e=document.getElementById(id);if(e&&v){e.value=v;return true;}return false;} // OCR là nguồn chuẩn → ghi đè
+  if(S('ctNo',p.contractNo))got.push('số HĐ');
+  if(S('ctSign',p.signDate))got.push('ngày ký');
+  if(S('ctPartner',p.partner))got.push('đối tác');
+  if(S('ctMst',p.taxCode))got.push('MST');
+  if(S('ctAddr',p.address))got.push('địa chỉ');
+  if(S('ctPhone',p.phone))got.push('SĐT');
+  if(S('ctRep',p.rep))got.push('đại diện');
+  if(S('ctRepTitle',p.repTitle))got.push('chức vụ');
+  if(S('ctBankNo',p.bankNo))got.push('STK');
+  if(S('ctBankName',p.bankName))got.push('ngân hàng');
+  if(S('ctBranch',p.branch))got.push('chi nhánh');
+  if(S('ctEmail',p.email))got.push('email');
+  if(p.tax){var tb=document.querySelector('#ctTax [data-val="'+p.tax+'"]');if(tb){document.querySelectorAll('#ctTax button').forEach(function(b){b.classList.remove('on');});tb.classList.add('on');got.push('thuế '+p.tax+'%');}}
+  if(p.value){document.getElementById('ctValue').value=p.value;got.push('giá trị trước thuế');}
+  _recalcTotal();
+  var pa=document.getElementById('ctPaste');if(pa&&r&&r.text){pa.value=r.text;}
+  if(typeof updateVital==='function')updateVital();
+  // Lưu file gốc vào Drive + đặt tên: YYYYMMDD - HD - Tên sự kiện - Đối tác
+  var fillMsg=got.length?('✅ Đã điền: '+got.join(', ')+'. '):'';
+  res.innerHTML=fillMsg+'⏳ Đang lưu file vào Drive…';
+  var evDate=GV('evDate'),ymd=evDate?evDate.replace(/-/g,''):'',year=evDate?evDate.slice(0,4):String(new Date().getFullYear());
+  var ext=(file.name.match(/\.[A-Za-z0-9]+$/)||[''])[0];
+  var fname=((ymd?ymd+' - ':'')+'HD - '+(GV('evName')||'Su kien')+' - '+(GV('ctPartner')||'Doi tac')).replace(/[\/\\:*?"<>|]/g,'-')+ext;
+  return mapsOcrPost({action:'savefile',fileBase64:_b64,mimeType:file.type,filename:fname,year:year}).then(function(sr){
+   if(sr&&sr.url){ctDocsList.push({type:'HĐ',url:sr.url});renderCtDocs();res.innerHTML=fillMsg+'✅ Đã lưu file vào Drive (mục Tài liệu): '+(sr.name||fname)+'. Kiểm tra lại rồi lưu.';}
+   else{res.innerHTML=fillMsg+'⚠️ Đọc xong nhưng lưu Drive lỗi: '+((sr&&sr.error)||'?');}
+  });
+ }).catch(function(e){res.textContent='❌ Lỗi: '+e.message;});
 }
 function _noDia(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');}
 function _abbr(name){var stop='CONG TY CO PHAN TNHH MTV DU LICH VA DAU TU THUONG MAI DICH VU TAP DOAN COMPANY LTD JSC GROUP CORP'.split(' ');var ws=_noDia(name).toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).filter(function(w){return w&&stop.indexOf(w)<0;});if(!ws.length)return 'KH';return ws.map(function(w){return w[0];}).join('').slice(0,4);}

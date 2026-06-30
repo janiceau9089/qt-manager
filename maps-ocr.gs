@@ -20,7 +20,7 @@
  * 5. Copy Web app URL (…/exec) → dán vào app: var MAPS_OCR_URL="…".
  ****************************************************************/
 
-var MAPS_OCR_VERSION = "2026-06-29-contract-v2"; // đổi mỗi lần cập nhật để dễ kiểm tra bản đang chạy
+var MAPS_OCR_VERSION = "2026-06-29-savefile-v3"; // đổi mỗi lần cập nhật để dễ kiểm tra bản đang chạy
 function doGet(e){
   return _json({ ok:true, version:MAPS_OCR_VERSION, msg:"QT maps-ocr alive", time:new Date().toISOString() });
 }
@@ -32,7 +32,8 @@ function doPost(e){
     else if(req.action === "ocr")      out = doOcr_(req);
     else if(req.action === "drivelist")out = doDrive_(req);
     else if(req.action === "sheetlist")out = doSheet_(req);
-    else                               out = { error:"unknown action (cần 'maps' | 'ocr' | 'drivelist' | 'sheetlist')" };
+    else if(req.action === "savefile") out = doSave_(req);
+    else                               out = { error:"unknown action (cần 'maps' | 'ocr' | 'drivelist' | 'sheetlist' | 'savefile')" };
   }catch(err){ out = { error:String(err) }; }
   return _json(out);
 }
@@ -54,6 +55,31 @@ function doMaps_(req){
   var min = Math.round(secs/60);
   return { km:km, min:min, kmText:km+" km", minText:min+" phút",
            startAddress:r.routes[0].legs[0].start_address, endAddress:r.routes[0].legs[r.routes[0].legs.length-1].end_address };
+}
+
+/* ============ SAVE FILE (lưu file upload vào Drive + đặt tên) ============ */
+var SAVE_ROOT_FOLDER_ID = "1Wzfh3SYPs5vprPHPCgo3hmPXA94HZK_G"; // folder hồ sơ gốc (giống contract-gen): bên trong có thu/<năm>
+function childFolder_(parent, name){
+  var it = parent.getFolders();
+  while(it.hasNext()){ var f = it.next(); if(f.getName().toLowerCase() === String(name).toLowerCase()) return f; }
+  return parent.createFolder(name);
+}
+function doSave_(req){
+  var b64 = String(req.fileBase64||"");
+  if(!b64) return { error:"thiếu file" };
+  var comma = b64.indexOf(",");
+  if(b64.substr(0,5)==="data:" && comma>0) b64 = b64.substr(comma+1);
+  var mime = req.mimeType || "application/octet-stream";
+  var name = String(req.filename || ("upload-"+Date.now())).replace(/[\/\\:*?"<>|]/g,"-").replace(/\s+/g," ").trim();
+  var blob = Utilities.newBlob(Utilities.base64Decode(b64), mime, name);
+  var folder;
+  try{
+    var root = DriveApp.getFolderById(SAVE_ROOT_FOLDER_ID);
+    folder = childFolder_(childFolder_(root, "thu"), String(req.year || new Date().getFullYear()));
+  }catch(e){ return { error:"không mở được folder lưu (đã share quyền edit chưa?): "+String(e) }; }
+  var f = folder.createFile(blob); f.setName(name);
+  try{ f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.COMMENT); }catch(e){}
+  return { url:f.getUrl(), id:f.getId(), name:name };
 }
 
 /* ============ DRIVE LIST (liệt kê file trong folder) ============ */
