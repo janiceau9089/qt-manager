@@ -45,14 +45,14 @@ var H2K={}; for(var k in ALIAS) ALIAS[k].forEach(function(s){H2K[s]=k;});
 function keyForHeader_(h){return H2K[String(h).trim().toLowerCase()]||null;}
 
 function onOpen(){SpreadsheetApp.getUi().createMenu('Firestore Sync')
- .addItem('⟳ Đồng bộ lịch từ Google Calendar → Sync','importFromCalendar')
+ .addItem('⟳ Đồng bộ lịch Google Calendar → Sheet + App','importFromCalendar')
  .addItem('① Định dạng tab Sync (+ cấp Mã sự kiện)','setupSheet')
  .addItem('③ Tạo / Cập nhật tab Hợp đồng','setupContractsTab')
  .addItem('② Đẩy lên app (gộp Sync + Hợp đồng)','pushToApp')
  .addItem('②b Đẩy CHỈ tiền (pays) — không đụng job','pushPaysOnly')
  .addItem('↕ Sắp xếp lại theo ngày','sortSheet')
  .addSeparator()
- .addItem('⏰ Bật tự đồng bộ lịch mỗi sáng','enableAutoSync')
+ .addItem('⏰ Bật tự đồng bộ lịch mỗi 30 phút','enableAutoSync')
  .addItem('⏰ Tắt tự đồng bộ','disableAutoSync')
  .addItem('⚠ Xoá sample data (demo + pays/exps/docs/tasks)','clearSampleData')
  .addItem('⚠ Xoá hết jobs/pays trên app (reset)','resetApp').addToUi();}
@@ -77,15 +77,25 @@ function cProv_(s,name){if(cForeign_(name))return 'Nước ngoài';s=(s||'').toL
 function cClean_(s){var t=s.replace(/^\s*done\s+/i,'');t=t.replace(/^\s*c[oọ]c\s*(l[aâ]n\s*1|l\.?\s*1|1)\b\s*[:\-–]?\s*/i,'');t=t.replace(/^\s*\d{1,2}\s*h\s*\d{0,2}\s*/i,'');t=t.replace(/^\s*\d{1,3}\s+(?=[A-Za-zÀ-ỹ&])/,'');t=t.replace(/[-–·]?\s*\b\d{1,2}\s*[h:]\s*\d{2}\b/gi,' ');t=t.replace(/[-–·]?\s*\b\d{1,2}\s*h\b/gi,' ');t=t.replace(/\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/g,' ');t=t.replace(/\s*(done|xong)\s*$/i,'');t=t.replace(/[-–·]?\s*\b\d{2,4}\b\s*$/,'');t=t.replace(/\s*[&/]\s*$/,'');t=t.replace(/\s*[-–·:>]+\s*$/,'').replace(/^\s*[-–·:]\s*/,'');t=t.replace(/\s{2,}/g,' ').trim();if(!t)t=s.replace(/^\s*done\s+/i,'').trim();return t;}
 function cSpell_(t){if(/^[a-zà-ỹ]/.test(t))t=t.charAt(0).toUpperCase()+t.slice(1);return t;}
 
-function importFromCalendar(){
- var ui=SpreadsheetApp.getUi();var ss=SpreadsheetApp.getActive();var sh=ss.getSheetByName(SHEET_NAME)||ss.insertSheet(SHEET_NAME);
+function readDeletions_(){var out={};var p='';do{var r=UrlFetchApp.fetch(BASE+'deletions?pageSize=300'+(p?('&pageToken='+p):''),{headers:{Authorization:'Bearer '+tok_()},muteHttpExceptions:true});var j=JSON.parse(r.getContentText()||'{}');(j.documents||[]).forEach(function(d){var id=d.name.split('/').pop();var f=d.fields||{};out[id]={id:id,key:(f.key&&f.key.stringValue)||''};});p=j.nextPageToken||'';}while(p);return out;}
+function importFromCalendar(silent){
+ // silent = chạy từ trigger (không có UI). Trigger truyền event object (truthy) → tự im lặng.
+ function note_(m){ if(silent)return; try{ SpreadsheetApp.getUi().alert(m); }catch(e){} }
+ var ss=SpreadsheetApp.getActive();var sh=ss.getSheetByName(SHEET_NAME)||ss.insertSheet(SHEET_NAME);
  var cal=CalendarApp.getCalendarById(CAL_ID);
- if(!cal){ui.alert('Không truy cập được lịch '+CAL_ID+'.\nTrong Google Calendar của QT → Settings → share lịch cho tài khoản đang chạy script.');return;}
+ if(!cal){ try{ cal=CalendarApp.subscribeToCalendar(CAL_ID); }catch(e){} }   // tự thêm lịch đã share vào danh sách
+ if(!cal){note_('Không truy cập được lịch '+CAL_ID+'.\n1) Đã share lịch cho tài khoản chạy script chưa?\n2) appsscript.json cần scope https://www.googleapis.com/auth/calendar (đầy đủ) rồi chạy lại + Allow.');return;}
  var from=new Date(2026,0,1);var to=new Date();to.setFullYear(to.getFullYear()+2);
  var evs=cal.getEvents(from,to);
  var data=sh.getDataRange().getValues();var header=(data[0]||[]).map(function(x){return String(x).trim();});var colKey={};header.forEach(function(h,i){var k=keyForHeader_(h);if(k)colKey[k]=i;});
- var rowsArr=[],existing={};
- for(var r=1;r<data.length;r++){var o={};ORDER.forEach(function(k){o[k]=(colKey[k]!==undefined)?data[r][colKey[k]]:'';});if(!o.title&&!o.date)continue;o.date=toYMD_(o.date);rowsArr.push(o);if(o.eventId)existing[o.eventId]=o;}
+ var rowsArr=[],seenDT={};
+ function dtk_(d,t){return String(d)+'|'+String(t||'').trim().toLowerCase();} // khoá gộp theo Ngày + Tên
+ var dels=readDeletions_();var delId={},delKey={};for(var dd in dels){delId[dd]=1;if(dels[dd].key)delKey[dels[dd].key]=1;} // sự kiện đã xoá trên app
+ for(var r=1;r<data.length;r++){var o={};ORDER.forEach(function(k){o[k]=(colKey[k]!==undefined)?data[r][colKey[k]]:'';});if(!o.title&&!o.date)continue;o.date=toYMD_(o.date);
+   var k0=dtk_(o.date,o.title);
+   if((o.eventId&&delId[o.eventId])||delKey[k0])continue; // đã xoá → bỏ khỏi sheet, không nạp lại
+   if(seenDT[k0]){var prev=seenDT[k0];if((!prev.eventId||prev.source==='cal')&&o.eventId&&o.source!=='cal'){prev.eventId=o.eventId;prev.source=o.source;}continue;} // trùng -> gộp, ưu tiên giữ Mã của app
+   rowsArr.push(o);seenDT[k0]=o;}
  var added=0,updated=0;
  evs.forEach(function(ev){var rawT=(ev.getTitle()||'').replace(/^\s*done\s+/i,'').trim();if(!rawT)return;
   var desc=ev.getDescription()||'';var loc=ev.getLocation()||'';var st=ev.getStartTime();
@@ -93,17 +103,23 @@ function importFromCalendar(){
   var time=foreign?'':(cExtractTime_(rawT)||(ev.isAllDayEvent()?'':Utilities.formatDate(st,'Asia/Ho_Chi_Minh','HH:mm')));
   var title=cSpell_(cClean_(rawT));var eid=mkId_(dateStr,title);var fee=cFee_(desc,rawT);
   var nb=[];if(title!==rawT)nb.push('[Tên gốc: '+rawT+']');if(fee&&typeVI!=='Cá nhân')nb.push('[Gợi ý fee: '+fee+'tr]');if(desc)nb.push(desc.replace(/\n+/g,' / '));var note=nb.join(' ');
-  if(existing[eid]){var o=existing[eid];o.date=dateStr;o.time=time;o.title=title;o.venue=loc;o.province=cProv_(loc,rawT);o.type=typeVI;if(!o.pw_notes)o.pw_notes=note;updated++;}
-  else{rowsArr.push({date:dateStr,time:time,title:title,client:'',venue:loc,province:cProv_(loc,rawT),type:typeVI,status:'Đã chốt',drive:'',beat:'',lyrics:'',pw_notes:note,eventId:eid,source:'cal'});existing[eid]=1;added++;}
+  var k1=dtk_(dateStr,title);
+  if(delKey[k1]||delId[eid])return; // sự kiện đã xoá trên app → không thêm lại từ Calendar
+  if(seenDT[k1]){var o=seenDT[k1];o.date=dateStr;o.time=time||o.time;o.title=title;if(loc)o.venue=loc;o.province=cProv_(loc,rawT)||o.province;o.type=typeVI;if(!o.pw_notes)o.pw_notes=note;if(!o.eventId)o.eventId=eid;updated++;}
+  else{var nr={date:dateStr,time:time,title:title,client:'',venue:loc,province:cProv_(loc,rawT),type:typeVI,status:'Đã chốt',drive:'',beat:'',lyrics:'',pw_notes:note,eventId:eid,source:'cal'};rowsArr.push(nr);seenDT[k1]=nr;added++;}
  });
  rowsArr.sort(function(a,b){var ka=sortKey_(a.date,a.time),kb=sortKey_(b.date,b.time);return ka<kb?1:(ka>kb?-1:0);});
  var out=[ORDER.map(function(k){return KEY2VI[k];})];rowsArr.forEach(function(o){out.push(ORDER.map(function(k){return (o[k]===undefined?'':o[k]);}));});
  sh.clear();sh.getRange(1,1,out.length,ORDER.length).setValues(out);sh.setFrozenColumns(2);
  styleHead_(sh,ORDER.length,out.length);
  for(var key in SYNC_DD){var i=ORDER.indexOf(key);if(i>=0&&out.length>1)setDD_(sh,i,SYNC_DD[key],2,out.length-1);}
- ui.alert('Đồng bộ Google Calendar → Sync xong: thêm '+added+', cập nhật '+updated+' sự kiện. (Giữ nguyên Link/Ghi chú đã nhập tay)');
+ // Đẩy luôn lên app (masked qua event-sync: tạo sự kiện mới, KHÔNG đè band/makeup/HĐ đã có)
+ var pushed=0,pushErr='';
+ try{ if(typeof pushAllToApp==='function') pushed=pushAllToApp(); else pushErr='Chưa cài event-sync.gs (thiếu pushAllToApp).'; }
+ catch(e){ pushErr=String(e); }
+ note_('Đồng bộ Google Calendar xong:\n• Sheet: thêm '+added+', cập nhật '+updated+' sự kiện (giữ Link/Ghi chú).\n• App: đẩy '+pushed+' sự kiện'+(pushErr?(' — ⚠ '+pushErr):' ✓ (không đè band/makeup/HĐ).'));
 }
-function enableAutoSync(){ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='importFromCalendar')ScriptApp.deleteTrigger(t);});ScriptApp.newTrigger('importFromCalendar').timeBased().everyDays(1).atHour(7).create();SpreadsheetApp.getUi().alert('Đã bật: tự đồng bộ lịch → Sync mỗi sáng ~7h.');}
+function enableAutoSync(){ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='importFromCalendar')ScriptApp.deleteTrigger(t);});ScriptApp.newTrigger('importFromCalendar').timeBased().everyMinutes(30).create();SpreadsheetApp.getUi().alert('Đã bật: tự đồng bộ lịch Google Calendar → Sheet + App mỗi 30 phút.');}
 function disableAutoSync(){var n=0;ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='importFromCalendar'){ScriptApp.deleteTrigger(t);n++;}});SpreadsheetApp.getUi().alert('Đã tắt tự đồng bộ ('+n+' lịch).');}
 
 function styleHead_(sh,n,nRows){var head=sh.getRange(1,1,1,n);head.setBackground('#9DC3F0').setFontColor('#10355E').setFontWeight('bold').setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true);sh.setFrozenRows(1);sh.setRowHeight(1,38);sh.getBandings().forEach(function(b){b.remove();});var bd=sh.getRange(1,1,Math.max(nRows,2),n).applyRowBanding();bd.setHeaderRowColor('#9DC3F0').setFirstRowColor('#FFFFFF').setSecondRowColor('#EAF2FD');}

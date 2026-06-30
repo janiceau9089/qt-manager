@@ -118,19 +118,27 @@ function syncEvents(){
 }
 
 // ===== CHIỀU CHÍNH: app -> Sheet (tự động mỗi GIỜ) =====
+function evListDeletions(){var out={},p="";do{var r=UrlFetchApp.fetch(EV_BASE+"deletions?pageSize=300"+(p?("&pageToken="+p):""),{headers:evHead(),muteHttpExceptions:true});var j=JSON.parse(r.getContentText()||"{}");(j.documents||[]).forEach(function(d){var id=d.name.split("/").pop();var o={id:id};var fs=d.fields||{};for(var k in fs)o[k]=evFromVal(fs[k]);out[id]=o;});p=j.nextPageToken||"";}while(p);return out;}
+function evDtk(d,t){return String(d)+"|"+String(t||"").trim().toLowerCase();}
 function pullToSheet(){
   var S=evReadSheet(); var sh=S.sh, col=S.col; var data=sh.getDataRange().getValues(); var jobs=evListJobs();
   function gv(row,key){var i=col[key];return(i===undefined)?"":row[i];}
+  // ---- Xoá: bỏ dòng sheet ứng với sự kiện đã xoá trên app (tombstone) ----
+  var del=evListDeletions(); var delId={},delKey={}; for(var dk in del){delId[dk]=1; if(del[dk].key)delKey[del[dk].key]=1;}
+  var nDel=0;
+  if(Object.keys(del).length){ var toDel=[]; for(var r=1;r<data.length;r++){var id=String(gv(data[r],"eventId")||"").trim(); var key=evDtk(evYMD(gv(data[r],"date")),gv(data[r],"title")); if((id&&delId[id])||delKey[key])toDel.push(r+1);}
+    for(var i=toDel.length-1;i>=0;i--){sh.deleteRow(toDel[i]);nDel++;}
+    if(nDel){data=sh.getDataRange().getValues();} }
   var rowById={}; for(var r=1;r<data.length;r++){var id=String(gv(data[r],"eventId")||"").trim(); if(id)rowById[id]=r;}
   var append=[],nNew=0,nUpd=0;
-  for(var id in jobs){ var jb=jobs[id]; if(!jb.name)continue;
+  for(var id in jobs){ var jb=jobs[id]; if(!jb.name)continue; if(delId[id])continue; // đã xoá → bỏ qua
     var st=jb.start?new Date(jb.start):null; var dateS=st?Utilities.formatDate(st,"Asia/Ho_Chi_Minh","yyyy-MM-dd"):""; var timeS=st?Utilities.formatDate(st,"Asia/Ho_Chi_Minh","HH:mm"):"";
     var vals={date:dateS,time:timeS,title:jb.name,client:jb.client||"",venue:jb.loc||"",province:jb.prov||"",type:EV_TYPE_CODE2VI[jb.type]||"Khác",status:EV_ST_CODE2VI[jb.status]||"Đã chốt",drive:jb.drive||"",beat:jb.beat||"",lyrics:jb.lyrics||"",note:jb.note||"",eventId:id,source:"app",syncAt:jb.updatedAt||new Date().toISOString()};
     if(rowById[id]===undefined){ var arr=new Array(S.n).fill(""); for(var k in vals){ if(col[k]!==undefined)arr[col[k]]=vals[k]; } append.push(arr); nNew++; }
     else { var ri=rowById[id]; var syncAt=String((data[ri]||[])[col.syncAt]||""); if(jb.updatedAt&&(!syncAt||String(jb.updatedAt)>syncAt)){ ["date","time","title","client","venue","province","type","status","drive","beat","lyrics","note","syncAt"].forEach(function(k){ if(col[k]!==undefined&&vals[k]!==undefined)sh.getRange(ri+1,col[k]+1).setValue(vals[k]); }); nUpd++; } }
   }
   if(append.length)sh.getRange(sh.getLastRow()+1,1,append.length,S.n).setValues(append);
-  return {nNew:nNew,nUpd:nUpd};
+  return {nNew:nNew,nUpd:nUpd,nDel:nDel};
 }
 // ===== Sheet -> app (masked) — CHỈ khi sửa Sheet (onEdit) hoặc bấm tay sau khi thêm data từ Claude =====
 function evPushRowVals(sh,col,n,row,rIdx,jobs){

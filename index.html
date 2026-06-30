@@ -852,7 +852,20 @@ function go(s){scrollNext=true;state.screen=s;render();}
 function openJob(id){scrollNext=true;state.screen='job:'+id;state.tab='overview';render();}
 function openCreate(){state.editId=null;scrollNext=true;state.screen='create';render();}
 function openEdit(id){state.editId=id;scrollNext=true;state.screen='create';render();}
-window.openJob=openJob;window.openCreate=openCreate;window.openEdit=openEdit;
+function delJobEvent(id){var j=jById[id];if(!j)return;if(!confirm('Xoá sự kiện "'+(j.name||'')+'"?\nTiền/chi phí/HĐ liên quan cũng bị xoá. Không hoàn tác.'))return;
+ // tombstone để sync xoá khỏi Sheet + chặn Google Calendar thêm lại (khớp theo ngày + tên)
+ var st=j.start?new Date(j.start):null;var dateS=st?(st.getFullYear()+'-'+pad(st.getMonth()+1)+'-'+pad(st.getDate())):'';
+ var key=dateS+'|'+String(j.name||'').trim().toLowerCase();
+ if(window.qtSave)window.qtSave('deletions',id,{id:id,key:key,name:j.name||'',at:Date.now()});
+ // xoá khỏi Firestore (job + bản ghi liên quan)
+ if(window.qtDel){window.qtDel('jobs',id);pays.forEach(function(p){if(p.job===id&&p.id)window.qtDel('pays',p.id);});exps.forEach(function(e){if(e.job===id&&e.id)window.qtDel('exps',e.id);});contracts.forEach(function(c){if(c.id===id)window.qtDel('contracts',id);});docs.forEach(function(dD){if(dD.job===id&&dD.id)window.qtDel('docs',dD.id);});tasks.forEach(function(t){if(t.job===id&&t.id)window.qtDel('tasks',String(t.id));});}
+ // xoá local
+ jobs=jobs.filter(function(x){return x.id!==id;});delete jById[id];
+ pays=pays.filter(function(p){return p.job!==id;});exps=exps.filter(function(e){return e.job!==id;});
+ contracts=contracts.filter(function(c){return c.id!==id;});reContracts();
+ docs=docs.filter(function(dD){return dD.job!==id;});tasks=tasks.filter(function(t){return t.job!==id;});
+ toast('Đã xoá sự kiện');state.screen=(state.role=='artist'?'artist':'jobs');scrollNext=true;render();}
+window.openJob=openJob;window.openCreate=openCreate;window.openEdit=openEdit;window.delJobEvent=delJobEvent;
 function openMap(q){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q||''),'_blank');}
 function openURL(u){if(u)window.open(u,'_blank');}
 function toast(msg){var t=document.getElementById('qtToast');if(!t){t=document.createElement('div');t.id='qtToast';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(window.__toastT);window.__toastT=setTimeout(function(){t.style.opacity='0';},1600);}
@@ -1116,7 +1129,7 @@ function screenDetail(id){
  var jp=pays.filter(function(p){return p.job==id});var je=exps.filter(function(e){return e.job==id});var jt=tasks.filter(function(t){return t.job==id});var jd=docs.filter(function(d){return d.job==id})[0];
  var rec=recvOf(id),est=0,act=0;je.forEach(function(e){est+=e.est;act+=e.act});
  var h='<button class="back" data-go="'+(state.role=='artist'?'artist':'jobs')+'"><i class="ti ti-chevron-left"></i> Quay lại</button>';
- h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">'+tBadge(j.type,true)+'<div style="flex:1;min-width:0"><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div><div class="rowacts">'+(canLinks()?'<button class="iconbtn2" onclick="openEdit(\''+id+'\')" title="Sửa"><i class="ti ti-pencil"></i></button>':'')+'</div></div>';
+ h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">'+tBadge(j.type,true)+'<div style="flex:1;min-width:0"><div class="dtitle">'+j.name+'</div><div>'+'<span class="pill">'+TL[j.type]+'</span> '+sbadge(j.status)+'</div></div><div class="rowacts">'+(canLinks()?'<button class="iconbtn2" onclick="openEdit(\''+id+'\')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="iconbtn2" onclick="delJobEvent(\''+id+'\')" title="Xoá sự kiện" style="color:var(--red)"><i class="ti ti-trash"></i></button>':'')+'</div></div>';
  var tabsArr=[['overview','Thông tin']];if(fin())tabsArr.push(['expenses','Chi phí']);if(state.role!=='artist')tabsArr.push(['documents','Hợp đồng']);
  h+='<div class="tabs">'+tabsArr.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(tab==t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
  if(tab=='overview'){
