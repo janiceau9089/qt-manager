@@ -664,7 +664,7 @@ var teamNotes=[
  {id:"n1",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit",sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",tags:["media"],pinned:true,locked:false,by:"Thi",updatedAt:Date.now()-86400000*3},
  {id:"n2",title:"🖼️ Poster / Key visual",body:"Folder poster & KV chính thức:\nhttps://drive.google.com/folder/posters",tags:["media"],pinned:true,locked:true,by:"Trúc",updatedAt:Date.now()-86400000*2},
  {id:"n3",title:"🎼 Folder tổng phổ",body:"https://drive.google.com/drive/folders/1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",folderId:"1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-86400000},
- {id:"n4",title:"🎵 Folder beat",body:"https://drive.google.com/drive/folders/1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",folderId:"1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-80000000},
+ {id:"n4",title:"🎵 Folder beat",body:"https://drive.google.com/drive/folders/1fBpqsnlPyhHsS-M70J5y4gTL9GZzTu7e",folderId:"1fBpqsnlPyhHsS-M70J5y4gTL9GZzTu7e",tags:["nhạc"],pinned:true,locked:false,by:"Vi",updatedAt:Date.now()-80000000},
  {id:"n5",title:"✅ List bài hát có beat",body:"1. Phía sau một cô gái\n2. Yêu 5\n3. Đường tôi chở em về\n4. (đang xin) Chạy ngay đi",tags:["nhạc","todo"],pinned:false,locked:false,by:"Vi",updatedAt:Date.now()-70000000},
  {id:"n6",title:"📤 Drive upload chung",body:"Up file cần duyệt vào đây:\nhttps://drive.google.com/folder/upload",tags:[],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-60000000},
  {id:"n7",title:"❓ Kịch bản / câu hỏi cần trả lời",body:"- Thứ tự ra sân khấu?\n- Thêm 1 bài tủ phần giao lưu?\n- Trang phục đổi mấy lần?",tags:["hỏi"],pinned:false,locked:false,by:"Thi",updatedAt:Date.now()-50000000},
@@ -1462,14 +1462,14 @@ window.noteIns=noteIns;
 var NOTE_MIG={
  n1:{sheetId:"1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM",title:"📸 Quốc Thiên Gallery",body:"https://docs.google.com/spreadsheets/d/1QyOq7wA-WrfspkG81YTcDGCqZmq7EBHtZUuJRnYrQjM/edit"},
  n3:{folderId:"1bayavOGTQVpPfiH2IyOO8gJum1yram3Q",body:"https://drive.google.com/drive/folders/1bayavOGTQVpPfiH2IyOO8gJum1yram3Q"},
- n4:{folderId:"1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT",body:"https://drive.google.com/drive/folders/1X7MN_mfwC9y8dS_-sU-1sHA-5GpK2bGT"},
+ n4:{folderId:"1fBpqsnlPyhHsS-M70J5y4gTL9GZzTu7e",body:"https://drive.google.com/drive/folders/1fBpqsnlPyhHsS-M70J5y4gTL9GZzTu7e"},
  n8:{folderId:"1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",title:"📑 Proposal SKYNote26",body:"https://drive.google.com/drive/folders/1ze-JgON65g2SEz2oJWrj88qswz9Oo5VW",pinned:true}
 };
 function migrateNotes(){
  var any=notesById('n1')||notesById('n3')||notesById('n4')||notesById('n8');if(!any)return; // chờ data load
  Object.keys(NOTE_MIG).forEach(function(id){var m=NOTE_MIG[id];var n=notesById(id);
   if(!n){ if(id==='n8'){n={id:'n8',title:m.title,body:m.body,folderId:m.folderId,tags:['proposal'],pinned:true,locked:false,by:'Thi',updatedAt:Date.now()};teamNotes.push(n);if(window.qtSave)window.qtSave('teamnotes','n8',n);} return; }
-  var need=(m.folderId&&!n.folderId)||(m.sheetId&&!n.sheetId);
+  var need=(m.folderId&&n.folderId!==m.folderId)||(m.sheetId&&n.sheetId!==m.sheetId);
   if(need){if(m.folderId)n.folderId=m.folderId;if(m.sheetId)n.sheetId=m.sheetId;if(m.title)n.title=m.title;if(m.pinned)n.pinned=true;n.body=m.body;n.updatedAt=Date.now();if(window.qtSave)window.qtSave('teamnotes',id,n);}
  });
 }

@@ -54,6 +54,7 @@ function onOpen(){SpreadsheetApp.getUi().createMenu('Firestore Sync')
  .addSeparator()
  .addItem('⏰ Bật tự đồng bộ lịch mỗi 30 phút','enableAutoSync')
  .addItem('⏰ Tắt tự đồng bộ','disableAutoSync')
+ .addItem('🧹 Gộp sự kiện trùng (Ngày + Tên)','dedupEvents')
  .addItem('⚠ Xoá sample data (demo + pays/exps/docs/tasks)','clearSampleData')
  .addItem('⚠ Xoá hết jobs/pays trên app (reset)','resetApp').addToUi();}
 
@@ -88,14 +89,17 @@ function importFromCalendar(silent){
  var from=new Date(2026,0,1);var to=new Date();to.setFullYear(to.getFullYear()+2);
  var evs=cal.getEvents(from,to);
  var data=sh.getDataRange().getValues();var header=(data[0]||[]).map(function(x){return String(x).trim();});var colKey={};header.forEach(function(h,i){var k=keyForHeader_(h);if(k)colKey[k]=i;});
- var rowsArr=[],seenDT={};
+ var rowsArr=[],seenDT={},byDateRows={};
  function dtk_(d,t){return String(d)+'|'+String(t||'').trim().toLowerCase();} // khoá gộp theo Ngày + Tên
+ function regRow_(o){(byDateRows[o.date]=byDateRows[o.date]||[]).push({o:o,tok:_dTok(o.title)});}
+ function fuzzyRow_(date,tok){var a=byDateRows[date]||[];for(var z=0;z<a.length;z++){if(_dSim(a[z].tok,tok))return a[z].o;}return null;}
  var dels=readDeletions_();var delId={},delKey={};for(var dd in dels){delId[dd]=1;if(dels[dd].key)delKey[dels[dd].key]=1;} // sự kiện đã xoá trên app
  for(var r=1;r<data.length;r++){var o={};ORDER.forEach(function(k){o[k]=(colKey[k]!==undefined)?data[r][colKey[k]]:'';});if(!o.title&&!o.date)continue;o.date=toYMD_(o.date);
    var k0=dtk_(o.date,o.title);
    if((o.eventId&&delId[o.eventId])||delKey[k0])continue; // đã xoá → bỏ khỏi sheet, không nạp lại
-   if(seenDT[k0]){var prev=seenDT[k0];if((!prev.eventId||prev.source==='cal')&&o.eventId&&o.source!=='cal'){prev.eventId=o.eventId;prev.source=o.source;}continue;} // trùng -> gộp, ưu tiên giữ Mã của app
-   rowsArr.push(o);seenDT[k0]=o;}
+   var fz=fuzzyRow_(o.date,_dTok(o.title));
+   if(fz){if((!fz.eventId||fz.source==='cal')&&o.eventId&&o.source!=='cal'){fz.eventId=o.eventId;fz.source=o.source;}continue;} // trùng (mờ) -> gộp, ưu tiên Mã app
+   rowsArr.push(o);seenDT[k0]=o;regRow_(o);}
  var added=0,updated=0;
  evs.forEach(function(ev){var rawT=(ev.getTitle()||'').replace(/^\s*done\s+/i,'').trim();if(!rawT)return;
   var desc=ev.getDescription()||'';var loc=ev.getLocation()||'';var st=ev.getStartTime();
@@ -103,10 +107,11 @@ function importFromCalendar(silent){
   var time=foreign?'':(cExtractTime_(rawT)||(ev.isAllDayEvent()?'':Utilities.formatDate(st,'Asia/Ho_Chi_Minh','HH:mm')));
   var title=cSpell_(cClean_(rawT));var eid=mkId_(dateStr,title);var fee=cFee_(desc,rawT);
   var nb=[];if(title!==rawT)nb.push('[Tên gốc: '+rawT+']');if(fee&&typeVI!=='Cá nhân')nb.push('[Gợi ý fee: '+fee+'tr]');if(desc)nb.push(desc.replace(/\n+/g,' / '));var note=nb.join(' ');
-  var k1=dtk_(dateStr,title);
+  var k1=dtk_(dateStr,title);var tok1=_dTok(title);
   if(delKey[k1]||delId[eid])return; // sự kiện đã xoá trên app → không thêm lại từ Calendar
-  if(seenDT[k1]){var o=seenDT[k1];o.date=dateStr;o.time=time||o.time;o.title=title;if(loc)o.venue=loc;o.province=cProv_(loc,rawT)||o.province;o.type=typeVI;if(!o.pw_notes)o.pw_notes=note;if(!o.eventId)o.eventId=eid;updated++;}
-  else{var nr={date:dateStr,time:time,title:title,client:'',venue:loc,province:cProv_(loc,rawT),type:typeVI,status:'Đã chốt',drive:'',beat:'',lyrics:'',pw_notes:note,eventId:eid,source:'cal'};rowsArr.push(nr);seenDT[k1]=nr;added++;}
+  var ex=fuzzyRow_(dateStr,tok1); // khớp mờ với dòng sẵn có (tránh đôi do tên viết tắt)
+  if(ex){ex.date=dateStr;ex.time=time||ex.time;if(loc)ex.venue=loc;ex.province=cProv_(loc,rawT)||ex.province;ex.type=typeVI;if(!ex.pw_notes)ex.pw_notes=note;if(!ex.eventId)ex.eventId=eid;updated++;}
+  else{var nr={date:dateStr,time:time,title:title,client:'',venue:loc,province:cProv_(loc,rawT),type:typeVI,status:'Đã chốt',drive:'',beat:'',lyrics:'',pw_notes:note,eventId:eid,source:'cal'};rowsArr.push(nr);seenDT[k1]=nr;regRow_(nr);added++;}
  });
  rowsArr.sort(function(a,b){var ka=sortKey_(a.date,a.time),kb=sortKey_(b.date,b.time);return ka<kb?1:(ka>kb?-1:0);});
  var out=[ORDER.map(function(k){return KEY2VI[k];})];rowsArr.forEach(function(o){out.push(ORDER.map(function(k){return (o[k]===undefined?'':o[k]);}));});
@@ -255,5 +260,46 @@ function clearSampleData(){var ui=SpreadsheetApp.getUi();
  del_('jobs','demo1');
  var n=0;['pays','exps','docs','tasks','contracts'].forEach(function(c){listIds_(c).forEach(function(id){del_(c,id);n++;});});
  ui.alert('Đã xoá job demo + '+n+' bản ghi pays/exps/docs/tasks/contracts mẫu. Lịch thật được giữ. (Bấm ②b để nạp lại tiền từ Hợp đồng.)');
+}
+/* 🧹 Gộp sự kiện TRÙNG theo Ngày + Tên — xoá bản dư trên app (giữ bản nhiều field nhất) và trên Sheet */
+function _dDayVN(s){ if(!s)return ''; try{ return Utilities.formatDate(new Date(s),'Asia/Ho_Chi_Minh','yyyy-MM-dd'); }catch(e){ return String(s).slice(0,10); } }
+function _dTok(s){ var x=String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]+/g,' ').trim(); return x?x.split(/\s+/):[]; }
+function _dSim(a,b){ // true nếu tập từ ngắn ⊆ tập từ dài (cho phép viết tắt: token ≥2 ký tự khớp theo tiền tố)
+  var sh=a.length<=b.length?a:b, lo=a.length<=b.length?b:a; if(!sh.length||!lo.length)return false;
+  return sh.every(function(t){ return lo.some(function(u){ return u===t || (t.length>=2&&u.indexOf(t)===0) || (u.length>=2&&t.indexOf(u)===0); }); });
+}
+function dedupEvents(){
+ var ui=SpreadsheetApp.getUi();
+ if(ui.alert('Gộp sự kiện trùng (Ngày + Tên gần giống)?','Gộp cả các bản tên viết tắt/khác nhẹ trong cùng ngày (vd "NH Bến Thành" ↔ "Nhà hát Bến Thành"). Giữ bản đầy đủ nhất. Không hoàn tác.',ui.ButtonSet.YES_NO)!==ui.Button.YES)return;
+ // 1) App: cụm theo NGÀY (giờ VN) + tên gần giống; giữ bản nhiều field nhất
+ var delApp=0, kept=[]; // kept: {date, tok, id}
+ try{
+  var jobs=(typeof evListJobs==='function')?evListJobs():{};
+  var byDate={};
+  for(var id in jobs){var jb=jobs[id];if(!jb||!jb.name)continue;var d=_dDayVN(jb.start);(byDate[d]=byDate[d]||[]).push({id:jb.id||id,tok:_dTok(jb.name),n:Object.keys(jb).length});}
+  for(var d in byDate){var arr=byDate[d],used=[];
+   for(var i=0;i<arr.length;i++){ if(used[i])continue; var cl=[arr[i]];used[i]=1;
+    for(var j=i+1;j<arr.length;j++){ if(!used[j]&&_dSim(arr[i].tok,arr[j].tok)){cl.push(arr[j]);used[j]=1;} }
+    cl.sort(function(a,b){return b.n-a.n;});
+    kept.push({date:d,tok:cl[0].tok,id:cl[0].id});
+    for(var c=1;c<cl.length;c++){del_('jobs',cl[c].id);delApp++;}
+   }}
+ }catch(e){}
+ function keptIdFor_(d,tok){ for(var i=0;i<kept.length;i++){ if(kept[i].date===d&&_dSim(kept[i].tok,tok))return kept[i].id; } return ''; }
+ // 2) Sheet: cụm cùng ngày + tên gần giống; giữ 1 dòng, gắn Mã = job app còn giữ
+ var delSheet=0, fixedId=0;
+ var sh=SpreadsheetApp.getActive().getSheetByName(SHEET_NAME);
+ if(sh){var data=sh.getDataRange().getValues();var h=(data[0]||[]).map(function(x){return String(x).trim();});var ci={};h.forEach(function(x,i){var key=keyForHeader_(x);if(key)ci[key]=i;});
+  var di=ci['date'],ti=ci['title'],ei=ci['eventId'];
+  if(di!==undefined&&ti!==undefined){
+   var keepersByDate={}, rm=[];
+   for(var r=1;r<data.length;r++){var dv=toYMD_(data[r][di]);var tv=_dTok(data[r][ti]);if(!dv&&!tv.length)continue;
+    var ks=keepersByDate[dv]=keepersByDate[dv]||[];
+    var dup=false; for(var q=0;q<ks.length;q++){ if(_dSim(ks[q],tv)){dup=true;break;} }
+    if(dup){rm.push(r+1);}
+    else{ks.push(tv); if(ei!==undefined){var kid=keptIdFor_(dv,tv); if(kid&&String(data[r][ei]||'').trim()!==kid){sh.getRange(r+1,ei+1).setValue(kid);fixedId++;}}}
+   }
+   for(var i2=rm.length-1;i2>=0;i2--){sh.deleteRow(rm[i2]);delSheet++;}}}
+ ui.alert('Đã gộp trùng (so khớp mờ):\n• App: xoá '+delApp+' bản trùng.\n• Sheet: xoá '+delSheet+' dòng, đồng bộ '+fixedId+' Mã sự kiện.');
 }
 function resetApp(){var ui=SpreadsheetApp.getUi();if(ui.alert('Xoá toàn bộ jobs & pays trên app?','Để Sheet làm nguồn chính.',ui.ButtonSet.YES_NO)!==ui.Button.YES)return;['jobs','pays'].forEach(function(c){listIds_(c).forEach(function(id){del_(c,id);});});ui.alert('Đã xoá. Bấm ② để nạp lại.');}
